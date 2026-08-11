@@ -121,12 +121,12 @@ def build_about_page(spec: dict, about: dict) -> str:
 {render_hero("Core RDK Broadband", "RDK-B Core Broadband Platform", about["definition"], hero_badges, visual_key="about")}
 
 <div class="stats">
-  <div class="stat"><div class="num">2012</div><div class="lbl">Platform origin</div></div>
-  <div class="stat"><div class="num">2016</div><div class="lbl">RDK Central formed</div></div>
+  <div class="stat"><div class="num"></div><div class="lbl"></div></div>
+  <div class="stat"><div class="num"></div><div class="lbl"></div></div>
 
-  <div class="stat"><div class="num">100M+</div><div class="lbl">Devices deployed</div></div>
-  <div class="stat"><div class="num">5</div><div class="lbl">Architecture tiers</div></div>
-  <div class="stat"><div class="num">2026</div><div class="lbl">Matter / IoT added</div></div>
+  <div class="stat"><div class="num"></div><div class="lbl"></div></div>
+  <div class="stat"><div class="num"></div><div class="lbl"></div></div>
+  <div class="stat"><div class="num"></div><div class="lbl"></div></div>
 </div>
 
 <section class="tight-top">
