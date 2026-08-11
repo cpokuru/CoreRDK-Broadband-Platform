@@ -9,7 +9,7 @@ time. This script never rewrites either of them.
 Order of operations (each step's output feeds the next):
 
   1. docs/*.pdf   --(extract_spec_content.py)-->  docs/spec-content.json
-  2. docs/spec-content.json  --(gen_base_page.py)-->  index.html (About & Architecture —
+  2. docs/spec-content.json  --(gen_base_page.py)-->  index.html (About Core RDK Broadband —
                                                        About comes from docs/about-content.json,
                                                        Architecture comes from spec-content.json)
   3. docs/*.xlsx  --(gen_html.py --sync-only)-->  components/RDK-B_Component_List_2026.xlsx

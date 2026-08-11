@@ -1,4 +1,4 @@
-"""Render index.html (About & Architecture) for CoreRDK-Broadband-Specification.
+"""Render index.html (About Core RDK Broadband) for CoreRDK-Broadband-Specification.
 
 Two source files, two different sections of the same page:
 
@@ -108,7 +108,7 @@ def render_test_suites(rows: list[dict]) -> str:
     return "\n".join(out)
 
 
-# ---------- page: About & Architecture ----------
+# ---------- page: About Core RDK Broadband ----------
 
 def build_about_page(spec: dict, about: dict) -> str:
     hero_badges = (

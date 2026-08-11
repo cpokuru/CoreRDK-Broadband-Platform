@@ -15,7 +15,7 @@ COMPONENTS_URL = "components/"
 # (id, label, href, external) — external items get an "external link" arrow
 # and open the components site rather than a local page in this repo.
 NAV_LINKS = [
-    ("about", "About & Architecture", "index.html", False),
+    ("about", "About Core RDK Broadband", "index.html", False),
     ("architecture-standards", "Architecture Standards", "architecture-standards.html", False),
     ("technical-governance", "Technical Governance", "technical-governance.html", False),
     ("nbi", "North Bound APIs", "north-bound-apis.html", False),
