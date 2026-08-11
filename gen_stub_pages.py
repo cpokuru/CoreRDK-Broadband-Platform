@@ -1,8 +1,7 @@
-"""One-time generator for the five not-yet-populated sidebar pages:
+"""One-time generator for four of the not-yet-populated sidebar pages:
 
     architecture-standards.html
     technical-governance.html
-    north-bound-apis.html
     south-bound-apis.html
     hardware-compatibility.html
 
@@ -47,14 +46,6 @@ PAGES = [
         "title": "Technical Governance",
         "lede": "Process, implementation, and coding standards every new or refactored "
                 "component is held to.",
-    },
-    {
-        "active_id": "nbi",
-        "slug": "north-bound-apis",
-        "eyebrow": "North Bound APIs",
-        "title": "North Bound APIs",
-        "lede": "The operator- and cloud-facing interfaces RDK-B exposes upward — "
-                "TR-069/TR-369 data models, WebPA/WebConfig, and related management APIs.",
     },
     {
         "active_id": "sbi",
