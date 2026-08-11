@@ -142,6 +142,103 @@
   .empty-state code { display: inline-block; background: #f1f5f9; padding: 2px 8px; border-radius: 5px; margin-top: 4px; }
 </style>
 <title>Architecture Standards — RDK-B Core Broadband</title>
+
+<script>
+const SLUG = "architecture-standards";
+const JSON_FILE = SLUG + ".json";
+const XML_FILE = SLUG + ".xml";
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s ?? '';
+  return d.innerHTML;
+}
+
+// Very small generic XML -> plain-object walker. Repeated sibling tags
+// become an array; text-only leaves become strings. Good enough for a
+// simple "list of records" style XML file; deeply irregular XML falls
+// back to the raw-tree renderer further down.
+function xmlToObj(node) {
+  const children = Array.from(node.children);
+  if (children.length === 0) {
+    return (node.textContent || '').trim();
+  }
+  const out = {};
+  for (const child of children) {
+    const val = xmlToObj(child);
+    if (out[child.tagName] === undefined) {
+      out[child.tagName] = val;
+    } else if (Array.isArray(out[child.tagName])) {
+      out[child.tagName].push(val);
+    } else {
+      out[child.tagName] = [out[child.tagName], val];
+    }
+  }
+  return out;
+}
+
+function findRecordArray(value) {
+  // Walk a parsed JSON/XML object looking for the first array of
+  // same-shaped flat objects — that's almost certainly "the data".
+  if (Array.isArray(value)) return value;
+  if (value && typeof value === 'object') {
+    for (const v of Object.values(value)) {
+      const found = findRecordArray(v);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+function renderTable(rows) {
+  const isFlatObjectArray = rows.every(r => r && typeof r === 'object' && !Array.isArray(r));
+  if (!isFlatObjectArray) {
+    return '<ul class="def-table" style="list-style:none;padding:0;">' +
+      rows.map(r => `<li style="padding:9px 12px;border-bottom:1px solid var(--border);">${esc(String(r))}</li>`).join('') +
+      '</ul>';
+  }
+  const cols = Object.keys(rows[0]);
+  return `<table class="def-table"><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>` +
+    rows.map(r => `<tr>${cols.map(c => `<td>${esc(r[c])}</td>`).join('')}</tr>`).join('') +
+    '</tbody></table>';
+}
+
+function renderTree(value) {
+  return `<pre style="background:#0b1220;color:#cbd5e1;padding:20px;border-radius:10px;overflow-x:auto;font-size:0.85rem;">${esc(JSON.stringify(value, null, 2))}</pre>`;
+}
+
+function render(value, sourceLabel) {
+  const content = document.getElementById('data-content');
+  const records = findRecordArray(value);
+  content.innerHTML = `<div class="subhead" style="margin-top:0;">Loaded from ${esc(sourceLabel)}</div>` +
+    (records ? renderTable(records) : renderTree(value));
+}
+
+function showEmptyState() {
+  document.getElementById('data-content').innerHTML = `
+    <div class="empty-state">
+      <div class="icon">📄</div>
+      <h3>No data published yet</h3>
+      <p>This page renders automatically once a data file is added.<br>Drop either file next to this page:</p>
+      <p><code>${esc(JSON_FILE)}</code> &nbsp;or&nbsp; <code>${esc(XML_FILE)}</code></p>
+    </div>`;
+}
+
+fetch(JSON_FILE, { cache: 'no-store' })
+  .then(res => { if (!res.ok) throw new Error('no json'); return res.json(); })
+  .then(data => render(data, JSON_FILE))
+  .catch(() => {
+    fetch(XML_FILE, { cache: 'no-store' })
+      .then(res => { if (!res.ok) throw new Error('no xml'); return res.text(); })
+      .then(text => {
+        const xml = new DOMParser().parseFromString(text, 'application/xml');
+        if (xml.getElementsByTagName('parsererror').length > 0) throw new Error('bad xml');
+        render(xmlToObj(xml.documentElement), XML_FILE);
+      })
+      .catch(() => showEmptyState());
+  });
+</script>
+
 </head>
 <body>
 <div class="sidebar">
@@ -155,97 +252,14 @@
 <div class="hero" style="padding:48px 40px 40px;">
   <div class="hero-inner">
     <span class="eyebrow">Architecture Standards</span>
-    <h1 style="font-size:2rem;">Industry standards conformance</h1>
-    <p class="lede">Where RDK-B functionality overlaps an established global standard, the
-      implementation conforms to that standard's normative requirements rather than
-      introducing a proprietary deviation.</p>
+    <h1 style="font-size:2rem;">Architecture Standards</h1>
+    <p class="lede">Industry standards RDK-B conforms to where its functionality overlaps an established global standard.</p>
   </div>
 </div>
 
 <section class="tight-top">
-  <div class="subhead">Wireless &amp; local networking</div>
-<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
-<tr><td class="mono">IEEE 802.11ax / 802.11be</td><td>OneWifi, rdk-wifi-hal, Vendor Wi-Fi HAL</td><td>Wi-Fi 6/6E/7 PHY-MAC conformance</td></tr>
-<tr><td class="mono">Wi-Fi Alliance EasyMesh R6</td><td>EasyMesh controller / Agent interface and associated features.</td><td>Multi-AP interoperability certification</td></tr>
-<tr><td class="mono">Wi-Fi Alliance WPA3 / WPS Certification</td><td>WPS box, Wi-Fi security stack</td><td></td></tr>
-<tr><td class="mono">IEEE 802.1Q</td><td>RDKVlanBridgingManager, VLAN utils, VLAN HAL</td><td>VLAN tagging for ISP/service separation</td></tr>
-<tr><td class="mono">IEEE 802.3</td><td>Ethernet switch HAL</td><td>Base Ethernet conformance</td></tr>
-<tr><td class="mono">Bluetooth SIG Core Specification</td><td>Bluetoothctl, Bluetooth HCI</td><td></td></tr>
-</tbody></table>
-<div class="subhead">IoT &amp; smart home standards</div>
-<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
-<tr><td class="mono">Thread Group Thread Specification</td><td>BartonCore (Thread network layer)</td><td></td></tr>
-<tr><td class="mono">Connectivity Standards Alliance (CSA) Matter Specification</td><td>BartonCore (Matter controller/bridge)</td><td></td></tr>
-<tr><td class="mono">CSA Zigbee Specification</td><td>BartonCore (Zigbee bridge)</td><td>Legacy device compatibility</td></tr>
-<tr><td class="mono">IEEE 802.15.4</td><td>Underlying radio layer for Thread/Zigbee within BartonCore</td><td></td></tr>
-<tr><td class="mono">Device.IoT.* TR-181 (WT-480 pathway)</td><td>barton-rbus-provider</td><td>Bridges BartonCore into RBUS/TR-181</td></tr>
-</tbody></table>
-<div class="subhead">Network services</div>
-<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
-<tr><td class="mono">IETF RFC 1035 (DNS)</td><td>DNS proxy (Linux OSS), CcspXdns</td><td>CcspXdns is RDK-B&#x27;s DNS-based filtering/redirect feature, not a separate protocol</td></tr>
-<tr><td class="mono">IETF RFC 6762/6763 (mDNS/DNS-SD)</td><td>Local service discovery, where used by OneWifi/EasyMesh</td><td>Confirm actual usage before citing as a hard requirement</td></tr>
-<tr><td class="mono">IETF RFC 2131 (DHCPv4)</td><td>Dhcp Manager, DHCP V4 HAL, Dnsmasq</td><td></td></tr>
-<tr><td class="mono">IETF RFC 8415 (DHCPv6)</td><td>DHCP V6 HAL, Dibbler</td><td></td></tr>
-<tr><td class="mono">IETF RFC 1661/1662 (PPP) + RFC 2516 (PPPoE)</td><td>RDKPPPManager</td><td>Relevant for DSL/fiber ISPs using PPP- based WAN authentication</td></tr>
-<tr><td class="mono">IETF RFC 3376 (IGMPv3)</td><td>IGMP Proxy</td><td></td></tr>
-<tr><td class="mono">UPnP Forum IGD Spec (now under Open Connectivity Foundation)</td><td>Upnp box</td><td></td></tr>
-</tbody></table>
-<div class="subhead">IPv6 transition mechanisms</div>
-<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
-<tr><td class="mono">IETF RFC 7597/7599 (MAP-T/MAP-E)</td><td>MAP-T/E features</td><td>May required kernel patches</td></tr>
-<tr><td class="mono">IETF RFC 6333 (DS-Lite)</td><td>Dslite features</td><td></td></tr>
-</tbody></table>
-<div class="subhead">Access network / WAN technologies</div>
-<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
-<tr><td class="mono">ITU-T G.984 / G.988 (GPON, OMCI)</td><td>RdkGPONManager, GPON Headend (OLT)</td><td></td></tr>
-<tr><td class="mono">ITU-T G.9807.1 (XGS- PON)</td><td>Forward-looking GPON evolution</td><td></td></tr>
-<tr><td class="mono">IEEE 802.3ah / 802.3av (EPON / 10G-EPON)</td><td>CcspEponAgent, EPON Headend</td><td>EPON is IEEE, not ITU-T — distinct from GPON&#x27;s standards body</td></tr>
-<tr><td class="mono">ITU-T G.993.2 (VDSL2) / G.9701 (G.fast)</td><td>RdkXdslManager, XDSL HAL, DSL Headend (DSLAM)</td><td></td></tr>
-<tr><td class="mono">CableLabs DOCSIS 3.1/4.0 + eRouter Specification</td><td>CcspCMAgent, Docsis Headend (CMTS)</td><td>eRouter spec is also the origin of the erouter0 interface naming used in your WAN bridge work</td></tr>
-<tr><td class="mono">CableLabs PacketCable</td><td>CcspMTAAgent, MTA HAL</td><td>Voice over cable</td></tr>
-<tr><td class="mono">3GPP TS 27.007 (AT command set)</td><td>RDKCellularManager-MM, Cellular Modem HAL, ModemManager/libqmi</td><td>Independent of RAN generation (3G/4G/5G)</td></tr>
-<tr><td class="mono">USB-IF MBIM Specification</td><td>libmbim</td><td>Mobile Broadband Interface Model</td></tr>
-<tr><td class="mono">MoCA Alliance MoCA 2.0/2.5</td><td>CcspMoca, MoCA HAL</td><td></td></tr>
-</tbody></table>
-<div class="subhead">Boot chain, kernel &amp; firmware integrity</div>
-<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
-<tr><td class="mono">Linux Kernel (GPLv2, kernel.org/Linux Foundation governance)</td><td>Linux Kernel &amp; Device Drivers layer</td><td>UAPI stability commitment governs what RDK-B can rely on across kernel versions</td></tr>
-<tr><td class="mono">U-Boot (GPLv2, Denx community)</td><td>Bootloader layer</td><td></td></tr>
-<tr><td class="mono">Arm SystemReady (IR/SR profiles) + EBBR (Embedded Base Boot Requirements)</td><td>Bootloader layer, boot chain standardization</td><td>Standardizes the boot contract (U-Boot+EBBR for embedded profiles) for interoperability across Arm SoCs; complements PSA Certified, which covers security rather than boot interface</td></tr>
-<tr><td class="mono">NIST SP 800-193 (Platform Firmware Resiliency Guidelines)</td><td>Bootloader → kernel verification chain</td><td>Detection/protection/recovery model for firmware integrity</td></tr>
-<tr><td class="mono">Arm PSA Certified / TrustZone</td><td>Secure boot chain on ARM-based reference platforms (e.g. MT7988/BPI R4)</td><td>Security/attestation, distinct from SystemReady&#x27;s boot- interface scope</td></tr>
-<tr><td class="mono">GlobalPlatform TEE Client/Internal API Specifications</td><td>Where a TEE holds boot/signing keys</td><td>Only applies if the SoC&#x27;s secure boot path uses a TEE rather than ROM-only verification</td></tr>
-</tbody></table>
-<div class="subhead">Cryptographic signing for secure boot</div>
-<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
-<tr><td class="mono">NIST FIPS 186-5 (Digital Signature Standard — covers ECDSA)</td><td>Bootloader/kernel/firmware image signature verification</td><td></td></tr>
-<tr><td class="mono">SEC 1 / SEC 2 (Certicom Standards for Efficient Cryptography)</td><td>Curve parameter selection (e.g. NIST P-256/secp256r1)</td><td>Defines the actual EC curves referenced by FIPS 186-5</td></tr>
-<tr><td class="mono">IETF RFC 8032 (EdDSA/Ed25519)</td><td>Alternative signing scheme</td><td>Increasingly used over ECDSA for boot- time verification due to faster, simpler constant-time implementation</td></tr>
-</tbody></table>
-<div class="subhead">Containers &amp; application platform</div>
-<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
-<tr><td class="mono">OCI Image Spec &amp; Runtime Spec</td><td>crun, DAC, Dobby/BundleGen</td><td>Ties to your libbundlegen/Dobby OCI work</td></tr>
-<tr><td class="mono">MISRA-C:2012 / CERT C Secure Coding Standard</td><td>C/C++ coding anti-pattern enforcement (7.1.2)</td><td>External normative anchor for the internal coding rule</td></tr>
-<tr><td class="mono">IETF RFC 8446 (TLS 1.3) / RFC 5280 (X.509 PKI)</td><td>WebPA/USP/ACS transport security, secure boot certs</td><td></td></tr>
-<tr><td class="mono">NIST SP 800-57 (key management)</td><td>PSM-backed credential storage</td><td></td></tr>
-<tr><td class="mono">OWASP IoT Top 10</td><td>General embedded device security review checklist</td><td></td></tr>
-</tbody></table>
+  <div id="data-content"><div class="empty-state"><p>Loading…</p></div></div>
 </section>
-
-
-<footer>
-  <div class="footer-links">
-    <a href="components/">Components — profiles<span>Required / optional components per device profile</span></a>
-    <a href="components/full-list.html">Components — full workbook<span>Interactive component list, all profiles</span></a>
-    <a href="https://wiki.rdkcentral.com/spaces/RDK/pages/498925914/RDK9+Core+RDK+Broadband+Specification+Approved+by+TAB">RDK9 Core RDK Broadband Spec<span>TAB-approved specification (wiki)</span></a>
-    <a href="https://github.com/rdkcentral">rdkcentral on GitHub<span>Component source repositories</span></a>
-  </div>
-  <div class="footer-meta">
-    RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0 · RDKM · © 2026 RDK Central. All rights reserved.
-    Generated from RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0.pdf.
-  </div>
-</footer>
-
 
 </div>
 </body>

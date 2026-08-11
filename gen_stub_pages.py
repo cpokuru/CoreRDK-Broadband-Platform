@@ -1,5 +1,7 @@
-"""One-time generator for the three not-yet-populated sidebar pages:
+"""One-time generator for the five not-yet-populated sidebar pages:
 
+    architecture-standards.html
+    technical-governance.html
     north-bound-apis.html
     south-bound-apis.html
     hardware-compatibility.html
@@ -30,6 +32,22 @@ from pathlib import Path
 from layout import render_page
 
 PAGES = [
+    {
+        "active_id": "architecture-standards",
+        "slug": "architecture-standards",
+        "eyebrow": "Architecture Standards",
+        "title": "Architecture Standards",
+        "lede": "Industry standards RDK-B conforms to where its functionality overlaps "
+                "an established global standard.",
+    },
+    {
+        "active_id": "technical-governance",
+        "slug": "technical-governance",
+        "eyebrow": "Technical Governance",
+        "title": "Technical Governance",
+        "lede": "Process, implementation, and coding standards every new or refactored "
+                "component is held to.",
+    },
     {
         "active_id": "nbi",
         "slug": "north-bound-apis",
