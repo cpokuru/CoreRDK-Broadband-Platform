@@ -141,151 +141,95 @@
   .empty-state p { font-size: 0.92rem; }
   .empty-state code { display: inline-block; background: #f1f5f9; padding: 2px 8px; border-radius: 5px; margin-top: 4px; }
 </style>
-<title>About &amp; Architecture — RDK-B Core Broadband</title>
+<title>Architecture Standards — RDK-B Core Broadband</title>
 </head>
 <body>
 <div class="sidebar">
   <div class="brand">RDK-B Core Broadband<span class="mono">// specification</span></div>
   <nav>
-    <a class="active" href="index.html">About &amp; Architecture</a><a class="" href="architecture-standards.html">Architecture Standards</a><a class="" href="technical-governance.html">Technical Governance</a><a class="" href="north-bound-apis.html">North Bound APIs</a><a class="" href="south-bound-apis.html">South Bound APIs</a><a class="" href="hardware-compatibility.html">Hardware Compatibility</a><a class="" href="components/">Core RDK Components<span class="ext-arrow">↗</span></a>
+    <a class="" href="index.html">About &amp; Architecture</a><a class="active" href="architecture-standards.html">Architecture Standards</a><a class="" href="technical-governance.html">Technical Governance</a><a class="" href="north-bound-apis.html">North Bound APIs</a><a class="" href="south-bound-apis.html">South Bound APIs</a><a class="" href="hardware-compatibility.html">Hardware Compatibility</a><a class="" href="components/">Core RDK Components<span class="ext-arrow">↗</span></a>
   </nav>
 </div>
 <div class="page-main">
 
-<div class="hero">
+<div class="hero" style="padding:48px 40px 40px;">
   <div class="hero-inner">
-    <span class="eyebrow">RDK-B_CoreRDK_Spec_MVP · v1.0</span>
-    <h1>RDK-B Core Broadband Platform</h1>
-    <p class="lede">RDK-B sits between the hardware SoC/BSP layer and the operator&#x27;s cloud management systems, providing a rich set of pre-integrated components for Wi-Fi, routing, diagnostics, telemetry, device management, IoT, and application containerization. Its HAL abstraction model means that a single software stack can run on radically different SoC platforms. Typically, each RDKB component contains a logical grouping of related features, and this modular approach allows software developers to select the set of high-level features required for each software build.</p>
-    <div class="badge-row">
-      <span class="badge">26 features</span>
-      <span class="badge">7 device profiles</span>
-      <span class="badge">Five-tier architecture</span>
-      <span class="badge">Apache-2.0 / LGPL-2.1</span>
-    </div>
+    <span class="eyebrow">Architecture Standards</span>
+    <h1 style="font-size:2rem;">Industry standards conformance</h1>
+    <p class="lede">Where RDK-B functionality overlaps an established global standard, the
+      implementation conforms to that standard's normative requirements rather than
+      introducing a proprietary deviation.</p>
   </div>
-</div>
-
-<div class="stats">
-  <div class="stat"><div class="num">2012</div><div class="lbl">Platform origin</div></div>
-  <div class="stat"><div class="num">2016</div><div class="lbl">RDK Central formed</div></div>
-  <div class="stat"><div class="num">100M+</div><div class="lbl">Devices deployed</div></div>
-  <div class="stat"><div class="num">5</div><div class="lbl">Architecture tiers</div></div>
-  <div class="stat"><div class="num">2026</div><div class="lbl">Matter / IoT added</div></div>
 </div>
 
 <section class="tight-top">
-  <div class="section-head">
-    <span class="eyebrow-lt">About</span>
-    <h2>What is RDK-B?</h2>
-  </div>
-
-  <div class="callout">
-    <strong>Platform definition</strong>
-    <p>RDK-B (Reference Design Kit – Broadband) is an open-source, modular, operator-grade middleware platform providing a standardized software stack for broadband residential and business devices. RDKB components are open-sourced, vendor-independent, actively maintained, and each represented by one or more GitHub repositories.</p>
-  </div>
-
-  <div class="subhead" style="margin-top:0;">Platform origins</div>
-  <div class="timeline">
-    <div class="tl-item"><span class="tl-year">2012</span><p>RDK inception by Liberty Global and Comcast for video (RDK-V).</p></div>
-<div class="tl-item"><span class="tl-year">2014</span><p>RDK-B broadband stream launched; first DOCSIS gateway deployments.</p></div>
-<div class="tl-item"><span class="tl-year">2016</span><p>RDK Central LLC established as neutral governance entity.</p></div>
-<div class="tl-item"><span class="tl-year">2018</span><p>RBUS IPC introduced, replacing legacy CCSP/D-Bus.</p></div>
-<div class="tl-item"><span class="tl-year">2020</span><p>Wan Manager/Interface Managers Introduced.</p></div>
-<div class="tl-item"><span class="tl-year">2021</span><p>DSM and Dobby container runtime merged.</p></div>
-<div class="tl-item"><span class="tl-year">2022</span><p>USP/TR-369 published.</p></div>
-<div class="tl-item"><span class="tl-year">2023</span><p>OneWifi launched.</p></div>
-<div class="tl-item"><span class="tl-year">2024</span><p>100M+ devices deployed globally.</p></div>
-<div class="tl-item"><span class="tl-year">2025</span><p>Wi-Fi 7 (802.11be) integrated; EasyMesh Introduced.</p></div>
-<div class="tl-item"><span class="tl-year">2026</span><p>Matter/IoT (BartonCore) introduced.</p></div>
-  </div>
-
-  <div class="subhead">Licensing</div>
-  <div class="pill-row">
-    <span class="pill">Apache License 2.0 — primary license for most middleware components</span>
-<span class="pill">LGPL-2.1 — used by library components for compatibility with proprietary HAL implementations</span>
-  </div>
-</section>
-
-<section style="background:#fff; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
-  <div class="section-head">
-    <span class="eyebrow-lt">Architecture</span>
-    <h2>The five-tier model</h2>
-    <p>RDK-B's architecture reads like a cross-section: cloud-facing management at the
-      top, silicon at the base, with the RDK-B middleware — the platform's largest tier —
-      doing the work in between.</p>
-  </div>
-
-  <div class="tier-diagram">
-    
-    <div class="tier t5">
-      <div class="num">5</div>
-      <div class="body">
-        <h4>Cloud / ACS</h4>
-        <p>Operator cloud: ACS, USP Controller, xConf, WebConfig, Telemetry backends, Crash collection, Log aggregation.</p>
-      </div>
-    </div>
-
-    <div class="tier t4">
-      <div class="num">4</div>
-      <div class="body">
-        <h4>Management Protocols</h4>
-        <p>parodus/WebPA, usp-pa-vendor-rdk, tr069-protocol-agent, xconf-client, WebconfigFramework, T2 telemetry.</p>
-      </div>
-    </div>
-
-    <div class="tier t3">
-      <div class="num">3</div>
-      <div class="body">
-        <h4>RDK-B Middleware</h4>
-        <p>RDK-B components: OneWiFi, wan-manager, dhcp-manager, DSM, Dobby, BartonCore, all feature components. All communicate via RBUS.</p>
-      </div>
-    </div>
-
-    <div class="tier t2">
-      <div class="num">2</div>
-      <div class="body">
-        <h4>HAL / BSP</h4>
-        <p>rdkb-halif-* interface libraries and vendor BSP. Boundary between RDK-B middleware and SoC firmware.</p>
-      </div>
-    </div>
-
-    <div class="tier t1">
-      <div class="num">1</div>
-      <div class="body">
-        <h4>Hardware / SoC</h4>
-        <p>Physical silicon: SoC CPU, Wi-Fi radio, modem chipset, Ethernet switch, Flash/RAM.</p>
-      </div>
-    </div>
-  </div>
-  <div class="tier-caption">Tier 3 (RDK-B Middleware) is where nearly all feature development happens; Tiers 1–2 are vendor-owned and certified via RDK Ready.</div>
-
-  <div class="two-col" style="margin-top:44px;">
-    <div>
-      <div class="subhead" style="margin-top:0;">Production software builds</div>
-      <div class="layer-stack">
-        <div class="layer-box top">RDK-B Components</div>
-        <div class="layer-box mid">Hardware Abstraction Layer</div>
-        <div class="layer-box bot">Vendor Layer — hardware-dependent implementation</div>
-      </div>
-    </div>
-    <div>
-      <div class="subhead" style="margin-top:0;">Vendor test software builds</div>
-      <div class="layer-stack">
-        <div class="layer-box top">RDK Ready — Vendor Test Software</div>
-        <div class="layer-box mid">Hardware Abstraction Layer</div>
-        <div class="layer-box bot">Vendor Layer — hardware-dependent implementation</div>
-      </div>
-    </div>
-  </div>
-
-  <table class="def-table" style="margin-top:32px;">
-    <thead><tr><th>Test suite</th><th>Definition</th><th>Owner</th></tr></thead>
-    <tbody>
-      <tr><td class="mono">RDK Platform Test Suite</td><td>RDK Platform — component behavior, integration, data model, management, security, profile conformance</td><td>RDK-B Owner</td></tr>
-<tr><td class="mono">Vendor Test Suite</td><td>Vendor Layer — HAL implementation correctness, SoC-specific behavior</td><td>HAL Spec Owner</td></tr>
-    </tbody>
-  </table>
+  <div class="subhead">Wireless &amp; local networking</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">IEEE 802.11ax / 802.11be</td><td>OneWifi, rdk-wifi-hal, Vendor Wi-Fi HAL</td><td>Wi-Fi 6/6E/7 PHY-MAC conformance</td></tr>
+<tr><td class="mono">Wi-Fi Alliance EasyMesh R6</td><td>EasyMesh controller / Agent interface and associated features.</td><td>Multi-AP interoperability certification</td></tr>
+<tr><td class="mono">Wi-Fi Alliance WPA3 / WPS Certification</td><td>WPS box, Wi-Fi security stack</td><td></td></tr>
+<tr><td class="mono">IEEE 802.1Q</td><td>RDKVlanBridgingManager, VLAN utils, VLAN HAL</td><td>VLAN tagging for ISP/service separation</td></tr>
+<tr><td class="mono">IEEE 802.3</td><td>Ethernet switch HAL</td><td>Base Ethernet conformance</td></tr>
+<tr><td class="mono">Bluetooth SIG Core Specification</td><td>Bluetoothctl, Bluetooth HCI</td><td></td></tr>
+</tbody></table>
+<div class="subhead">IoT &amp; smart home standards</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">Thread Group Thread Specification</td><td>BartonCore (Thread network layer)</td><td></td></tr>
+<tr><td class="mono">Connectivity Standards Alliance (CSA) Matter Specification</td><td>BartonCore (Matter controller/bridge)</td><td></td></tr>
+<tr><td class="mono">CSA Zigbee Specification</td><td>BartonCore (Zigbee bridge)</td><td>Legacy device compatibility</td></tr>
+<tr><td class="mono">IEEE 802.15.4</td><td>Underlying radio layer for Thread/Zigbee within BartonCore</td><td></td></tr>
+<tr><td class="mono">Device.IoT.* TR-181 (WT-480 pathway)</td><td>barton-rbus-provider</td><td>Bridges BartonCore into RBUS/TR-181</td></tr>
+</tbody></table>
+<div class="subhead">Network services</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">IETF RFC 1035 (DNS)</td><td>DNS proxy (Linux OSS), CcspXdns</td><td>CcspXdns is RDK-B&#x27;s DNS-based filtering/redirect feature, not a separate protocol</td></tr>
+<tr><td class="mono">IETF RFC 6762/6763 (mDNS/DNS-SD)</td><td>Local service discovery, where used by OneWifi/EasyMesh</td><td>Confirm actual usage before citing as a hard requirement</td></tr>
+<tr><td class="mono">IETF RFC 2131 (DHCPv4)</td><td>Dhcp Manager, DHCP V4 HAL, Dnsmasq</td><td></td></tr>
+<tr><td class="mono">IETF RFC 8415 (DHCPv6)</td><td>DHCP V6 HAL, Dibbler</td><td></td></tr>
+<tr><td class="mono">IETF RFC 1661/1662 (PPP) + RFC 2516 (PPPoE)</td><td>RDKPPPManager</td><td>Relevant for DSL/fiber ISPs using PPP- based WAN authentication</td></tr>
+<tr><td class="mono">IETF RFC 3376 (IGMPv3)</td><td>IGMP Proxy</td><td></td></tr>
+<tr><td class="mono">UPnP Forum IGD Spec (now under Open Connectivity Foundation)</td><td>Upnp box</td><td></td></tr>
+</tbody></table>
+<div class="subhead">IPv6 transition mechanisms</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">IETF RFC 7597/7599 (MAP-T/MAP-E)</td><td>MAP-T/E features</td><td>May required kernel patches</td></tr>
+<tr><td class="mono">IETF RFC 6333 (DS-Lite)</td><td>Dslite features</td><td></td></tr>
+</tbody></table>
+<div class="subhead">Access network / WAN technologies</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">ITU-T G.984 / G.988 (GPON, OMCI)</td><td>RdkGPONManager, GPON Headend (OLT)</td><td></td></tr>
+<tr><td class="mono">ITU-T G.9807.1 (XGS- PON)</td><td>Forward-looking GPON evolution</td><td></td></tr>
+<tr><td class="mono">IEEE 802.3ah / 802.3av (EPON / 10G-EPON)</td><td>CcspEponAgent, EPON Headend</td><td>EPON is IEEE, not ITU-T — distinct from GPON&#x27;s standards body</td></tr>
+<tr><td class="mono">ITU-T G.993.2 (VDSL2) / G.9701 (G.fast)</td><td>RdkXdslManager, XDSL HAL, DSL Headend (DSLAM)</td><td></td></tr>
+<tr><td class="mono">CableLabs DOCSIS 3.1/4.0 + eRouter Specification</td><td>CcspCMAgent, Docsis Headend (CMTS)</td><td>eRouter spec is also the origin of the erouter0 interface naming used in your WAN bridge work</td></tr>
+<tr><td class="mono">CableLabs PacketCable</td><td>CcspMTAAgent, MTA HAL</td><td>Voice over cable</td></tr>
+<tr><td class="mono">3GPP TS 27.007 (AT command set)</td><td>RDKCellularManager-MM, Cellular Modem HAL, ModemManager/libqmi</td><td>Independent of RAN generation (3G/4G/5G)</td></tr>
+<tr><td class="mono">USB-IF MBIM Specification</td><td>libmbim</td><td>Mobile Broadband Interface Model</td></tr>
+<tr><td class="mono">MoCA Alliance MoCA 2.0/2.5</td><td>CcspMoca, MoCA HAL</td><td></td></tr>
+</tbody></table>
+<div class="subhead">Boot chain, kernel &amp; firmware integrity</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">Linux Kernel (GPLv2, kernel.org/Linux Foundation governance)</td><td>Linux Kernel &amp; Device Drivers layer</td><td>UAPI stability commitment governs what RDK-B can rely on across kernel versions</td></tr>
+<tr><td class="mono">U-Boot (GPLv2, Denx community)</td><td>Bootloader layer</td><td></td></tr>
+<tr><td class="mono">Arm SystemReady (IR/SR profiles) + EBBR (Embedded Base Boot Requirements)</td><td>Bootloader layer, boot chain standardization</td><td>Standardizes the boot contract (U-Boot+EBBR for embedded profiles) for interoperability across Arm SoCs; complements PSA Certified, which covers security rather than boot interface</td></tr>
+<tr><td class="mono">NIST SP 800-193 (Platform Firmware Resiliency Guidelines)</td><td>Bootloader → kernel verification chain</td><td>Detection/protection/recovery model for firmware integrity</td></tr>
+<tr><td class="mono">Arm PSA Certified / TrustZone</td><td>Secure boot chain on ARM-based reference platforms (e.g. MT7988/BPI R4)</td><td>Security/attestation, distinct from SystemReady&#x27;s boot- interface scope</td></tr>
+<tr><td class="mono">GlobalPlatform TEE Client/Internal API Specifications</td><td>Where a TEE holds boot/signing keys</td><td>Only applies if the SoC&#x27;s secure boot path uses a TEE rather than ROM-only verification</td></tr>
+</tbody></table>
+<div class="subhead">Cryptographic signing for secure boot</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">NIST FIPS 186-5 (Digital Signature Standard — covers ECDSA)</td><td>Bootloader/kernel/firmware image signature verification</td><td></td></tr>
+<tr><td class="mono">SEC 1 / SEC 2 (Certicom Standards for Efficient Cryptography)</td><td>Curve parameter selection (e.g. NIST P-256/secp256r1)</td><td>Defines the actual EC curves referenced by FIPS 186-5</td></tr>
+<tr><td class="mono">IETF RFC 8032 (EdDSA/Ed25519)</td><td>Alternative signing scheme</td><td>Increasingly used over ECDSA for boot- time verification due to faster, simpler constant-time implementation</td></tr>
+</tbody></table>
+<div class="subhead">Containers &amp; application platform</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">OCI Image Spec &amp; Runtime Spec</td><td>crun, DAC, Dobby/BundleGen</td><td>Ties to your libbundlegen/Dobby OCI work</td></tr>
+<tr><td class="mono">MISRA-C:2012 / CERT C Secure Coding Standard</td><td>C/C++ coding anti-pattern enforcement (7.1.2)</td><td>External normative anchor for the internal coding rule</td></tr>
+<tr><td class="mono">IETF RFC 8446 (TLS 1.3) / RFC 5280 (X.509 PKI)</td><td>WebPA/USP/ACS transport security, secure boot certs</td><td></td></tr>
+<tr><td class="mono">NIST SP 800-57 (key management)</td><td>PSM-backed credential storage</td><td></td></tr>
+<tr><td class="mono">OWASP IoT Top 10</td><td>General embedded device security review checklist</td><td></td></tr>
+</tbody></table>
 </section>
 
 

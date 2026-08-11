@@ -1,12 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
+"""Shared page shell for the CoreRDK-Broadband-Specification site: a fixed
+left sidebar nav + content area, used by every page (both the ones generated
+from spec-content.json and the static stub pages).
+
+Not imported by the stub pages at runtime — this only runs at generation
+time, in Python, to produce plain static HTML. Nothing here ships to the
+browser as Python.
+"""
+from __future__ import annotations
+
+import html
+
+COMPONENTS_URL = "components/"
+
+# (id, label, href, external) — external items get an "external link" arrow
+# and open the components site rather than a local page in this repo.
+NAV_LINKS = [
+    ("about", "About & Architecture", "index.html", False),
+    ("architecture-standards", "Architecture Standards", "architecture-standards.html", False),
+    ("technical-governance", "Technical Governance", "technical-governance.html", False),
+    ("nbi", "North Bound APIs", "north-bound-apis.html", False),
+    ("sbi", "South Bound APIs", "south-bound-apis.html", False),
+    ("hwcompat", "Hardware Compatibility", "hardware-compatibility.html", False),
+    ("components", "Core RDK Components", COMPONENTS_URL, True),
+]
+
+SHARED_CSS = """
   :root {
     --bedrock: #0b1220; --hal: #1c3a5e; --middleware: #1a56db; --mgmt: #0e9f6e;
     --cloud-bg: #eef2ff; --cloud-fg: #3730a3; --ink: #0f172a; --muted: #5b6472;
@@ -140,169 +158,46 @@
   .empty-state h3 { font-size: 1.1rem; margin-bottom: 8px; }
   .empty-state p { font-size: 0.92rem; }
   .empty-state code { display: inline-block; background: #f1f5f9; padding: 2px 8px; border-radius: 5px; margin-top: 4px; }
-</style>
-<title>About &amp; Architecture — RDK-B Core Broadband</title>
-</head>
-<body>
-<div class="sidebar">
+"""
+
+
+def esc(s) -> str:
+    return html.escape("" if s is None else str(s))
+
+
+def render_sidebar(active_id: str) -> str:
+    links_html = []
+    for id_, label, href, external in NAV_LINKS:
+        cls = "active" if id_ == active_id else ""
+        arrow = '<span class="ext-arrow">↗</span>' if external else ""
+        links_html.append(f'<a class="{cls}" href="{esc(href)}">{esc(label)}{arrow}</a>')
+    return f'''<div class="sidebar">
   <div class="brand">RDK-B Core Broadband<span class="mono">// specification</span></div>
   <nav>
-    <a class="active" href="index.html">About &amp; Architecture</a><a class="" href="architecture-standards.html">Architecture Standards</a><a class="" href="technical-governance.html">Technical Governance</a><a class="" href="north-bound-apis.html">North Bound APIs</a><a class="" href="south-bound-apis.html">South Bound APIs</a><a class="" href="hardware-compatibility.html">Hardware Compatibility</a><a class="" href="components/">Core RDK Components<span class="ext-arrow">↗</span></a>
+    {"".join(links_html)}
   </nav>
-</div>
+</div>'''
+
+
+def render_page(active_id: str, head_extra: str, body_html: str) -> str:
+    """Wrap body_html (hero + sections + footer, everything but <head>/sidebar)
+    in the shared shell. body_html should NOT include <html>/<head>/<body> tags."""
+    return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>{SHARED_CSS}</style>
+{head_extra}
+</head>
+<body>
+{render_sidebar(active_id)}
 <div class="page-main">
-
-<div class="hero">
-  <div class="hero-inner">
-    <span class="eyebrow">RDK-B_CoreRDK_Spec_MVP · v1.0</span>
-    <h1>RDK-B Core Broadband Platform</h1>
-    <p class="lede">RDK-B sits between the hardware SoC/BSP layer and the operator&#x27;s cloud management systems, providing a rich set of pre-integrated components for Wi-Fi, routing, diagnostics, telemetry, device management, IoT, and application containerization. Its HAL abstraction model means that a single software stack can run on radically different SoC platforms. Typically, each RDKB component contains a logical grouping of related features, and this modular approach allows software developers to select the set of high-level features required for each software build.</p>
-    <div class="badge-row">
-      <span class="badge">26 features</span>
-      <span class="badge">7 device profiles</span>
-      <span class="badge">Five-tier architecture</span>
-      <span class="badge">Apache-2.0 / LGPL-2.1</span>
-    </div>
-  </div>
-</div>
-
-<div class="stats">
-  <div class="stat"><div class="num">2012</div><div class="lbl">Platform origin</div></div>
-  <div class="stat"><div class="num">2016</div><div class="lbl">RDK Central formed</div></div>
-  <div class="stat"><div class="num">100M+</div><div class="lbl">Devices deployed</div></div>
-  <div class="stat"><div class="num">5</div><div class="lbl">Architecture tiers</div></div>
-  <div class="stat"><div class="num">2026</div><div class="lbl">Matter / IoT added</div></div>
-</div>
-
-<section class="tight-top">
-  <div class="section-head">
-    <span class="eyebrow-lt">About</span>
-    <h2>What is RDK-B?</h2>
-  </div>
-
-  <div class="callout">
-    <strong>Platform definition</strong>
-    <p>RDK-B (Reference Design Kit – Broadband) is an open-source, modular, operator-grade middleware platform providing a standardized software stack for broadband residential and business devices. RDKB components are open-sourced, vendor-independent, actively maintained, and each represented by one or more GitHub repositories.</p>
-  </div>
-
-  <div class="subhead" style="margin-top:0;">Platform origins</div>
-  <div class="timeline">
-    <div class="tl-item"><span class="tl-year">2012</span><p>RDK inception by Liberty Global and Comcast for video (RDK-V).</p></div>
-<div class="tl-item"><span class="tl-year">2014</span><p>RDK-B broadband stream launched; first DOCSIS gateway deployments.</p></div>
-<div class="tl-item"><span class="tl-year">2016</span><p>RDK Central LLC established as neutral governance entity.</p></div>
-<div class="tl-item"><span class="tl-year">2018</span><p>RBUS IPC introduced, replacing legacy CCSP/D-Bus.</p></div>
-<div class="tl-item"><span class="tl-year">2020</span><p>Wan Manager/Interface Managers Introduced.</p></div>
-<div class="tl-item"><span class="tl-year">2021</span><p>DSM and Dobby container runtime merged.</p></div>
-<div class="tl-item"><span class="tl-year">2022</span><p>USP/TR-369 published.</p></div>
-<div class="tl-item"><span class="tl-year">2023</span><p>OneWifi launched.</p></div>
-<div class="tl-item"><span class="tl-year">2024</span><p>100M+ devices deployed globally.</p></div>
-<div class="tl-item"><span class="tl-year">2025</span><p>Wi-Fi 7 (802.11be) integrated; EasyMesh Introduced.</p></div>
-<div class="tl-item"><span class="tl-year">2026</span><p>Matter/IoT (BartonCore) introduced.</p></div>
-  </div>
-
-  <div class="subhead">Licensing</div>
-  <div class="pill-row">
-    <span class="pill">Apache License 2.0 — primary license for most middleware components</span>
-<span class="pill">LGPL-2.1 — used by library components for compatibility with proprietary HAL implementations</span>
-  </div>
-</section>
-
-<section style="background:#fff; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
-  <div class="section-head">
-    <span class="eyebrow-lt">Architecture</span>
-    <h2>The five-tier model</h2>
-    <p>RDK-B's architecture reads like a cross-section: cloud-facing management at the
-      top, silicon at the base, with the RDK-B middleware — the platform's largest tier —
-      doing the work in between.</p>
-  </div>
-
-  <div class="tier-diagram">
-    
-    <div class="tier t5">
-      <div class="num">5</div>
-      <div class="body">
-        <h4>Cloud / ACS</h4>
-        <p>Operator cloud: ACS, USP Controller, xConf, WebConfig, Telemetry backends, Crash collection, Log aggregation.</p>
-      </div>
-    </div>
-
-    <div class="tier t4">
-      <div class="num">4</div>
-      <div class="body">
-        <h4>Management Protocols</h4>
-        <p>parodus/WebPA, usp-pa-vendor-rdk, tr069-protocol-agent, xconf-client, WebconfigFramework, T2 telemetry.</p>
-      </div>
-    </div>
-
-    <div class="tier t3">
-      <div class="num">3</div>
-      <div class="body">
-        <h4>RDK-B Middleware</h4>
-        <p>RDK-B components: OneWiFi, wan-manager, dhcp-manager, DSM, Dobby, BartonCore, all feature components. All communicate via RBUS.</p>
-      </div>
-    </div>
-
-    <div class="tier t2">
-      <div class="num">2</div>
-      <div class="body">
-        <h4>HAL / BSP</h4>
-        <p>rdkb-halif-* interface libraries and vendor BSP. Boundary between RDK-B middleware and SoC firmware.</p>
-      </div>
-    </div>
-
-    <div class="tier t1">
-      <div class="num">1</div>
-      <div class="body">
-        <h4>Hardware / SoC</h4>
-        <p>Physical silicon: SoC CPU, Wi-Fi radio, modem chipset, Ethernet switch, Flash/RAM.</p>
-      </div>
-    </div>
-  </div>
-  <div class="tier-caption">Tier 3 (RDK-B Middleware) is where nearly all feature development happens; Tiers 1–2 are vendor-owned and certified via RDK Ready.</div>
-
-  <div class="two-col" style="margin-top:44px;">
-    <div>
-      <div class="subhead" style="margin-top:0;">Production software builds</div>
-      <div class="layer-stack">
-        <div class="layer-box top">RDK-B Components</div>
-        <div class="layer-box mid">Hardware Abstraction Layer</div>
-        <div class="layer-box bot">Vendor Layer — hardware-dependent implementation</div>
-      </div>
-    </div>
-    <div>
-      <div class="subhead" style="margin-top:0;">Vendor test software builds</div>
-      <div class="layer-stack">
-        <div class="layer-box top">RDK Ready — Vendor Test Software</div>
-        <div class="layer-box mid">Hardware Abstraction Layer</div>
-        <div class="layer-box bot">Vendor Layer — hardware-dependent implementation</div>
-      </div>
-    </div>
-  </div>
-
-  <table class="def-table" style="margin-top:32px;">
-    <thead><tr><th>Test suite</th><th>Definition</th><th>Owner</th></tr></thead>
-    <tbody>
-      <tr><td class="mono">RDK Platform Test Suite</td><td>RDK Platform — component behavior, integration, data model, management, security, profile conformance</td><td>RDK-B Owner</td></tr>
-<tr><td class="mono">Vendor Test Suite</td><td>Vendor Layer — HAL implementation correctness, SoC-specific behavior</td><td>HAL Spec Owner</td></tr>
-    </tbody>
-  </table>
-</section>
-
-
-<footer>
-  <div class="footer-links">
-    <a href="components/">Components — profiles<span>Required / optional components per device profile</span></a>
-    <a href="components/full-list.html">Components — full workbook<span>Interactive component list, all profiles</span></a>
-    <a href="https://wiki.rdkcentral.com/spaces/RDK/pages/498925914/RDK9+Core+RDK+Broadband+Specification+Approved+by+TAB">RDK9 Core RDK Broadband Spec<span>TAB-approved specification (wiki)</span></a>
-    <a href="https://github.com/rdkcentral">rdkcentral on GitHub<span>Component source repositories</span></a>
-  </div>
-  <div class="footer-meta">
-    RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0 · RDKM · © 2026 RDK Central. All rights reserved.
-    Generated from RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0.pdf.
-  </div>
-</footer>
-
-
+{body_html}
 </div>
 </body>
 </html>
+'''

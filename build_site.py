@@ -9,7 +9,9 @@ time. This script never rewrites either of them.
 Order of operations (each step's output feeds the next):
 
   1. docs/*.pdf   --(extract_spec_content.py)-->  docs/spec-content.json
-  2. docs/spec-content.json  --(gen_base_page.py)-->  index.html   (site landing page — still baked)
+  2. docs/spec-content.json  --(gen_base_page.py)-->  index.html, architecture-standards.html,
+                                                       technical-governance.html (all baked; the
+                                                       three-page sidebar site's spec-driven pages)
   3. docs/*.xlsx  --(gen_html.py --sync-only)-->  components/RDK-B_Component_List_2026.xlsx
                                                    (a synced copy — full-list.html loads THIS xlsx
                                                     directly client-side via SheetJS, same-directory
@@ -62,8 +64,8 @@ def step_pdf_to_json() -> None:
 
 
 def step_json_to_base_html() -> None:
-    print("\n[2/4] docs/spec-content.json -> index.html")
-    run(["python3", "gen_base_page.py", "docs/spec-content.json", "--out", "index.html"], cwd=ROOT)
+    print("\n[2/4] docs/spec-content.json -> index.html, architecture-standards.html, technical-governance.html")
+    run(["python3", "gen_base_page.py", "docs/spec-content.json", "--out-dir", "."], cwd=ROOT)
 
 
 def step_sync_workbook_for_full_list() -> None:
@@ -106,7 +108,7 @@ def main() -> None:
         print("\n[3/4] and [4/4] Skipped (--skip-xlsx)")
 
     print("\nDone. Generated:")
-    print("  index.html")
+    print("  index.html, architecture-standards.html, technical-governance.html")
     print("  docs/spec-content.json")
     if not args.skip_xlsx:
         print("  components/RDK-B_Component_List_2026.xlsx  (synced copy, read by full-list.html)")
