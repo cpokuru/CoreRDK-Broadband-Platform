@@ -1,30 +1,31 @@
 """Single entry point for the whole CoreRDK-Broadband-Specification site.
 
-Regenerates every generated HTML/JSON file in the repo from its source file
-(the spec PDF and the component xlsx). Nothing generated is hand-edited —
-if a source file changes, rerun this script and commit the diff.
+Regenerates the landing page and every *.json data file from source (the
+spec PDF and the component xlsx). components/index.html and
+components/full-list.html are static templates, committed once — they load
+their data at runtime in the browser instead of having it baked in at build
+time. This script never rewrites either of them.
 
 Order of operations (each step's output feeds the next):
 
   1. docs/*.pdf   --(extract_spec_content.py)-->  docs/spec-content.json
-  2. docs/spec-content.json  --(gen_base_page.py)-->  index.html   (site landing page)
-  3. docs/*.xlsx  --(gen_html.py)-->  components/full-list.html
-                                      components/RDK-B_Component_List_2026.xlsx  (copy, so the
-                                      browser's client-side fetch() finds it next to the page)
-  4. docs/*.xlsx  --(build_simple_page.py)-->  components/index.html
-                                                components/ethwan-router-components.json
+  2. docs/spec-content.json  --(gen_base_page.py)-->  index.html   (site landing page — still baked)
+  3. docs/*.xlsx  --(gen_html.py --sync-only)-->  components/RDK-B_Component_List_2026.xlsx
+                                                   (a synced copy — full-list.html loads THIS xlsx
+                                                    directly client-side via SheetJS, same-directory
+                                                    fetch, so the file has to physically sit next to it)
+  4. docs/*.xlsx  --(extract_components.py)-->  components/ethwan-router-components.json
+                                                 (fetched at runtime by the static components/index.html)
 
 Both source files (the spec PDF and the component xlsx) live together in
-docs/. components/ holds only the generator scripts, the generated output,
-and a synced copy of the xlsx (full-list.html loads it client-side via
-SheetJS, so it must be co-located with the page it's served alongside — see
-gen_html.py's sync_workbook()). Nothing in components/ is hand-maintained.
+docs/. components/ holds the generator scripts, the two static HTML
+templates, and the synced xlsx + generated JSON — no hand-maintained data.
 
 Usage:
     python3 build_site.py
-    python3 build_site.py --profile "GW"          # build a different profile page
+    python3 build_site.py --profile "GW"          # regenerate the JSON for a different profile
     python3 build_site.py --skip-pdf               # reuse existing docs/spec-content.json
-    python3 build_site.py --skip-xlsx               # reuse existing components json/html
+    python3 build_site.py --skip-xlsx               # reuse existing components/* data
 """
 from __future__ import annotations
 
@@ -65,20 +66,19 @@ def step_json_to_base_html() -> None:
     run(["python3", "gen_base_page.py", "docs/spec-content.json", "--out", "index.html"], cwd=ROOT)
 
 
-def step_xlsx_to_full_workbook() -> None:
-    print("\n[3/4] Component xlsx -> components/full-list.html (+ synced xlsx copy)")
-    run(["python3", "gen_html.py"], cwd=COMPONENTS)
+def step_sync_workbook_for_full_list() -> None:
+    print("\n[3/4] Component xlsx -> components/RDK-B_Component_List_2026.xlsx (synced copy for full-list.html)")
+    run(["python3", "gen_html.py", "--sync-only"], cwd=COMPONENTS)
 
 
-def step_xlsx_to_profile_page(profile: str) -> None:
-    print(f"\n[4/4] Component xlsx -> components/index.html (profile: {profile!r})")
+def step_xlsx_to_profile_json(profile: str) -> None:
+    print(f"\n[4/4] Component xlsx -> components/ethwan-router-components.json (profile: {profile!r})")
     xlsx = find_one(DOCS, "*.xlsx")
     xlsx_rel_from_components = Path("..") / xlsx.relative_to(ROOT)
     run([
-        "python3", "build_simple_page.py", "profile", profile,
+        "python3", "extract_components.py", "profile", profile,
         "--xlsx", str(xlsx_rel_from_components),
-        "--json-out", "ethwan-router-components.json",
-        "--html-out", "index.html",
+        "--out", "ethwan-router-components.json",
         "--show-core",
     ], cwd=COMPONENTS)
 
@@ -100,8 +100,8 @@ def main() -> None:
     step_json_to_base_html()
 
     if not args.skip_xlsx:
-        step_xlsx_to_full_workbook()
-        step_xlsx_to_profile_page(args.profile)
+        step_sync_workbook_for_full_list()
+        step_xlsx_to_profile_json(args.profile)
     else:
         print("\n[3/4] and [4/4] Skipped (--skip-xlsx)")
 
@@ -109,10 +109,13 @@ def main() -> None:
     print("  index.html")
     print("  docs/spec-content.json")
     if not args.skip_xlsx:
-        print("  components/full-list.html")
-        print("  components/RDK-B_Component_List_2026.xlsx  (synced copy)")
-        print("  components/index.html")
-        print("  components/ethwan-router-components.json")
+        print("  components/RDK-B_Component_List_2026.xlsx  (synced copy, read by full-list.html)")
+        print("  components/ethwan-router-components.json  (read by components/index.html)")
+    print("\ncomponents/full-list.html and components/index.html are static — not")
+    print("touched by this script. Regenerate full-list.html with plain")
+    print("'python3 gen_html.py' (no --sync-only) only if the page design itself")
+    print("changes, not the data. components/index.html has no generator at all")
+    print("by design; edit it directly if its design needs to change.")
 
 
 if __name__ == "__main__":

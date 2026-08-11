@@ -3427,9 +3427,20 @@ def sync_workbook() -> None:
 
 
 def main() -> None:
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--sync-only", action="store_true",
+                     help="Only sync the .xlsx into components/ — don't rewrite full-list.html. "
+                          "This is what build_site.py calls on every build; full-list.html is a "
+                          "committed static template, regenerated with the full run only when the "
+                          "page design itself changes.")
+    args = ap.parse_args()
+
     DOCS_DIR.mkdir(parents=True, exist_ok=True)
-    new_html = build_html()
-    HTML_PATH.write_text(new_html, encoding="utf-8")
+    if not args.sync_only:
+        new_html = build_html()
+        HTML_PATH.write_text(new_html, encoding="utf-8")
+        print(f"Wrote {HTML_PATH}")
     sync_workbook()
 
 
