@@ -24,7 +24,7 @@ import argparse
 import json
 from pathlib import Path
 
-from layout import esc, render_page
+from layout import esc, render_hero, render_page
 
 COMPONENTS_URL = "components/"
 COMPONENTS_FULL_URL = "components/full-list.html"
@@ -111,24 +111,19 @@ def render_test_suites(rows: list[dict]) -> str:
 # ---------- page: About & Architecture ----------
 
 def build_about_page(spec: dict, about: dict) -> str:
+    hero_badges = (
+        '<span class="badge">26 features</span>'
+        '<span class="badge">7 device profiles</span>'
+        '<span class="badge">Five-tier architecture</span>'
+        '<span class="badge">Apache-2.0 / LGPL-2.1</span>'
+    )
     body = f'''
-<div class="hero">
-  <div class="hero-inner">
-    <span class="eyebrow">Core RDK Broadband</span>
-    <h1>RDK-B Core Broadband Platform</h1>
-    <p class="lede">{esc(about["definition"])}</p>
-    <div class="badge-row">
-      <span class="badge">26 features</span>
-      <span class="badge">7 device profiles</span>
-      <span class="badge">Five-tier architecture</span>
-      <span class="badge">Apache-2.0 / LGPL-2.1</span>
-    </div>
-  </div>
-</div>
+{render_hero("Core RDK Broadband", "RDK-B Core Broadband Platform", about["definition"], hero_badges, visual_key="about")}
 
 <div class="stats">
   <div class="stat"><div class="num">2012</div><div class="lbl">Platform origin</div></div>
   <div class="stat"><div class="num">2016</div><div class="lbl">RDK Central formed</div></div>
+
   <div class="stat"><div class="num">100M+</div><div class="lbl">Devices deployed</div></div>
   <div class="stat"><div class="num">5</div><div class="lbl">Architecture tiers</div></div>
   <div class="stat"><div class="num">2026</div><div class="lbl">Matter / IoT added</div></div>

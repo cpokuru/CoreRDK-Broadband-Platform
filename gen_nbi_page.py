@@ -24,7 +24,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from layout import render_page
+from layout import render_hero, render_page
 
 SCRIPT = r"""
 <script>
@@ -178,14 +178,9 @@ EXTRA_CSS = """
 
 def build_page() -> str:
     body = f'''
-<div class="hero" style="padding:48px 40px 40px;">
-  <div class="hero-inner">
-    <span class="eyebrow">North Bound APIs</span>
-    <h1 style="font-size:2rem;">North Bound APIs</h1>
-    <p class="lede">The operator- and cloud-facing data model each component exposes upward.
-      Click a component below to load its DML definition.</p>
-  </div>
-</div>
+{render_hero("North Bound APIs", "North Bound APIs",
+    "The operator- and cloud-facing data model each component exposes upward. Click a component below to load its DML definition.",
+    compact=True, visual_key="nbi")}
 
 <section class="tight-top">
   <div id="component-table-wrap">

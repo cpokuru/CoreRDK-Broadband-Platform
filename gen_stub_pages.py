@@ -28,7 +28,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from layout import render_page
+from layout import render_hero, render_page
 
 PAGES = [
     {
@@ -166,13 +166,7 @@ fetch(JSON_FILE, {{ cache: 'no-store' }})
 
 def build_stub_page(page: dict) -> str:
     body = f'''
-<div class="hero" style="padding:48px 40px 40px;">
-  <div class="hero-inner">
-    <span class="eyebrow">{page["eyebrow"]}</span>
-    <h1 style="font-size:2rem;">{page["title"]}</h1>
-    <p class="lede">{page["lede"]}</p>
-  </div>
-</div>
+{render_hero(page["eyebrow"], page["title"], page["lede"], compact=True, visual_key=page["active_id"])}
 
 <section class="tight-top">
   <div id="data-content"><div class="empty-state"><p>Loading…</p></div></div>
