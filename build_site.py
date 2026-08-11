@@ -9,8 +9,9 @@ time. This script never rewrites either of them.
 Order of operations (each step's output feeds the next):
 
   1. docs/*.pdf   --(extract_spec_content.py)-->  docs/spec-content.json
-  2. docs/spec-content.json  --(gen_base_page.py)-->  index.html (About & Architecture — the
-                                                       only page still baked from the spec)
+  2. docs/spec-content.json  --(gen_base_page.py)-->  index.html (About & Architecture —
+                                                       About comes from docs/about-content.json,
+                                                       Architecture comes from spec-content.json)
   3. docs/*.xlsx  --(gen_html.py --sync-only)-->  components/RDK-B_Component_List_2026.xlsx
                                                    (a synced copy — full-list.html loads THIS xlsx
                                                     directly client-side via SheetJS, same-directory
@@ -64,7 +65,7 @@ def step_pdf_to_json() -> None:
 
 def step_json_to_base_html() -> None:
     print("\n[2/4] docs/spec-content.json -> index.html")
-    run(["python3", "gen_base_page.py", "docs/spec-content.json", "--out-dir", "."], cwd=ROOT)
+    run(["python3", "gen_base_page.py", "docs/spec-content.json", "docs/about-content.json", "--out-dir", "."], cwd=ROOT)
 
 
 def step_sync_workbook_for_full_list() -> None:
