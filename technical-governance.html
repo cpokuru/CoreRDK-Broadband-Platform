@@ -75,6 +75,7 @@
   .hero-flex { display: flex; align-items: center; gap: 44px; max-width: 1180px; }
   .hero-inner { max-width: 640px; flex: 1 1 auto; min-width: 0; }
   .hero-visual { flex: 0 0 320px; display: flex; justify-content: center; }
+  .hero-visual img { max-width: 100%; max-height: 320px; width: auto; height: auto; border-radius: 14px; object-fit: contain; }
   @media (max-width: 1000px) { .hero-visual { display: none; } }
 
   .eyebrow { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: #7ec4f2; border: 1px solid rgba(126,196,242,0.35); background: rgba(126,196,242,0.06); border-radius: 999px; padding: 5px 13px; margin-bottom: 20px; }
@@ -286,48 +287,7 @@ fetch(JSON_FILE, { cache: 'no-store' })
       <p class="lede">Process, implementation, and coding standards every new or refactored component is held to.</p>
       
     </div>
-    <div class="hero-visual">
-<svg viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="Illustration of stacked governance documents">
-  
-  <g opacity="0.14" stroke="#8fb3ff" stroke-width="1" fill="none">
-    <path d="M20 40 H70 V80 H110"/>
-    <circle cx="70" cy="40" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <circle cx="70" cy="80" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <path d="M300 60 H250 V100 H210"/>
-    <circle cx="250" cy="60" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <circle cx="250" cy="100" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <path d="M30 260 H80 V290"/>
-    <circle cx="80" cy="260" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <path d="M290 250 H260 V300 H300"/>
-    <circle cx="260" cy="250" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <circle cx="260" cy="300" r="2.5" fill="#8fb3ff" stroke="none"/>
-  </g>
-
-  <g opacity="0.95">
-    <polygon points="105,195 215,195 245,213 135,213" fill="#0f2744"/>
-    <polygon points="105,195 135,213 135,225 105,207" fill="#0c2038"/>
-    <polygon points="135,213 245,213 245,225 135,225" fill="#16305a"/>
-  </g>
-  <g opacity="0.97">
-    <polygon points="100,160 210,160 240,178 130,178" fill="#16305a"/>
-    <polygon points="100,160 130,178 130,190 100,172" fill="#122a4c"/>
-    <polygon points="130,178 240,178 240,190 130,190" fill="#1c3a5e"/>
-  </g>
-  <g>
-    <polygon points="95,122 205,122 235,140 125,140" fill="#3b7de8"/>
-    <polygon points="95,122 125,140 125,152 95,134" fill="#2a63c9"/>
-    <polygon points="125,140 235,140 235,152 125,152" fill="#1a56db"/>
-    <line x1="140" y1="128" x2="185" y2="128" stroke="#dbe6ff" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
-    <line x1="140" y1="134" x2="170" y2="134" stroke="#dbe6ff" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
-  </g>
-  <circle cx="235" cy="95" r="16" fill="#7ac943"/>
-  <path d="M227 95 L233 101 L245 88" fill="none" stroke="#0f2744" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <g stroke="#f5a623" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.7">
-    <line x1="95" y1="150" x2="55" y2="170"/>
-  </g>
-  <polygon points="40,170 55,178 55,162" fill="#f5a623" opacity="0.9"/>
-</svg>
-</div>
+    
   </div>
 </div>
 

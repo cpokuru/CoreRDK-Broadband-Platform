@@ -75,6 +75,7 @@
   .hero-flex { display: flex; align-items: center; gap: 44px; max-width: 1180px; }
   .hero-inner { max-width: 640px; flex: 1 1 auto; min-width: 0; }
   .hero-visual { flex: 0 0 320px; display: flex; justify-content: center; }
+  .hero-visual img { max-width: 100%; max-height: 320px; width: auto; height: auto; border-radius: 14px; object-fit: contain; }
   @media (max-width: 1000px) { .hero-visual { display: none; } }
 
   .eyebrow { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: #7ec4f2; border: 1px solid rgba(126,196,242,0.35); background: rgba(126,196,242,0.06); border-radius: 999px; padding: 5px 13px; margin-bottom: 20px; }
@@ -286,45 +287,7 @@ fetch(JSON_FILE, { cache: 'no-store' })
       <p class="lede">Certified SoC platforms, chipset families, and the HAL interface versions each one supports.</p>
       
     </div>
-    <div class="hero-visual">
-<svg viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="Illustration of certified hardware compatibility">
-  
-  <g opacity="0.14" stroke="#8fb3ff" stroke-width="1" fill="none">
-    <path d="M20 40 H70 V80 H110"/>
-    <circle cx="70" cy="40" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <circle cx="70" cy="80" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <path d="M300 60 H250 V100 H210"/>
-    <circle cx="250" cy="60" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <circle cx="250" cy="100" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <path d="M30 260 H80 V290"/>
-    <circle cx="80" cy="260" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <path d="M290 250 H260 V300 H300"/>
-    <circle cx="260" cy="250" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <circle cx="260" cy="300" r="2.5" fill="#8fb3ff" stroke="none"/>
-  </g>
-
-  <polygon points="160,95 235,137 160,179 85,137" fill="#16305a"/>
-  <polygon points="85,137 160,179 160,235 85,193" fill="#0f2744"/>
-  <polygon points="160,179 235,137 235,193 160,235" fill="#0a1930"/>
-  <g stroke="#22406e" stroke-width="1" opacity="0.6">
-    <line x1="105" y1="150" x2="105" y2="180"/>
-    <line x1="125" y1="160" x2="125" y2="195"/>
-    <line x1="195" y1="160" x2="195" y2="195"/>
-    <line x1="215" y1="150" x2="215" y2="180"/>
-  </g>
-  <g>
-    <polygon points="145,110 168,122 145,134 122,122" fill="#3b7de8"/>
-    <polygon points="192,110 215,122 192,134 169,122" fill="#7ac943"/>
-    <polygon points="145,140 168,152 145,164 122,152" fill="#f5a623"/>
-  </g>
-  <circle cx="245" cy="100" r="18" fill="#7ac943"/>
-  <path d="M236 100 L243 107 L256 92" fill="none" stroke="#0f2744" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <g stroke="#29b6e8" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.7">
-    <line x1="85" y1="160" x2="50" y2="180"/>
-  </g>
-  <polygon points="35,180 50,188 50,172" fill="#29b6e8" opacity="0.9"/>
-</svg>
-</div>
+    
   </div>
 </div>
 

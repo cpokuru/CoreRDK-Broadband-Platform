@@ -93,6 +93,7 @@ SHARED_CSS = """
   .hero-flex { display: flex; align-items: center; gap: 44px; max-width: 1180px; }
   .hero-inner { max-width: 640px; flex: 1 1 auto; min-width: 0; }
   .hero-visual { flex: 0 0 320px; display: flex; justify-content: center; }
+  .hero-visual img { max-width: 100%; max-height: 320px; width: auto; height: auto; border-radius: 14px; object-fit: contain; }
   @media (max-width: 1000px) { .hero-visual { display: none; } }
 
   .eyebrow { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: #7ec4f2; border: 1px solid rgba(126,196,242,0.35); background: rgba(126,196,242,0.06); border-radius: 999px; padding: 5px 13px; margin-bottom: 20px; }
@@ -189,210 +190,34 @@ def esc(s) -> str:
     return html.escape("" if s is None else str(s))
 
 
-# Custom isometric illustrations for each page's hero — no photography, no
-# third-party assets, so there's no licensing question, and each is
-# thematically literal to its page rather than one image reused everywhere.
-# All six share a visual language (isometric block, dashed data-flow lines,
-# colored accent markers, faint circuit-trace background) so the site still
-# feels like one family, but the subject differs per topic.
-
-_CIRCUIT_BG = """
-  <g opacity="0.14" stroke="#8fb3ff" stroke-width="1" fill="none">
-    <path d="M20 40 H70 V80 H110"/>
-    <circle cx="70" cy="40" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <circle cx="70" cy="80" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <path d="M300 60 H250 V100 H210"/>
-    <circle cx="250" cy="60" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <circle cx="250" cy="100" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <path d="M30 260 H80 V290"/>
-    <circle cx="80" cy="260" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <path d="M290 250 H260 V300 H300"/>
-    <circle cx="260" cy="250" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <circle cx="260" cy="300" r="2.5" fill="#8fb3ff" stroke="none"/>
-  </g>
-"""
-
-HERO_VISUALS = {
-
-    # About & Architecture — gateway/router device with antennas and WiFi.
-    "about": f"""
-<svg viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="Illustration of a networking gateway device">
-  {_CIRCUIT_BG}
-  <g opacity="0.9">
-    <path d="M198 96 Q225 70 252 90" fill="none" stroke="#29b6e8" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>
-    <path d="M204 106 Q225 88 246 104" fill="none" stroke="#29b6e8" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
-    <path d="M210 116 Q225 105 240 115" fill="none" stroke="#29b6e8" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
-  </g>
-  <g stroke="#1c3a5e" stroke-width="1.5" stroke-linecap="round">
-    <line x1="185" y1="130" x2="170" y2="75"/>
-    <line x1="205" y1="122" x2="218" y2="92"/>
-  </g>
-  <circle cx="170" cy="72" r="4" fill="#29b6e8"/>
-  <circle cx="219" cy="89" r="4" fill="#29b6e8"/>
-  <polygon points="160,90 230,130 160,170 90,130" fill="#3b7de8"/>
-  <polygon points="90,130 160,170 160,250 90,210" fill="#1c3a5e"/>
-  <polygon points="160,170 230,130 230,210 160,250" fill="#0f2744"/>
-  <circle cx="185" cy="200" r="5" fill="#7ac943"/>
-  <circle cx="200" cy="208" r="5" fill="#f5a623"/>
-  <circle cx="215" cy="216" r="5" fill="#29b6e8"/>
-  <g stroke="#f5a623" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.7">
-    <line x1="90" y1="150" x2="55" y2="120"/>
-  </g>
-  <polygon points="55,105 70,113 55,121 40,113" fill="#f5a623" opacity="0.9"/>
-  <g stroke="#7ac943" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.7">
-    <line x1="230" y1="190" x2="268" y2="215"/>
-  </g>
-  <polygon points="268,200 283,208 268,216 253,208" fill="#7ac943" opacity="0.9"/>
-</svg>
-""",
-
-    # Architecture Standards — isometric certification shield with a checkmark.
-    "architecture-standards": f"""
-<svg viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="Illustration of a certification shield">
-  {_CIRCUIT_BG}
-  <polygon points="160,60 225,90 225,175 160,235 95,175 95,90" fill="#1c3a5e"/>
-  <polygon points="160,60 225,90 160,120 95,90" fill="#3b7de8"/>
-  <polygon points="95,90 160,120 160,235 95,175" fill="#16305a"/>
-  <polygon points="160,120 225,90 225,175 160,235" fill="#0f2744"/>
-  <path d="M128 150 L152 176 L196 122" fill="none" stroke="#7ac943" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
-  <g stroke="#f5a623" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.75">
-    <line x1="95" y1="130" x2="55" y2="105"/>
-  </g>
-  <polygon points="55,90 70,98 55,106 40,98" fill="#f5a623" opacity="0.9"/>
-  <g stroke="#29b6e8" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.75">
-    <line x1="225" y1="130" x2="265" y2="155"/>
-  </g>
-  <circle cx="272" cy="160" r="7" fill="#29b6e8" opacity="0.9"/>
-  <g stroke="#7ac943" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.65">
-    <line x1="160" y1="235" x2="160" y2="275"/>
-  </g>
-  <polygon points="150,278 160,293 170,278" fill="#7ac943" opacity="0.9"/>
-</svg>
-""",
-
-    # Technical Governance — stacked policy/process document plates.
-    "technical-governance": f"""
-<svg viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="Illustration of stacked governance documents">
-  {_CIRCUIT_BG}
-  <g opacity="0.95">
-    <polygon points="105,195 215,195 245,213 135,213" fill="#0f2744"/>
-    <polygon points="105,195 135,213 135,225 105,207" fill="#0c2038"/>
-    <polygon points="135,213 245,213 245,225 135,225" fill="#16305a"/>
-  </g>
-  <g opacity="0.97">
-    <polygon points="100,160 210,160 240,178 130,178" fill="#16305a"/>
-    <polygon points="100,160 130,178 130,190 100,172" fill="#122a4c"/>
-    <polygon points="130,178 240,178 240,190 130,190" fill="#1c3a5e"/>
-  </g>
-  <g>
-    <polygon points="95,122 205,122 235,140 125,140" fill="#3b7de8"/>
-    <polygon points="95,122 125,140 125,152 95,134" fill="#2a63c9"/>
-    <polygon points="125,140 235,140 235,152 125,152" fill="#1a56db"/>
-    <line x1="140" y1="128" x2="185" y2="128" stroke="#dbe6ff" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
-    <line x1="140" y1="134" x2="170" y2="134" stroke="#dbe6ff" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
-  </g>
-  <circle cx="235" cy="95" r="16" fill="#7ac943"/>
-  <path d="M227 95 L233 101 L245 88" fill="none" stroke="#0f2744" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <g stroke="#f5a623" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.7">
-    <line x1="95" y1="150" x2="55" y2="170"/>
-  </g>
-  <polygon points="40,170 55,178 55,162" fill="#f5a623" opacity="0.9"/>
-</svg>
-""",
-
-    # North Bound APIs — cloud, with data flowing UP into it from the device below.
-    "nbi": f"""
-<svg viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="Illustration of northbound cloud APIs">
-  {_CIRCUIT_BG}
-  <g fill="#3b7de8">
-    <circle cx="145" cy="105" r="34"/>
-    <circle cx="185" cy="95" r="26"/>
-    <circle cx="205" cy="115" r="30"/>
-    <circle cx="160" cy="128" r="30"/>
-  </g>
-  <rect x="110" y="105" width="120" height="35" rx="17" fill="#3b7de8"/>
-  <polygon points="140,220 190,220 190,255 140,255" fill="#1c3a5e"/>
-  <polygon points="140,220 155,210 205,210 190,220" fill="#3b7de8"/>
-  <polygon points="190,220 205,210 205,245 190,255" fill="#0f2744"/>
-  <circle cx="150" cy="238" r="3" fill="#7ac943"/>
-  <circle cx="160" cy="238" r="3" fill="#f5a623"/>
-  <g stroke="#7ac943" stroke-width="2" stroke-dasharray="4,5" opacity="0.85">
-    <line x1="165" y1="210" x2="165" y2="160"/>
-  </g>
-  <polygon points="157,163 165,148 173,163" fill="#7ac943"/>
-  <g stroke="#f5a623" stroke-width="2" stroke-dasharray="4,5" opacity="0.7">
-    <line x1="130" y1="205" x2="110" y2="165"/>
-  </g>
-  <polygon points="99,168 112,153 122,170" fill="#f5a623" opacity="0.9"/>
-</svg>
-""",
-
-    # South Bound APIs — chip/silicon, with data flowing DOWN into it from above.
-    "sbi": f"""
-<svg viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="Illustration of southbound HAL APIs into silicon">
-  {_CIRCUIT_BG}
-  <polygon points="160,110 225,148 160,186 95,148" fill="#3b7de8"/>
-  <polygon points="95,148 160,186 160,225 95,187" fill="#1c3a5e"/>
-  <polygon points="160,186 225,148 225,187 160,225" fill="#0f2744"/>
-  <g stroke="#16305a" stroke-width="3" stroke-linecap="round">
-    <line x1="115" y1="160" x2="95" y2="160"/>
-    <line x1="115" y1="175" x2="95" y2="175"/>
-    <line x1="205" y1="160" x2="225" y2="160"/>
-    <line x1="205" y1="175" x2="225" y2="175"/>
-  </g>
-  <rect x="145" y="145" width="30" height="30" rx="3" fill="#0b1220"/>
-  <circle cx="155" cy="155" r="2" fill="#29b6e8"/>
-  <circle cx="165" cy="155" r="2" fill="#7ac943"/>
-  <circle cx="155" cy="165" r="2" fill="#f5a623"/>
-  <circle cx="165" cy="165" r="2" fill="#29b6e8"/>
-  <g stroke="#29b6e8" stroke-width="2" stroke-dasharray="4,5" opacity="0.85">
-    <line x1="160" y1="95" x2="160" y2="120"/>
-  </g>
-  <polygon points="152,110 160,125 168,110" fill="#29b6e8"/>
-  <g stroke="#f5a623" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.7">
-    <line x1="95" y1="130" x2="60" y2="105"/>
-  </g>
-  <circle cx="52" cy="98" r="6" fill="#f5a623" opacity="0.9"/>
-</svg>
-""",
-
-    # Hardware Compatibility — circuit board with multiple vendor SoCs, certified.
-    "hwcompat": f"""
-<svg viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="Illustration of certified hardware compatibility">
-  {_CIRCUIT_BG}
-  <polygon points="160,95 235,137 160,179 85,137" fill="#16305a"/>
-  <polygon points="85,137 160,179 160,235 85,193" fill="#0f2744"/>
-  <polygon points="160,179 235,137 235,193 160,235" fill="#0a1930"/>
-  <g stroke="#22406e" stroke-width="1" opacity="0.6">
-    <line x1="105" y1="150" x2="105" y2="180"/>
-    <line x1="125" y1="160" x2="125" y2="195"/>
-    <line x1="195" y1="160" x2="195" y2="195"/>
-    <line x1="215" y1="150" x2="215" y2="180"/>
-  </g>
-  <g>
-    <polygon points="145,110 168,122 145,134 122,122" fill="#3b7de8"/>
-    <polygon points="192,110 215,122 192,134 169,122" fill="#7ac943"/>
-    <polygon points="145,140 168,152 145,164 122,152" fill="#f5a623"/>
-  </g>
-  <circle cx="245" cy="100" r="18" fill="#7ac943"/>
-  <path d="M236 100 L243 107 L256 92" fill="none" stroke="#0f2744" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <g stroke="#29b6e8" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.7">
-    <line x1="85" y1="160" x2="50" y2="180"/>
-  </g>
-  <polygon points="35,180 50,188 50,172" fill="#29b6e8" opacity="0.9"/>
-</svg>
-""",
+# ---- Hero images ----
+# No illustrations or photography are shipped by default (removed for legal
+# safety). To add a real, approved image to a page's hero later: drop the
+# image file in the repo (e.g. images/about-hero.png) and add one line to
+# HERO_IMAGES below mapping that page's id to the file's path. Nothing else
+# needs to change — render_hero() picks it up automatically, and pages
+# without an entry simply render without a hero image, exactly as now.
+HERO_IMAGES: dict[str, str] = {
+    # "about": "images/about-hero.png",
+    # "architecture-standards": "images/architecture-standards-hero.png",
+    # "technical-governance": "images/technical-governance-hero.png",
+    # "nbi": "images/nbi-hero.png",
+    # "sbi": "images/sbi-hero.png",
+    # "hwcompat": "images/hwcompat-hero.png",
 }
 
 
 def render_hero(eyebrow: str, title: str, lede: str, badges_html: str = "", compact: bool = False, visual_key: str = "about") -> str:
     """Shared hero markup: eyebrow, heading, lede paragraph, optional badge
-    row, and the network-hardware illustration on wide screens. Used by
-    every page so the visual upgrade applies everywhere consistently.
+    row, and — only if one is registered in HERO_IMAGES for this page — an
+    image on wide screens. Used by every page so any future hero image
+    change applies everywhere consistently.
     title/lede are escaped here — pass plain text, not pre-escaped HTML."""
     pad = "48px 40px 40px" if compact else "64px 40px 48px"
     title_style = ' style="font-size:2rem;"' if compact else ""
     badges = f'<div class="badge-row">{badges_html}</div>' if badges_html else ""
+    image_path = HERO_IMAGES.get(visual_key)
+    visual = f'<div class="hero-visual"><img src="{esc(image_path)}" alt=""></div>' if image_path else ""
     return f'''
 <div class="hero" style="padding:{pad};">
   <div class="hero-flex">
@@ -402,7 +227,7 @@ def render_hero(eyebrow: str, title: str, lede: str, badges_html: str = "", comp
       <p class="lede">{esc(lede)}</p>
       {badges}
     </div>
-    <div class="hero-visual">{HERO_VISUALS.get(visual_key, HERO_VISUALS["about"])}</div>
+    {visual}
   </div>
 </div>
 '''

@@ -75,6 +75,7 @@
   .hero-flex { display: flex; align-items: center; gap: 44px; max-width: 1180px; }
   .hero-inner { max-width: 640px; flex: 1 1 auto; min-width: 0; }
   .hero-visual { flex: 0 0 320px; display: flex; justify-content: center; }
+  .hero-visual img { max-width: 100%; max-height: 320px; width: auto; height: auto; border-radius: 14px; object-fit: contain; }
   @media (max-width: 1000px) { .hero-visual { display: none; } }
 
   .eyebrow { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: #7ec4f2; border: 1px solid rgba(126,196,242,0.35); background: rgba(126,196,242,0.06); border-radius: 999px; padding: 5px 13px; margin-bottom: 20px; }
@@ -335,45 +336,7 @@ Promise.all([
       <p class="lede">The operator- and cloud-facing data model each component exposes upward. Click a component below to load its DML definition.</p>
       
     </div>
-    <div class="hero-visual">
-<svg viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="Illustration of northbound cloud APIs">
-  
-  <g opacity="0.14" stroke="#8fb3ff" stroke-width="1" fill="none">
-    <path d="M20 40 H70 V80 H110"/>
-    <circle cx="70" cy="40" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <circle cx="70" cy="80" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <path d="M300 60 H250 V100 H210"/>
-    <circle cx="250" cy="60" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <circle cx="250" cy="100" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <path d="M30 260 H80 V290"/>
-    <circle cx="80" cy="260" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <path d="M290 250 H260 V300 H300"/>
-    <circle cx="260" cy="250" r="2.5" fill="#8fb3ff" stroke="none"/>
-    <circle cx="260" cy="300" r="2.5" fill="#8fb3ff" stroke="none"/>
-  </g>
-
-  <g fill="#3b7de8">
-    <circle cx="145" cy="105" r="34"/>
-    <circle cx="185" cy="95" r="26"/>
-    <circle cx="205" cy="115" r="30"/>
-    <circle cx="160" cy="128" r="30"/>
-  </g>
-  <rect x="110" y="105" width="120" height="35" rx="17" fill="#3b7de8"/>
-  <polygon points="140,220 190,220 190,255 140,255" fill="#1c3a5e"/>
-  <polygon points="140,220 155,210 205,210 190,220" fill="#3b7de8"/>
-  <polygon points="190,220 205,210 205,245 190,255" fill="#0f2744"/>
-  <circle cx="150" cy="238" r="3" fill="#7ac943"/>
-  <circle cx="160" cy="238" r="3" fill="#f5a623"/>
-  <g stroke="#7ac943" stroke-width="2" stroke-dasharray="4,5" opacity="0.85">
-    <line x1="165" y1="210" x2="165" y2="160"/>
-  </g>
-  <polygon points="157,163 165,148 173,163" fill="#7ac943"/>
-  <g stroke="#f5a623" stroke-width="2" stroke-dasharray="4,5" opacity="0.7">
-    <line x1="130" y1="205" x2="110" y2="165"/>
-  </g>
-  <polygon points="99,168 112,153 122,170" fill="#f5a623" opacity="0.9"/>
-</svg>
-</div>
+    
   </div>
 </div>
 
