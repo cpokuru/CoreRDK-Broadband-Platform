@@ -10,7 +10,7 @@ import json
 import sys
 from pathlib import Path
 
-FULL_DETAILS_URL = "https://cpokuru.github.io/CoreRDK-Broadband-Docs"
+FULL_DETAILS_URL = "full-list.html"
 
 # Fixed palette for tier badges (id -> css color values), matches schema's color enum.
 TIER_COLORS = {
