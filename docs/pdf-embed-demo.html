@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF embedding — quick demo</title>
+<style>
+  :root { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  body { margin: 0; background: #f8fafc; color: #0f172a; }
+  header { background: #0b1220; color: #fff; padding: 28px 32px; }
+  header h1 { margin: 0 0 6px; font-size: 1.5rem; }
+  header p { margin: 0; color: #b6c2d9; font-size: 0.95rem; }
+  main { max-width: 980px; margin: 0 auto; padding: 32px; }
+  section { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 28px; }
+  section h2 { font-size: 1.1rem; margin: 0 0 6px; }
+  section .desc { color: #5b6472; font-size: 0.9rem; margin-bottom: 16px; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+  .frame-box { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+  .btn {
+    display: inline-block; background: #1a56db; color: #fff; text-decoration: none;
+    padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.92rem;
+  }
+  .note { background: #fef3c7; border: 1px solid #fde68a; color: #92400e; border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PDF embedding — quick demo</h1>
+  <p>Three ways to show the same PDF on a page, so you can compare before picking one.</p>
+</header>
+
+<main>
+
+  <section>
+    <h2>1. &lt;iframe&gt; — browser's built-in PDF viewer</h2>
+    <div class="desc">Zero setup. Uses whatever PDF viewer the browser already has. Full toolbar (zoom, search, page nav, download) comes for free on desktop.</div>
+    <div class="frame-box">
+      <iframe src="RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0.pdf" width="100%" height="600" style="border:none; display:block;"></iframe>
+    </div>
+    <div class="note">Mobile note: most mobile browsers render this fine, but some Android browsers will trigger a download instead of showing it inline.</div>
+  </section>
+
+  <section>
+    <h2>2. Plain link — most reliable, zero surprises</h2>
+    <div class="desc">No embedding at all — just opens the PDF in a new tab (or downloads it, depending on the visitor's browser settings). Works everywhere, every time.</div>
+    <a class="btn" href="RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0.pdf" target="_blank" rel="noopener">Open the full spec PDF ↗</a>
+  </section>
+
+  <section>
+    <h2>3. PDF.js — in-page viewer with its own toolbar</h2>
+    <div class="desc">Renders the PDF onto a canvas with page navigation and zoom controls that live inside your page's design, rather than the browser's native viewer chrome. More moving parts, nicest result.</div>
+    <div class="frame-box" style="background:#525659; padding:12px 0;">
+      <canvas id="pdf-canvas" style="display:block; margin:0 auto; box-shadow:0 2px 10px rgba(0,0,0,0.4);"></canvas>
+    </div>
+    <div style="margin-top:12px; display:flex; align-items:center; gap:14px;">
+      <button id="prev" style="padding:6px 14px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; cursor:pointer;">‹ Prev</button>
+      <span id="page-info" style="font-size:0.9rem; color:#5b6472;">Page 1</span>
+      <button id="next" style="padding:6px 14px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; cursor:pointer;">Next ›</button>
+    </div>
+  </section>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  const url = "RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0.pdf";
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+  let pdfDoc = null, pageNum = 1;
+  const canvas = document.getElementById('pdf-canvas');
+  const ctx = canvas.getContext('2d');
+  const pageInfo = document.getElementById('page-info');
+
+  function renderPage(num) {
+    pdfDoc.getPage(num).then(page => {
+      const viewport = page.getViewport({ scale: 1.1 });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      page.render({ canvasContext: ctx, viewport });
+      pageInfo.textContent = `Page ${num} of ${pdfDoc.numPages}`;
+    });
+  }
+
+  pdfjsLib.getDocument(url).promise.then(doc => {
+    pdfDoc = doc;
+    renderPage(pageNum);
+  }).catch(err => {
+    pageInfo.textContent = "Could not load PDF.js viewer (likely blocked in this sandbox — will work fine on GitHub Pages).";
+  });
+
+  document.getElementById('prev').addEventListener('click', () => {
+    if (pageNum <= 1) return;
+    pageNum--; renderPage(pageNum);
+  });
+  document.getElementById('next').addEventListener('click', () => {
+    if (!pdfDoc || pageNum >= pdfDoc.numPages) return;
+    pageNum++; renderPage(pageNum);
+  });
+</script>
+
+</body>
+</html>

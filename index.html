@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RDK-B Core Broadband Platform</title>
+<meta name="description" content="RDK-B Core Broadband Platform — overview, five-tier architecture, and architecture standards.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bedrock: #0b1220; --hal: #1c3a5e; --middleware: #1a56db; --mgmt: #0e9f6e;
+    --cloud-bg: #eef2ff; --cloud-fg: #3730a3; --ink: #0f172a; --muted: #5b6472;
+    --page-bg: #f8fafc; --card-bg: #ffffff; --border: #e2e8f0;
+    --amber-fg: #b45309; --amber-bg: #fef3c7;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: "Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); background: var(--page-bg); line-height: 1.55; }
+  code, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  a { color: var(--middleware); }
+  h1, h2, h3 { font-weight: 800; letter-spacing: -0.01em; margin: 0; }
+  p { margin: 0 0 12px; color: var(--muted); }
+  nav { position: sticky; top: 0; z-index: 50; background: rgba(11,18,32,0.95); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .brand { color: #fff; font-weight: 700; font-size: 0.98rem; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+  .brand .mono { color: #8fb3ff; font-size: 0.78rem; font-weight: 600; }
+  .navlinks a { color: #cbd5e1; text-decoration: none; font-size: 0.88rem; font-weight: 500; margin-left: 26px; }
+  .navlinks a:hover { color: #fff; }
+  .navlinks a.ext::after { content: " ↗"; font-size: 0.78em; }
+  .hero { background: linear-gradient(180deg, #0b1220 0%, #101c33 100%); color: #fff; padding: 72px 32px 56px; }
+  .hero-inner { max-width: 980px; margin: 0 auto; }
+  .eyebrow { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: #8fb3ff; border: 1px solid rgba(143,179,255,0.35); border-radius: 999px; padding: 4px 12px; margin-bottom: 18px; }
+  .hero h1 { font-size: 2.6rem; color: #fff; max-width: 760px; }
+  .hero .lede { color: #b6c2d9; font-size: 1.1rem; max-width: 640px; margin-top: 14px; }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+  .badge { display: inline-block; margin: 0 10px 10px 0; font-size: 0.8rem; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,0.08); color: #dbe4f3; border: 1px solid rgba(255,255,255,0.12); }
+  .stats { max-width: 980px; margin: -30px auto 0; padding: 0 32px; display: flex; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; position: relative; z-index: 2; }
+  .stat { flex: 1; min-width: 0; background: #fff; padding: 20px 16px; text-align: center; }
+  .stat .num { font-size: 1.5rem; font-weight: 800; color: var(--middleware); }
+  .stat .lbl { font-size: 0.74rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  @media (max-width: 760px) { .stats { flex-wrap: wrap; } .stat { flex: 1 1 40%; } }
+  section { max-width: 980px; margin: 0 auto; padding: 72px 32px; }
+  section.tight-top { padding-top: 56px; }
+  .section-head { margin-bottom: 32px; }
+  .section-head .eyebrow-lt { font-family: "JetBrains Mono", monospace; font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--middleware); font-weight: 600; margin-bottom: 8px; display: block; }
+  .section-head h2 { font-size: 1.9rem; }
+  .section-head p { margin-top: 10px; font-size: 1.02rem; max-width: 680px; }
+  .callout { background: #eef2ff; border: 1px solid #c7d5fb; border-radius: 12px; padding: 20px 24px; margin: 18px 0; }
+  .callout strong { color: var(--ink); display: block; margin-bottom: 4px; font-size: 0.95rem; }
+  .callout p { margin: 0; font-size: 0.95rem; }
+  .two-col { display: flex; gap: 28px; }
+  .two-col > * { flex: 1; min-width: 0; }
+  @media (max-width: 760px) { .two-col { flex-direction: column; } }
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; }
+  .card h3 { font-size: 1rem; margin-bottom: 8px; }
+  .card p { font-size: 0.92rem; margin: 0; }
+  table.def-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.9rem; }
+  table.def-table th, table.def-table td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.def-table th { background: #f1f5f9; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  table.def-table td.mono { color: var(--ink); font-weight: 600; }
+  .timeline { border-left: 2px solid var(--border); margin-left: 6px; padding-left: 24px; display: flex; flex-direction: column; gap: 18px; }
+  .tl-item { position: relative; }
+  .tl-item::before { content: ""; position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--middleware); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--middleware); }
+  .tl-year { font-family: "JetBrains Mono", monospace; font-weight: 700; color: var(--middleware); font-size: 0.86rem; }
+  .tl-item p { margin: 2px 0 0; font-size: 0.92rem; }
+  .tier-diagram { border-radius: 14px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .tier { display: flex; align-items: stretch; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .tier:last-child { border-bottom: none; }
+  .tier .num { flex: 0 0 64px; display: flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 1.1rem; }
+  .tier .body { flex: 1; padding: 18px 22px; }
+  .tier .body h4 { margin: 0 0 4px; font-size: 1rem; font-weight: 700; }
+  .tier .body p { margin: 0; font-size: 0.88rem; }
+  .tier.t5 { background: var(--cloud-bg); color: var(--cloud-fg); }
+  .tier.t5 .num { background: #d9e2ff; color: var(--cloud-fg); }
+  .tier.t4 { background: #e3f7ef; color: #065f46; }
+  .tier.t4 .num { background: var(--mgmt); color: #fff; }
+  .tier.t3 { background: var(--middleware); color: #fff; }
+  .tier.t3 .num { background: #1442ad; color: #fff; }
+  .tier.t3 .body p { color: #dce6ff; }
+  .tier.t2 { background: var(--hal); color: #fff; }
+  .tier.t2 .num { background: #142b47; color: #fff; }
+  .tier.t2 .body p { color: #c5d3e6; }
+  .tier.t1 { background: var(--bedrock); color: #fff; }
+  .tier.t1 .num { background: #05070d; color: #9fb2cf; }
+  .tier.t1 .body p { color: #9fb2cf; }
+  .tier-caption { text-align: center; font-size: 0.82rem; color: var(--muted); margin-top: 10px; }
+  .layer-stack { display: flex; flex-direction: column; gap: 6px; }
+  .layer-box { margin-bottom: 6px; border-radius: 8px; padding: 12px 16px; font-size: 0.86rem; font-weight: 600; text-align: center; }
+  .layer-box:last-child { margin-bottom: 0; }
+  .layer-box.top { background: var(--middleware); color: #fff; }
+  .layer-box.mid { background: var(--hal); color: #fff; }
+  .layer-box.bot { background: #e2e8f0; color: var(--ink); }
+  .subhead { font-size: 1.15rem; font-weight: 700; margin: 34px 0 12px; }
+  .subhead:first-of-type { margin-top: 8px; }
+  footer { background: var(--bedrock); color: #9fb2cf; padding: 44px 32px 30px; }
+  .footer-inner { max-width: 980px; margin: 0 auto; }
+  .footer-links { display: flex; flex-wrap: wrap; gap: 28px; margin-bottom: 22px; }
+  .footer-links a { display: block; min-width: 200px; margin: 0 28px 14px 0; color: #dbe4f3; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+  .footer-links a span { display: block; font-weight: 400; color: #8493ab; font-size: 0.8rem; margin-top: 2px; }
+  .footer-meta { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 18px; font-size: 0.78rem; color: #7386a3; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .pill { display: inline-block; margin: 0 8px 8px 0; font-size: 0.78rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #f1f5f9; color: var(--ink); border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">RDK-B Core Broadband <span class="mono">// base</span></div>
+  <div class="navlinks">
+    <a href="#overview">Overview</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#standards">Standards</a>
+    <a href="components/">Components</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">RDK-B_CoreRDK_Spec_MVP · v1.0</span>
+    <h1>RDK-B Core Broadband Platform</h1>
+    <p class="lede">RDK-B sits between the hardware SoC/BSP layer and the operator&#x27;s cloud management systems, providing a rich set of pre-integrated components for Wi-Fi, routing, diagnostics, telemetry, device management, IoT, and application containerization. Its HAL abstraction model means that a single software stack can run on radically different SoC platforms. Typically, each RDKB component contains a logical grouping of related features, and this modular approach allows software developers to select the set of high-level features required for each software build.</p>
+    <div class="badge-row">
+      <span class="badge">26 features</span>
+      <span class="badge">7 device profiles</span>
+      <span class="badge">Five-tier architecture</span>
+      <span class="badge">Apache-2.0 / LGPL-2.1</span>
+    </div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="num">2012</div><div class="lbl">Platform origin</div></div>
+  <div class="stat"><div class="num">2016</div><div class="lbl">RDK Central formed</div></div>
+  <div class="stat"><div class="num">100M+</div><div class="lbl">Devices deployed</div></div>
+  <div class="stat"><div class="num">5</div><div class="lbl">Architecture tiers</div></div>
+  <div class="stat"><div class="num">2026</div><div class="lbl">Matter / IoT added</div></div>
+</div>
+
+<section id="overview" class="tight-top">
+  <div class="section-head">
+    <span class="eyebrow-lt">01 — Overview</span>
+    <h2>What is RDK-B?</h2>
+  </div>
+
+  <div class="callout">
+    <strong>Platform definition</strong>
+    <p>RDK-B (Reference Design Kit – Broadband) is an open-source, modular, operator-grade middleware platform providing a standardized software stack for broadband residential and business devices. RDKB components are open-sourced, vendor-independent, actively maintained, and each represented by one or more GitHub repositories.</p>
+  </div>
+
+  <div class="subhead" style="margin-top:0;">Platform origins</div>
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-year">2012</span><p>RDK inception by Liberty Global and Comcast for video (RDK-V).</p></div>
+<div class="tl-item"><span class="tl-year">2014</span><p>RDK-B broadband stream launched; first DOCSIS gateway deployments.</p></div>
+<div class="tl-item"><span class="tl-year">2016</span><p>RDK Central LLC established as neutral governance entity.</p></div>
+<div class="tl-item"><span class="tl-year">2018</span><p>RBUS IPC introduced, replacing legacy CCSP/D-Bus.</p></div>
+<div class="tl-item"><span class="tl-year">2020</span><p>Wan Manager/Interface Managers Introduced.</p></div>
+<div class="tl-item"><span class="tl-year">2021</span><p>DSM and Dobby container runtime merged.</p></div>
+<div class="tl-item"><span class="tl-year">2022</span><p>USP/TR-369 published.</p></div>
+<div class="tl-item"><span class="tl-year">2023</span><p>OneWifi launched.</p></div>
+<div class="tl-item"><span class="tl-year">2024</span><p>100M+ devices deployed globally.</p></div>
+<div class="tl-item"><span class="tl-year">2025</span><p>Wi-Fi 7 (802.11be) integrated; EasyMesh Introduced.</p></div>
+<div class="tl-item"><span class="tl-year">2026</span><p>Matter/IoT (BartonCore) introduced.</p></div>
+  </div>
+
+  <div class="subhead">Licensing</div>
+  <div class="pill-row">
+    <span class="pill">Apache License 2.0 — primary license for most middleware components</span>
+<span class="pill">LGPL-2.1 — used by library components for compatibility with proprietary HAL implementations</span>
+  </div>
+</section>
+
+<section id="architecture" style="background:#fff; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="section-head">
+    <span class="eyebrow-lt">02 — Architecture</span>
+    <h2>The five-tier model</h2>
+    <p>RDK-B's architecture reads like a cross-section: cloud-facing management at the
+      top, silicon at the base, with the RDK-B middleware — the platform's largest tier —
+      doing the work in between.</p>
+  </div>
+
+  <div class="tier-diagram">
+    
+    <div class="tier t5">
+      <div class="num">5</div>
+      <div class="body">
+        <h4>Cloud / ACS</h4>
+        <p>Operator cloud: ACS, USP Controller, xConf, WebConfig, Telemetry backends, Crash collection, Log aggregation.</p>
+      </div>
+    </div>
+
+    <div class="tier t4">
+      <div class="num">4</div>
+      <div class="body">
+        <h4>Management Protocols</h4>
+        <p>parodus/WebPA, usp-pa-vendor-rdk, tr069-protocol-agent, xconf-client, WebconfigFramework, T2 telemetry.</p>
+      </div>
+    </div>
+
+    <div class="tier t3">
+      <div class="num">3</div>
+      <div class="body">
+        <h4>RDK-B Middleware</h4>
+        <p>RDK-B components: OneWiFi, wan-manager, dhcp-manager, DSM, Dobby, BartonCore, all feature components. All communicate via RBUS.</p>
+      </div>
+    </div>
+
+    <div class="tier t2">
+      <div class="num">2</div>
+      <div class="body">
+        <h4>HAL / BSP</h4>
+        <p>rdkb-halif-* interface libraries and vendor BSP. Boundary between RDK-B middleware and SoC firmware.</p>
+      </div>
+    </div>
+
+    <div class="tier t1">
+      <div class="num">1</div>
+      <div class="body">
+        <h4>Hardware / SoC</h4>
+        <p>Physical silicon: SoC CPU, Wi-Fi radio, modem chipset, Ethernet switch, Flash/RAM.</p>
+      </div>
+    </div>
+  </div>
+  <div class="tier-caption">Tier 3 (RDK-B Middleware) is where nearly all feature development happens; Tiers 1–2 are vendor-owned and certified via RDK Ready.</div>
+
+  <div class="two-col" style="margin-top:44px;">
+    <div>
+      <div class="subhead" style="margin-top:0;">Production software builds</div>
+      <div class="layer-stack">
+        <div class="layer-box top">RDK-B Components</div>
+        <div class="layer-box mid">Hardware Abstraction Layer</div>
+        <div class="layer-box bot">Vendor Layer — hardware-dependent implementation</div>
+      </div>
+    </div>
+    <div>
+      <div class="subhead" style="margin-top:0;">Vendor test software builds</div>
+      <div class="layer-stack">
+        <div class="layer-box top">RDK Ready — Vendor Test Software</div>
+        <div class="layer-box mid">Hardware Abstraction Layer</div>
+        <div class="layer-box bot">Vendor Layer — hardware-dependent implementation</div>
+      </div>
+    </div>
+  </div>
+
+  <table class="def-table" style="margin-top:32px;">
+    <thead><tr><th>Test suite</th><th>Definition</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">RDK Platform Test Suite</td><td>RDK Platform — component behavior, integration, data model, management, security, profile conformance</td><td>RDK-B Owner</td></tr>
+<tr><td class="mono">Vendor Test Suite</td><td>Vendor Layer — HAL implementation correctness, SoC-specific behavior</td><td>HAL Spec Owner</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="standards">
+  <div class="section-head">
+    <span class="eyebrow-lt">03 — Standards</span>
+    <h2>Architecture standards and governance</h2>
+    <p>Every new or refactored component is held to the same rules for modularity, IPC,
+      testing, and data modeling — so the platform stays consistent as more vendors and
+      operators contribute to it.</p>
+  </div>
+
+  <div class="subhead" style="margin-top:0;">Process, implementation &amp; coding standards</div>
+  <table class="def-table">
+    <thead><tr><th>Standard</th><th>Requirement</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">Component modularity and organization</td><td>New or refactored software components MUST contain only software that implements a grouping of similar features. This design helps to ensure that the component may be added to a software build only when that feature set is needed. Software to implement other unrelated features MUST NOT be included in the component. The software source code, build recipes, unit test mechanisms and documentation for a component SHOULD be contained in a single software repo. If any of this is contained in more than one repo, the documentation in each repo must reference all other software repos containing any of this information for the component. Distro Flags SHOULD be implemented for all sub-features that may not be required for all markets or operators.</td></tr>
+<tr><td class="mono">Component IPC Guidelines</td><td>RBUS APIs are the authoritative interface for RDKB component to component interprocess communications (IPC). All new software contributions to existing and new components MUST exclusively use RBUS APIs for IPC with other RDKB components. Contributions to both existing and new components MUST be scanned using a common RDK static analysis tool to compare with previous versions of the component (if any) to ensure that no new usage of older IPC mechanisms is added, including syseventd, DMCLI or CCSP APIs.</td></tr>
+<tr><td class="mono">Component Dependency Management Policy</td><td>Mandatory architecture review MUST be conducted for all new inter-component dependencies. Core components are those that are required in all RDKB profiles. RDKB components MUST NOT have build-time or run-time dependencies with non-core components. Components MAY have build-time or run-time dependencies with Core Components. Non-core components are those that are considered optional or not applicable in at least one RDKB profile. Core components are those that are required in all RDKB profile.</td></tr>
+<tr><td class="mono">Component Unit Testing Requirements</td><td>All new components MUST ship with isolated unit tests requiring no external dependencies. HAL interfaces must have rdkb-halif-test-* suite before being declared stable. Test coverage metrics MUST be published per release. Testing must auto-discover the supported data model elements (including event and method usage) and auto-create a document of the supported data model elements when each feature flag is enabled. This document MUST (at a minimum) list all data model names provided in the component and which APIs are supported for each data model (set, get, add instance, delete instance, subscribe to event, un-subscribe, method invoke).</td></tr>
+<tr><td class="mono">Data Model Documentation Standards</td><td>Data Model documentation MUST be sufficient to enable other developers/testers/system integrators to understand how to use each data model element. When a software contribution is received that updates an existing component or creates a new component, the contribution MUST contain detailed documentation of any new data models and changes to older data models. This MUST include the data model name, the supported RBUS APIs (examples: Set, Get, Add Instance, Subscribe, Unsubscribe, Method Invoke, Method Invoke Async), a detailed description of all properties, events, and input/output parameters. This documentation MUST also indicate if using the data model persists data and if that persistent data is reset to a known value on factory reboot. Before the contribution is accepted, the data models provided by the updated or new component must be auto-discovered using a run-time approach that queries the list of data models registered by the component. The documentation from each contribution MUST be compared against the list of auto-discovered data models to ensure that the documentation is complete and accurate before the contribution can be accepted. Any feature flags required to enable each data model must also be listed in the documentation. Any changes to data models must be documented in the software repo for that component and these changes must be included in the master list of all RDKB data models by component.</td></tr>
+<tr><td class="mono">Data Model Standards (TR-181)</td><td>Data models used in RDKB software contributions SHOULD follow the TR-181 standard when possible. Software contributions that use a data model name previously documented in the TR-181 standard MUST fully comply with the most recent TR-181 documentation for that name. If the most recent TR181 standard does not provide a data model name with the desired new functionality or the software contribution does not fully comply with how TR- 181 standard describes how an existing name is used, then a new data model name MAY be created. New data model names MUST use the TR-181 organization and hierarchy when possible. New data model names MUST comply with the applicable extension format for non-standard names. New data model names SHOULD use the format: &lt;existing TR- 181 object hierarchy&gt;.X_RDK-&lt;new name&gt;</td></tr>
+<tr><td class="mono">HAL Documentation Standards</td><td>Each HAL interface must have a published interface specification document.</td></tr>
+<tr><td class="mono">Interface Versioning &amp; Backward Compatibility</td><td>All components and HAL interface MUST follow semantic versioning (MAJOR.MINOR.PATCH). Large functional changes and any change that is not backward compatible MUST increment the MAJOR version. Small planned features additions or bug fixes SHOULD increment the MINOR version. Unplanned bug fixes SHOULD increment the PATCH version. Deprecated interfaces SHOULD remain supported a minimum of two release cycles before removal.</td></tr>
+<tr><td class="mono">Telemetry &amp; Observability Standards</td><td>Components MUST emit logs conforming to the RDK-B common logging format. Critical state transitions SHOULD publish RBUS events and/or provide status properties that can be read by other RBUS components. .</td></tr>
+<tr><td class="mono">Build &amp; Packaging Standards (Yocto/OE)</td><td>Components MUST build cleanly under the supported Yocto release with no layer dependency cycles. Recipes MUST declare explicit LICENSE and SPDX identifiers. Distro flags MUST gate all profile-specific or optional features.</td></tr>
+<tr><td class="mono">Error Handling &amp; Resilience Standards</td><td>Components MUST use defined RBUS error codes, not custom/undocumented codes. Crash-prone components MUST integrate with systemd watchdog and support clean restart without state corruption. Core dumps MUST be captured via the CrashUpload framework.</td></tr>
+<tr><td class="mono">Naming &amp; Repository Conventions</td><td>Component repos MUST follow the rdkb-&lt;component&gt; convention. New components MUST follow the Rdk* prefix and &lt;Function&gt; HAL suffix conventions already established in the architecture. Branch naming aligns with governance branch policy (7.2.12).</td></tr>
+<tr><td class="mono">Code Quality &amp; Static Analysis Standards</td><td>New C/C++ components MUST pass static analysis (cppcheck/Coverity) with zero high- severity findings before merge. Coding style MUST conform to the published RDK-B style guide. Memory safety tooling (ASan/Valgrind) runs in CI for native builds.</td></tr>
+<tr><td class="mono">Northbound Protocol Onboarding</td><td>Any new remote-management protocol (beyond TR-369/TR- 069/WebPA/Webconfig/SNMP/DAC/SSH) MUST be supported with a new Protocol Adapter component designed to abstract that protocol and allow the protocol to transparently send corresponding messages to other components using RBUS APIs. New protocols MUST NOT reach into RDKB components directly.</td></tr>
+<tr><td class="mono">WAN Technology Onboarding</td><td>A new WAN access technology MUST integrate through RdkWanManager plus a technology-specific manager/agent (following the GPON/xDSL/Cellular/Docsis/EPON pattern); bespoke managers outside this pattern require architecture review.</td></tr>
+<tr><td class="mono">Edge AI / ML Integration Standards*</td><td>AI/ML inference components MUST use vendor-neutral model formats (ONNX/RKNN), decoupled from any single NPU vendor SDK. Inference latency and resource budgets documented per model. Versioning/rollback supported for production deployment. Layer placement (dedicated color-coded layer vs folded into other RDKB layers) still needs a decision before this is fully ready.</td></tr>
+<tr><td class="mono">Integration of differentiating or proprietary software Third-Party Component Integration &amp; HAL Extension Standards</td><td>Developers and System Integrators that desire to add differentiation or proprietary software on top of RDKB open source should follow one of two paths: 1) New differentiating or proprietary software that is hardware independent SHOULD use the existing TR-181 data models already supported by RDKB in order to control, optimize or extend RDKB features where possible. If new code needs to be added to the RDKB open source software to provide basic enabling features, then new data models to support this SHOULD be contributed to the RDKB community. This MAY be done while excluding differentiating or proprietary software by packaging that software in components that are NOT open sourced to the community. 2) New differentiating or proprietary software that is hardware dependent may be added in the vendor layer. This software MUST support RDK HAL API definitions. If HAL APIs need to be modified or extended, vendor MUST work with the RDK community to make these changes. This allows vendors to differentiate within the vendor layer while keeping a c ommon interface to the vendor layer.</td></tr>
+<tr><td class="mono">IPC Mechanism Selection</td><td>RBUS is the default and only sanctioned IPC for new RDKB components. D-Bus is permitted only for legacy/vendor OSS that natively requires it (e.g. ModemManager), bridged into RBUS rather than consumed directly. USP/UDS is reserved for the USP Agent↔Controller boundary only. Downloaded Apps may use USP/UDS provided that a USP/UDS API Gateway converts these messages to RBUS. Any other IPC requires architecture review with documented justification.</td></tr>
+<tr><td class="mono">Eventing Standards</td><td>State-change events SHOULD be published via RBUS event/subscribe, not polling Event payloads that contain a value SHOULD carry both updated parameter/value and the previous parameter/value. High-frequency events (&gt;1/sec) SHOULD be rate-limited or coalesced at the publisher unless typical use cases require all high frequency events to be published</td></tr>
+<tr><td class="mono">Storage &amp; Persistence Standards</td><td>Data-model-backed parameters requiring persistence SHOULD use PSM or a new common method defined in the future. Structured local storage (logs, model artifacts) MUST use a defined path with documented size quotas with no writes to rootfs.</td></tr>
+<tr><td class="mono">Footprint / CPU / RAM Budget</td><td>Every new component MUST document typical RAM, peak RAM, and flash footprint targets at design review, scoped to its device profile tier. Regressions beyond an agreed threshold versus prior release require architecture sign-off. Lower-tier profiles MUST never silently inherit other-profile footprint assumptions.</td></tr>
+<tr><td class="mono">system()/Shell-out Usage</td><td>Calling system()/popen() from C/C++ daemons is discouraged by default; native library calls are preferred. Where unavoidable, the call MUST check return codes, sanitize interpolated input against shell injection, and never runs in a signal handler or high-frequency loop.</td></tr>
+<tr><td class="mono">OSS Usage Standards</td><td>OSS dependencies come from the sanctioned Linux OSS layer list; new dependencies require review for license compatibility, CVE history, and maintenance activity. RDK-B wraps OSS via a thin adapter rather than embedding internals directly. Forking OSS instead of upstreaming requires approval plus a reconciliation plan.</td></tr>
+<tr><td class="mono">@When to Use HAL</td><td>Any interaction with vendor/SoC-specific hardware or firmware MUST pass through a published HAL; direct vendor SDK calls MUST NOT be used.. A HAL is required only where behavior differs across silicon vendors — platform-independent behavior belongs in Linux OSS or a native component.</td></tr>
+<tr><td class="mono">No RDK-B IPC Within vendor layer</td><td>Vendor layer HAL implementations MUST NOT contain TR-181/data-model awareness, RBUS usage or sysevent/syscfg calls.</td></tr>
+<tr><td class="mono">Direct Kernel Interaction</td><td>Components talk to the kernel directly (syscalls, sysfs, procfs) only for OS-level facilities with no existing HAL/OSS abstraction. Any kernel interface used by more than one component is wrapped in a shared internal library, not duplicated. New kernel module/driver dependencies require platform-layer governance review (7.2.6).</td></tr>
+<tr><td class="mono">Netlink vs Other Kernel Interfaces</td><td>Netlink is preferred for asynchronous kernel notifications (link state, routing, neighbor changes); polling sysfs/procfs where a netlink equivalent exists is prohibited. ioctl is permitted only for legacy drivers with no netlink support, isolated behind a HAL/adapter.</td></tr>
+<tr><td class="mono">C/C++ Coding Anti-Patterns</td><td>Blocking I/O MUST NOT occur on a component&#x27;s main RBUS event-handling thread. strcpy/sprintf and unbounded buffers for variable-length input MUST NOT be used in favor of bounded equivalents; malloc return values MUST always be checked and an error must be logged and returned to higher level software Global mutable state shared across translation units is prohibited except through a documented, lock-protected accessor.</td></tr>
+<tr><td class="mono">Sysevent Usage Standards</td><td>Sysevent usage is expected to be deprecated over time. New software contributions MUST NOT add to sysevent usage or add any new sysevent keys.</td></tr>
+<tr><td class="mono">Scripting Usage Standards</td><td>Shell scripts MAY be used for one-shot boot/init orchestration and MUST NOT be used for long running stateful logic. Interpreted languages are discouraged on memory/flash- constrained profiles unless explicitly justified — native C/C++ or RUST SHOULD be used</td></tr>
+<tr><td class="mono">Calling C/C++ from Scripts</td><td>Scripts MUST call into native functionality via the component&#x27;s published data model interface using rbuscli or RBUS APIs. Scripts MUST NOT link against internal .so symbols outside a published API. Scripts MUST NOT parse internal binary log/state formats.</td></tr>
+<tr><td class="mono">RFC vs syscfg vs Build Flag</td><td>A features or behavior SHOULD use a data model property or method invocation for enable/disable if the feature or behavior needs remote, post-deployment toggling without a firmware push. An operator specific or device specific “Factory Default” value may be used at build time to control the default behavior of a feature. A feature or behavior that needs to be controlled at build time SHOULD use a Distro/build flag. Large features MAY be controlled at build time by the presence/absence of a software component in the build.</td></tr>
+<tr><td class="mono">Threading &amp; Concurrency Model</td><td>New daemons MUST default to a single-threaded event loop unless a specific workload justifies multi-threading. Where threads are used, lock ordering MUST be documented and mutexes MUST NOT be held across an RBUS call. There MUST NOT be unbounded thread spawning per request/connection.</td></tr>
+<tr><td class="mono">Logging Level Standards</td><td>Components MUST use rdk_logger exclusively, never raw printf/syslog. ERROR is reserved for conditions requiring operator/telemetry attention; DEBUG/TRACE SHOULD be compiled out or runtime-gated in production builds.</td></tr>
+<tr><td class="mono">Shared Library ABI Versioning</td><td>Any .so consumed by more than one component MUST follow symbol versioning</td></tr>
+    </tbody>
+  </table>
+
+  <div class="subhead">Industry standards conformance</div>
+  <p style="margin-bottom:18px;">Where RDK-B functionality overlaps an established global standard, the
+    implementation conforms to that standard's normative requirements rather than
+    introducing a proprietary deviation.</p>
+
+  <div class="subhead">Wireless &amp; local networking</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">IEEE 802.11ax / 802.11be</td><td>OneWifi, rdk-wifi-hal, Vendor Wi-Fi HAL</td><td>Wi-Fi 6/6E/7 PHY-MAC conformance</td></tr>
+<tr><td class="mono">Wi-Fi Alliance EasyMesh R6</td><td>EasyMesh controller / Agent interface and associated features.</td><td>Multi-AP interoperability certification</td></tr>
+<tr><td class="mono">Wi-Fi Alliance WPA3 / WPS Certification</td><td>WPS box, Wi-Fi security stack</td><td></td></tr>
+<tr><td class="mono">IEEE 802.1Q</td><td>RDKVlanBridgingManager, VLAN utils, VLAN HAL</td><td>VLAN tagging for ISP/service separation</td></tr>
+<tr><td class="mono">IEEE 802.3</td><td>Ethernet switch HAL</td><td>Base Ethernet conformance</td></tr>
+<tr><td class="mono">Bluetooth SIG Core Specification</td><td>Bluetoothctl, Bluetooth HCI</td><td></td></tr>
+</tbody></table>
+<div class="subhead">IoT &amp; smart home standards</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">Thread Group Thread Specification</td><td>BartonCore (Thread network layer)</td><td></td></tr>
+<tr><td class="mono">Connectivity Standards Alliance (CSA) Matter Specification</td><td>BartonCore (Matter controller/bridge)</td><td></td></tr>
+<tr><td class="mono">CSA Zigbee Specification</td><td>BartonCore (Zigbee bridge)</td><td>Legacy device compatibility</td></tr>
+<tr><td class="mono">IEEE 802.15.4</td><td>Underlying radio layer for Thread/Zigbee within BartonCore</td><td></td></tr>
+<tr><td class="mono">Device.IoT.* TR-181 (WT-480 pathway)</td><td>barton-rbus-provider</td><td>Bridges BartonCore into RBUS/TR-181</td></tr>
+</tbody></table>
+<div class="subhead">Network services</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">IETF RFC 1035 (DNS)</td><td>DNS proxy (Linux OSS), CcspXdns</td><td>CcspXdns is RDK-B&#x27;s DNS-based filtering/redirect feature, not a separate protocol</td></tr>
+<tr><td class="mono">IETF RFC 6762/6763 (mDNS/DNS-SD)</td><td>Local service discovery, where used by OneWifi/EasyMesh</td><td>Confirm actual usage before citing as a hard requirement</td></tr>
+<tr><td class="mono">IETF RFC 2131 (DHCPv4)</td><td>Dhcp Manager, DHCP V4 HAL, Dnsmasq</td><td></td></tr>
+<tr><td class="mono">IETF RFC 8415 (DHCPv6)</td><td>DHCP V6 HAL, Dibbler</td><td></td></tr>
+<tr><td class="mono">IETF RFC 1661/1662 (PPP) + RFC 2516 (PPPoE)</td><td>RDKPPPManager</td><td>Relevant for DSL/fiber ISPs using PPP- based WAN authentication</td></tr>
+<tr><td class="mono">IETF RFC 3376 (IGMPv3)</td><td>IGMP Proxy</td><td></td></tr>
+<tr><td class="mono">UPnP Forum IGD Spec (now under Open Connectivity Foundation)</td><td>Upnp box</td><td></td></tr>
+</tbody></table>
+<div class="subhead">IPv6 transition mechanisms</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">IETF RFC 7597/7599 (MAP-T/MAP-E)</td><td>MAP-T/E features</td><td>May required kernel patches</td></tr>
+<tr><td class="mono">IETF RFC 6333 (DS-Lite)</td><td>Dslite features</td><td></td></tr>
+</tbody></table>
+<div class="subhead">Access network / WAN technologies</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">ITU-T G.984 / G.988 (GPON, OMCI)</td><td>RdkGPONManager, GPON Headend (OLT)</td><td></td></tr>
+<tr><td class="mono">ITU-T G.9807.1 (XGS- PON)</td><td>Forward-looking GPON evolution</td><td></td></tr>
+<tr><td class="mono">IEEE 802.3ah / 802.3av (EPON / 10G-EPON)</td><td>CcspEponAgent, EPON Headend</td><td>EPON is IEEE, not ITU-T — distinct from GPON&#x27;s standards body</td></tr>
+<tr><td class="mono">ITU-T G.993.2 (VDSL2) / G.9701 (G.fast)</td><td>RdkXdslManager, XDSL HAL, DSL Headend (DSLAM)</td><td></td></tr>
+<tr><td class="mono">CableLabs DOCSIS 3.1/4.0 + eRouter Specification</td><td>CcspCMAgent, Docsis Headend (CMTS)</td><td>eRouter spec is also the origin of the erouter0 interface naming used in your WAN bridge work</td></tr>
+<tr><td class="mono">CableLabs PacketCable</td><td>CcspMTAAgent, MTA HAL</td><td>Voice over cable</td></tr>
+<tr><td class="mono">3GPP TS 27.007 (AT command set)</td><td>RDKCellularManager-MM, Cellular Modem HAL, ModemManager/libqmi</td><td>Independent of RAN generation (3G/4G/5G)</td></tr>
+<tr><td class="mono">USB-IF MBIM Specification</td><td>libmbim</td><td>Mobile Broadband Interface Model</td></tr>
+<tr><td class="mono">MoCA Alliance MoCA 2.0/2.5</td><td>CcspMoca, MoCA HAL</td><td></td></tr>
+</tbody></table>
+<div class="subhead">Boot chain, kernel &amp; firmware integrity</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">Linux Kernel (GPLv2, kernel.org/Linux Foundation governance)</td><td>Linux Kernel &amp; Device Drivers layer</td><td>UAPI stability commitment governs what RDK-B can rely on across kernel versions</td></tr>
+<tr><td class="mono">U-Boot (GPLv2, Denx community)</td><td>Bootloader layer</td><td></td></tr>
+<tr><td class="mono">Arm SystemReady (IR/SR profiles) + EBBR (Embedded Base Boot Requirements)</td><td>Bootloader layer, boot chain standardization</td><td>Standardizes the boot contract (U-Boot+EBBR for embedded profiles) for interoperability across Arm SoCs; complements PSA Certified, which covers security rather than boot interface</td></tr>
+<tr><td class="mono">NIST SP 800-193 (Platform Firmware Resiliency Guidelines)</td><td>Bootloader → kernel verification chain</td><td>Detection/protection/recovery model for firmware integrity</td></tr>
+<tr><td class="mono">Arm PSA Certified / TrustZone</td><td>Secure boot chain on ARM-based reference platforms (e.g. MT7988/BPI R4)</td><td>Security/attestation, distinct from SystemReady&#x27;s boot- interface scope</td></tr>
+<tr><td class="mono">GlobalPlatform TEE Client/Internal API Specifications</td><td>Where a TEE holds boot/signing keys</td><td>Only applies if the SoC&#x27;s secure boot path uses a TEE rather than ROM-only verification</td></tr>
+</tbody></table>
+<div class="subhead">Cryptographic signing for secure boot</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">NIST FIPS 186-5 (Digital Signature Standard — covers ECDSA)</td><td>Bootloader/kernel/firmware image signature verification</td><td></td></tr>
+<tr><td class="mono">SEC 1 / SEC 2 (Certicom Standards for Efficient Cryptography)</td><td>Curve parameter selection (e.g. NIST P-256/secp256r1)</td><td>Defines the actual EC curves referenced by FIPS 186-5</td></tr>
+<tr><td class="mono">IETF RFC 8032 (EdDSA/Ed25519)</td><td>Alternative signing scheme</td><td>Increasingly used over ECDSA for boot- time verification due to faster, simpler constant-time implementation</td></tr>
+</tbody></table>
+<div class="subhead">Containers &amp; application platform</div>
+<table class="def-table"><thead><tr><th>Standard / body</th><th>Applies to</th><th>Note</th></tr></thead><tbody>
+<tr><td class="mono">OCI Image Spec &amp; Runtime Spec</td><td>crun, DAC, Dobby/BundleGen</td><td>Ties to your libbundlegen/Dobby OCI work</td></tr>
+<tr><td class="mono">MISRA-C:2012 / CERT C Secure Coding Standard</td><td>C/C++ coding anti-pattern enforcement (7.1.2)</td><td>External normative anchor for the internal coding rule</td></tr>
+<tr><td class="mono">IETF RFC 8446 (TLS 1.3) / RFC 5280 (X.509 PKI)</td><td>WebPA/USP/ACS transport security, secure boot certs</td><td></td></tr>
+<tr><td class="mono">NIST SP 800-57 (key management)</td><td>PSM-backed credential storage</td><td></td></tr>
+<tr><td class="mono">OWASP IoT Top 10</td><td>General embedded device security review checklist</td><td></td></tr>
+</tbody></table>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-links">
+      <a href="components/">Components — profiles<span>Required / optional components per device profile</span></a>
+      <a href="components/full-list.html">Components — full workbook<span>Interactive component list, all profiles</span></a>
+      <a href="https://wiki.rdkcentral.com/spaces/RDK/pages/498925914/RDK9+Core+RDK+Broadband+Specification+Approved+by+TAB">RDK9 Core RDK Broadband Spec<span>TAB-approved specification (wiki)</span></a>
+      <a href="https://github.com/rdkcentral">rdkcentral on GitHub<span>Component source repositories</span></a>
+    </div>
+    <div class="footer-meta">
+      RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0 · RDKM · © 2026 RDK Central. All rights reserved.
+      Generated from RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0.pdf.
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
