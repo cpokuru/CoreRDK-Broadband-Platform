@@ -1,4 +1,5 @@
 {
   "_comment": "Maps a component's display name (exactly as it appears in components/ethwan-router-components.json) to its cpokuru GitHub repo slug, for the North Bound APIs page to fetch <repo>/main/dml.json from. Add one line per component as its dml.json becomes available -- no code changes needed.",
-  "WAN Manager": "RdkWanManager"
+  "WAN Manager": "RdkWanManager",
+  "Ethernet Agent (used for WAN)": "ethernet-agent"
 }
