@@ -42,8 +42,8 @@ PAGES = [
     {
         "active_id": "technical-governance",
         "slug": "technical-governance",
-        "eyebrow": "Technical Governance",
-        "title": "Technical Governance",
+        "eyebrow": "Development Standards",
+        "title": "Development Standards",
         "lede": "Process, implementation, and coding standards every new or refactored "
                 "component is held to.",
     },

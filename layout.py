@@ -17,7 +17,7 @@ COMPONENTS_URL = "components/"
 NAV_LINKS = [
     ("about", "About Core RDK Broadband", "index.html", False),
     ("architecture-standards", "Architecture Standards", "architecture-standards.html", False),
-    ("technical-governance", "Technical Governance", "technical-governance.html", False),
+    ("technical-governance", "Development Standards", "technical-governance.html", False),
     ("nbi", "North Bound APIs", "north-bound-apis.html", False),
     ("sbi", "South Bound APIs", "south-bound-apis.html", False),
     ("hwcompat", "Hardware Compatibility", "hardware-compatibility.html", False),
