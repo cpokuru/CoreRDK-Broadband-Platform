@@ -228,6 +228,43 @@
   .chatbox-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); background: #fff; }
   .chatbox-input { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 0.82rem; font-family: inherit; }
   .chatbox-submit { background: var(--middleware); color: #fff; border: none; border-radius: 8px; padding: 0 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+
+  /* ---- floating contact widget (site-wide, mirrors the search chatbox) ---- */
+  .contact-toggle {
+    position: fixed; bottom: 22px; left: 22px; z-index: 90;
+    width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--mgmt), var(--rdk-blue)); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 20px rgba(14,159,110,0.4);
+  }
+  .contact-toggle svg { width: 22px; height: 22px; }
+  .contact-panel {
+    position: fixed; bottom: 84px; left: 22px; z-index: 90;
+    width: 340px; max-width: calc(100vw - 44px);
+    background: #fff; border-radius: 16px; box-shadow: var(--shadow-md), 0 12px 40px rgba(0,0,0,0.18);
+    display: none; flex-direction: column; overflow: hidden; border: 1px solid var(--border);
+  }
+  .contact-panel.open { display: flex; }
+  .contact-header { background: var(--bedrock); color: #fff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .contact-header .title { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 0.9rem; }
+  .contact-header .subtitle { font-size: 0.72rem; color: #9fb2cf; margin-top: 2px; }
+  .contact-close { background: none; border: none; color: #9fb2cf; cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 4px; }
+  .contact-body { padding: 16px; }
+  .contact-field { margin-bottom: 12px; }
+  .contact-field label { display: block; font-size: 0.76rem; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .contact-field input, .contact-field textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 9px 11px;
+    font-size: 0.84rem; font-family: inherit; resize: vertical;
+  }
+  .contact-submit {
+    width: 100%; background: var(--mgmt); color: #fff; border: none; border-radius: 8px;
+    padding: 10px; font-size: 0.86rem; font-weight: 600; cursor: pointer; margin-top: 4px;
+  }
+  .contact-submit:disabled { opacity: 0.6; cursor: default; }
+  .contact-status { font-size: 0.78rem; margin-top: 10px; text-align: center; }
+  .contact-status.ok { color: #0aa66e; }
+  .contact-status.err { color: #b91c1c; }
+  .contact-mailto { display: block; text-align: center; font-size: 0.76rem; color: var(--muted); margin-top: 10px; }
 </style>
 <title>Hardware Compatibility Spec — RDK-B Core Broadband</title>
 
@@ -335,7 +372,7 @@ fetch(JSON_FILE, { cache: 'no-store' })
     <img src="RDK-logo.png" alt="RDK-B Core Broadband logo" onerror="this.style.display='none'">
   </div>
   <nav>
-    <a class="" href="index.html">About &amp; Architecture</a><a class="" href="architecture-standards.html">Architecture Standards</a><a class="" href="technical-governance.html">Technical Governance</a><a class="" href="north-bound-apis.html">North Bound APIs</a><a class="" href="south-bound-apis.html">South Bound APIs</a><a class="active" href="hardware-compatibility.html">Hardware Compatibility</a>
+    <a class="" href="index.html">About Core RDK Broadband</a><a class="" href="architecture-standards.html">Architecture Standards</a><a class="" href="technical-governance.html">Development Standards</a><a class="" href="north-bound-apis.html">North Bound APIs</a><a class="" href="south-bound-apis.html">South Bound APIs</a><a class="active" href="hardware-compatibility.html">Hardware Compatibility</a>
   </nav>
   <a class="cta" href="components/">Core RDK Components ↗</a>
 </div>
@@ -379,6 +416,39 @@ fetch(JSON_FILE, { cache: 'no-store' })
     <input class="chatbox-input" id="chatbox-input" type="text" placeholder="Ask a question…" autocomplete="off">
     <button class="chatbox-submit" type="submit">Search</button>
   </form>
+</div>
+
+
+<button class="contact-toggle" id="contact-toggle" aria-label="Contact us">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="M3 6l9 6 9-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+</button>
+<div class="contact-panel" id="contact-panel">
+  <div class="contact-header">
+    <div>
+      <div class="title">Contact us</div>
+      <div class="subtitle">Send a message — we'll get it by email</div>
+    </div>
+    <button class="contact-close" id="contact-close" aria-label="Close">&times;</button>
+  </div>
+  <div class="contact-body">
+    <form id="contact-form">
+      <div class="contact-field">
+        <label for="contact-name">Name</label>
+        <input id="contact-name" name="name" type="text" required>
+      </div>
+      <div class="contact-field">
+        <label for="contact-email">Your email</label>
+        <input id="contact-email" name="email" type="email" required>
+      </div>
+      <div class="contact-field">
+        <label for="contact-message">Message</label>
+        <textarea id="contact-message" name="message" rows="4" required></textarea>
+      </div>
+      <button class="contact-submit" id="contact-submit" type="submit">Send</button>
+      <div class="contact-status" id="contact-status"></div>
+    </form>
+    <a class="contact-mailto" href="mailto:support@rdkcentral.com">Or email support@rdkcentral.com directly</a>
+  </div>
 </div>
 
 
@@ -463,6 +533,59 @@ fetch(JSON_FILE, { cache: 'no-store' })
   toggle.addEventListener('click', () => { panel.classList.toggle('open'); if (panel.classList.contains('open')) input.focus(); });
   closeBtn.addEventListener('click', () => panel.classList.remove('open'));
   form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value.trim()) runSearch(input.value.trim()); });
+})();
+</script>
+
+
+<script>
+(function() {
+  const toggle = document.getElementById('contact-toggle');
+  const panel = document.getElementById('contact-panel');
+  const closeBtn = document.getElementById('contact-close');
+  const form = document.getElementById('contact-form');
+  const submitBtn = document.getElementById('contact-submit');
+  const status = document.getElementById('contact-status');
+
+  toggle.addEventListener('click', () => {
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) document.getElementById('contact-name').focus();
+  });
+  closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+    status.textContent = '';
+    status.className = 'contact-status';
+
+    const payload = {
+      name: document.getElementById('contact-name').value,
+      email: document.getElementById('contact-email').value,
+      message: document.getElementById('contact-message').value,
+      _subject: 'New message from RDK-B Core Broadband site',
+    };
+
+    fetch('https://formsubmit.co/ajax/support@rdkcentral.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+      .then(() => {
+        status.textContent = 'Sent — thanks! We\'ll get back to you.';
+        status.className = 'contact-status ok';
+        form.reset();
+      })
+      .catch(err => {
+        status.textContent = 'Could not send (' + err.message + '). Try the email link below instead.';
+        status.className = 'contact-status err';
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send';
+      });
+  });
 })();
 </script>
 
