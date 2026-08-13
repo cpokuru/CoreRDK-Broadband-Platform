@@ -22,9 +22,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
-from layout import esc, render_hero, render_page
+from layout import esc, render_hero, render_page, render_quicklinks
 
 COMPONENTS_URL = "components/"
 COMPONENTS_FULL_URL = "components/full-list.html"
@@ -49,11 +50,16 @@ FOOTER = """
 
 # ---------- About section renderers (from about-content.json) ----------
 
+def slugify(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+
+
 def render_goals(goals: list[dict]) -> str:
     out = []
     for g in goals:
+        anchor = slugify(g["title"])
         out.append(f'''
-    <div class="card" style="margin-bottom:16px;">
+    <div class="card" id="{anchor}" style="margin-bottom:16px; scroll-margin-top:80px;">
       <h3>{esc(g["title"])}</h3>
       <p><strong style="color:var(--ink);">Goal —</strong> {esc(g["goal"])}</p>
       <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> {esc(g["challenge"])}</p>
@@ -130,6 +136,14 @@ def build_about_page(spec: dict, about: dict) -> str:
 </div>
 
 <section class="tight-top">
+  {render_quicklinks([
+        {"icon": "recycle", "title": "Easier component reuse", "href": "#easier-component-reuse", "color": "#29b6e8"},
+        {"icon": "layers", "title": "Build-time modularity", "href": "#modularity-build-time-dependencies", "color": "#7ac943"},
+        {"icon": "cpu", "title": "Run-time modularity", "href": "#modularity-run-time-dependencies", "color": "#f5a623"},
+        {"icon": "check-list", "title": "Reduced code size", "href": "#reduced-code-size", "color": "#f0653e"},
+        {"icon": "shield-check", "title": "Consistent interfaces", "href": "#consistent-interface-definitions", "color": "#29b6e8"},
+    ])}
+
   <div class="section-head">
     <span class="eyebrow-lt">About</span>
     <h2>What is RDKB Core?</h2>
@@ -140,14 +154,20 @@ def build_about_page(spec: dict, about: dict) -> str:
     <p>{esc(about["definition"])}</p>
   </div>
 
-  <div class="subhead" style="margin-top:0;">Why RDKB Core</div>
-  {render_goals(about["goals"])}
+  <div class="section-tint tint-blue">
+    <div class="subhead" style="margin-top:0;">Why RDKB Core</div>
+    {render_goals(about["goals"])}
+  </div>
 
-  <div class="subhead">RDK Ready — a test and certification program for vendors</div>
-  {render_rdk_ready(about["rdk_ready"])}
+  <div class="section-tint tint-green">
+    <div class="subhead" style="margin-top:0;">RDK Ready — a test and certification program for vendors</div>
+    {render_rdk_ready(about["rdk_ready"])}
+  </div>
 
-  <div class="subhead">Benefits &amp; uses</div>
-  {render_benefits(about["benefits"])}
+  <div class="section-tint tint-amber">
+    <div class="subhead" style="margin-top:0;">Benefits &amp; uses</div>
+    {render_benefits(about["benefits"])}
+  </div>
 
   <div class="callout" style="margin-top:24px;">
     <strong>Value proposition</strong>

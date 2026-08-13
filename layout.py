@@ -50,47 +50,50 @@ SHARED_CSS = """
     position: fixed; top: 0; left: 0; z-index: 60;
   }
 
-  /* ---- sidebar ---- */
-  .sidebar {
-    position: fixed; top: 5px; left: 0; bottom: 0; width: var(--sidebar-w);
-    background: linear-gradient(160deg, #080d18 0%, #0e1a35 60%, #0a1530 100%);
-    color: #fff; overflow-y: auto; z-index: 50;
-    padding: 24px 0 24px;
-    border-right: 1px solid rgba(255,255,255,0.06);
-  }
-  .sidebar .brand { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 4px 22px 22px; letter-spacing: -0.01em; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 14px; }
-  .sidebar .brand img { height: 34px; width: auto; display: block; }
-  .sidebar .brand-text { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 0.94rem; line-height: 1.35; color: #fff; width: 100%; overflow-wrap: break-word; }
-  .sidebar .brand-text .mono { display: block; color: #6fa8e8; font-size: 0.72rem; font-weight: 500; margin-top: 5px; letter-spacing: 0.02em; }
-  .sidebar nav { display: flex; flex-direction: column; padding: 6px 12px; gap: 2px; }
-  .sidebar nav a {
+  /* ---- top nav (mega-nav style) ---- */
+  .topnav {
+    position: fixed; top: 5px; left: 0; right: 0; z-index: 50;
+    background: rgba(8,13,24,0.92); backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
     display: flex; align-items: center; justify-content: space-between;
-    color: #aab8d4; text-decoration: none; font-size: 0.88rem; font-weight: 500;
-    padding: 10px 13px; border-radius: 8px; transition: background 0.12s, color 0.12s;
+    padding: 12px 28px; gap: 20px;
   }
-  .sidebar nav a:hover { color: #fff; background: rgba(255,255,255,0.055); }
-  .sidebar nav a.active { color: #fff; background: linear-gradient(90deg, rgba(42,92,240,0.55), rgba(42,92,240,0.22)); font-weight: 600; box-shadow: inset 2px 0 0 var(--rdk-blue); }
-  .sidebar nav a .ext-arrow { font-size: 0.78em; color: #6fa8e8; }
-  .sidebar .nav-group-label {
-    font-family: "JetBrains Mono", monospace; font-size: 0.66rem; letter-spacing: 0.08em;
-    text-transform: uppercase; color: #4f6188; padding: 16px 22px 6px;
+  .topnav .brand { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+  .topnav .brand img { height: 26px; width: auto; display: block; }
+  .topnav .brand-text { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 0.86rem; color: #fff; white-space: nowrap; }
+  .topnav nav { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; overflow-x: auto; }
+  .topnav nav a {
+    color: #aab8d4; text-decoration: none; font-size: 0.82rem; font-weight: 500;
+    padding: 8px 12px; border-radius: 6px; white-space: nowrap;
+    border-bottom: 2px solid transparent; transition: color 0.12s;
+  }
+  .topnav nav a:hover { color: #fff; }
+  .topnav nav a.active { color: var(--rdk-blue); border-bottom-color: var(--rdk-blue); font-weight: 600; }
+  .topnav nav a .ext-arrow { font-size: 0.78em; color: #6fa8e8; }
+  .topnav .cta {
+    flex: 0 0 auto; background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); color: #fff;
+    font-size: 0.76rem; font-weight: 600; padding: 7px 14px; border-radius: 999px;
+    text-decoration: none; white-space: nowrap;
   }
 
   /* ---- main content area ---- */
-  .page-main { margin-left: var(--sidebar-w); min-height: 100vh; margin-top: 5px; }
+  .page-main { min-height: 100vh; margin-top: 61px; }
 
-  @media (max-width: 860px) {
-    :root { --sidebar-w: 0px; }
-    .sidebar { position: static; width: 100%; padding: 16px 0; top: 0; }
-    .sidebar .brand { padding: 0 18px 14px; }
-    .sidebar nav { flex-direction: row; flex-wrap: wrap; padding: 0 12px; }
-    .sidebar nav a { padding: 7px 11px; font-size: 0.82rem; }
-    .page-main { margin-left: 0; }
+  @media (max-width: 900px) {
+    .topnav { flex-wrap: wrap; padding: 10px 16px; }
+    .topnav nav { order: 3; width: 100%; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 8px; }
+    .page-main { margin-top: 108px; }
   }
 
   /* ---- hero ---- */
-  .hero { background: radial-gradient(ellipse 900px 500px at 15% 0%, #14245a 0%, transparent 60%), linear-gradient(165deg, #080d18 0%, #0d1730 55%, #0a1226 100%); color: #fff; padding: 68px 44px 52px; position: relative; overflow: hidden; }
-  .hero-flex { display: flex; align-items: center; gap: 44px; max-width: 1180px; }
+  .hero {
+    background:
+      radial-gradient(ellipse 480px 320px at 12% 10%, rgba(41,182,232,0.35), transparent 60%),
+      radial-gradient(ellipse 420px 320px at 92% 85%, rgba(122,201,67,0.18), transparent 60%),
+      linear-gradient(120deg, #0a1a3d 0%, #17246a 40%, #2b1a5e 75%, #3a1a4c 100%);
+    color: #fff; padding: 68px 44px 52px; position: relative; overflow: hidden;
+  }
+  .hero-flex { display: flex; align-items: center; gap: 44px; max-width: 1520px; }
   .hero-inner { max-width: 640px; flex: 1 1 auto; min-width: 0; }
   .hero-visual { flex: 0 0 320px; display: flex; justify-content: center; }
   .hero-visual img { max-width: 100%; max-height: 320px; width: auto; height: auto; border-radius: 14px; object-fit: contain; }
@@ -101,7 +104,7 @@ SHARED_CSS = """
   .hero .lede { color: #a9b8d6; font-size: 1.08rem; max-width: 640px; margin-top: 16px; }
   .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
   .badge { display: inline-block; margin: 0 10px 10px 0; font-size: 0.8rem; font-weight: 600; padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,0.07); color: #dbe4f3; border: 1px solid rgba(255,255,255,0.12); }
-  .stats { max-width: 900px; margin: -32px 44px 0; padding: 0; display: flex; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; position: relative; z-index: 2; box-shadow: var(--shadow-md); }
+  .stats { max-width: 1520px; margin: -32px 44px 0; padding: 0; display: flex; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; position: relative; z-index: 2; box-shadow: var(--shadow-md); }
   .stat { flex: 1; min-width: 0; background: #fff; padding: 22px 16px; text-align: center; border-top: 3px solid transparent; }
   .stat:nth-child(1) { border-top-color: var(--rdk-blue); }
   .stat:nth-child(2) { border-top-color: var(--rdk-green); }
@@ -113,20 +116,43 @@ SHARED_CSS = """
   @media (max-width: 760px) { .stats { flex-wrap: wrap; margin: -20px 16px 0; } .stat { flex: 1 1 40%; } .hero { padding: 48px 20px 40px; } }
 
   /* ---- sections ---- */
-  section { max-width: 900px; margin: 0 auto; padding: 60px 44px; }
+  section { max-width: 1520px; margin: 0; padding: 60px 44px; }
   section.tight-top { padding-top: 52px; }
   @media (max-width: 760px) { section { padding: 40px 20px; } }
   .section-head { margin-bottom: 34px; }
   .section-head .eyebrow-lt { font-family: "JetBrains Mono", monospace; font-size: 0.74rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--middleware); font-weight: 600; margin-bottom: 9px; display: block; }
   .section-head h2 { font-size: 1.85rem; }
   .section-head p { margin-top: 11px; font-size: 1.02rem; max-width: 680px; }
-  .callout { background: linear-gradient(135deg, #eef2ff 0%, #f3f0ff 100%); border: 1px solid #d3dbfb; border-left: 4px solid var(--middleware); border-radius: 10px; padding: 22px 26px; margin: 18px 0; }
+  .callout { max-width: 820px; background: linear-gradient(135deg, #eef2ff 0%, #f3f0ff 100%); border: 1px solid #d3dbfb; border-left: 4px solid var(--middleware); border-radius: 10px; padding: 22px 26px; margin: 18px 0; }
   .callout strong { color: var(--ink); display: block; margin-bottom: 5px; font-size: 0.95rem; font-family: "Space Grotesk", sans-serif; }
   .callout p { margin: 0; font-size: 0.95rem; }
   .two-col { display: flex; gap: 28px; }
   .two-col > * { flex: 1; min-width: 0; }
   @media (max-width: 760px) { .two-col { flex-direction: column; } }
-  .card { background: var(--card-bg); border: 1px solid var(--border); border-left: 3px solid var(--middleware); border-radius: 12px; padding: 22px 24px; box-shadow: var(--shadow-sm); transition: box-shadow 0.15s, transform 0.15s; }
+  .card { max-width: 820px; background: var(--card-bg); border: 1px solid var(--border); border-left: 3px solid var(--middleware); border-radius: 12px; padding: 22px 24px; box-shadow: var(--shadow-sm); transition: box-shadow 0.15s, transform 0.15s; }
+
+  /* ---- quick-link card row (colorful teaser cards, e.g. "Why RDKB Core") ---- */
+  .quicklink-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; margin: 4px 0 8px; }
+  .quicklink-card {
+    flex: 1 1 168px; min-width: 168px; background: var(--card-bg); border: 1px solid var(--border);
+    border-top: 3px solid var(--ql-color, var(--middleware)); border-radius: 12px;
+    padding: 14px 16px; text-decoration: none; box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
+  .quicklink-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .quicklink-card .ql-icon { color: var(--ql-color, var(--middleware)); margin-bottom: 8px; display: block; }
+  .quicklink-card .ql-title { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
+  .quicklink-card .ql-cta { font-size: 0.78rem; font-weight: 600; color: var(--ql-color, var(--middleware)); margin-top: 8px; }
+
+  /* ---- color-tinted section panels (e.g. Why RDKB Core, RDK Ready, Benefits) ---- */
+  .section-tint { border-radius: 16px; padding: 28px 30px; margin: 28px 0; }
+  .section-tint.tint-blue { background: #e6f1fb; }
+  .section-tint.tint-blue .subhead { color: #0c447c; }
+  .section-tint.tint-green { background: #eaf3de; }
+  .section-tint.tint-green .subhead { color: #27500a; }
+  .section-tint.tint-amber { background: #faeeda; }
+  .section-tint.tint-amber .subhead { color: #854f0b; }
+  .section-tint .card { background: rgba(255,255,255,0.7); }
   .card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
   .card h3 { font-size: 1.02rem; margin-bottom: 9px; }
   .card p { font-size: 0.92rem; margin: 0; }
@@ -183,7 +209,58 @@ SHARED_CSS = """
   .empty-state h3 { font-size: 1.1rem; margin-bottom: 8px; }
   .empty-state p { font-size: 0.92rem; }
   .empty-state code { display: inline-block; background: #f1f3f9; padding: 2px 8px; border-radius: 5px; margin-top: 4px; }
+
+  /* ---- floating search chatbox (site-wide, every page) ---- */
+  .chatbox-toggle {
+    position: fixed; bottom: 22px; right: 22px; z-index: 90;
+    width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--rdk-blue), #7c3aed); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 20px rgba(26,86,219,0.4);
+  }
+  .chatbox-toggle svg { width: 24px; height: 24px; }
+  .chatbox-panel {
+    position: fixed; bottom: 84px; right: 22px; z-index: 90;
+    width: 360px; max-width: calc(100vw - 44px); height: 480px; max-height: calc(100vh - 130px);
+    background: #fff; border-radius: 16px; box-shadow: var(--shadow-md), 0 12px 40px rgba(0,0,0,0.18);
+    display: none; flex-direction: column; overflow: hidden; border: 1px solid var(--border);
+  }
+  .chatbox-panel.open { display: flex; }
+  .chatbox-header {
+    background: var(--bedrock); color: #fff; padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .chatbox-header .title { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 0.9rem; }
+  .chatbox-header .subtitle { font-size: 0.72rem; color: #9fb2cf; margin-top: 2px; }
+  .chatbox-close { background: none; border: none; color: #9fb2cf; cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 4px; }
+  .chatbox-body { flex: 1; overflow-y: auto; padding: 14px 16px; background: #f8fafc; }
+  .chatbox-welcome { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+  .chatbox-answer { background: #fff; border: 1px solid var(--border); border-left: 3px solid var(--middleware); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+  .chatbox-answer .cb-cat { font-family: "JetBrains Mono", monospace; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--middleware); font-weight: 600; }
+  .chatbox-answer .cb-title { font-weight: 600; font-size: 0.86rem; margin: 3px 0 5px; }
+  .chatbox-answer .cb-text { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+  .chatbox-related { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin: 12px 0 6px; }
+  .chatbox-result { display: block; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; text-decoration: none; }
+  .chatbox-result .cb-r-title { font-size: 0.8rem; font-weight: 600; color: var(--ink); }
+  .chatbox-result .cb-r-cat { font-size: 0.7rem; color: var(--muted); }
+  .chatbox-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); background: #fff; }
+  .chatbox-input { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 0.82rem; font-family: inherit; }
+  .chatbox-submit { background: var(--middleware); color: #fff; border: none; border-radius: 8px; padding: 0 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
 """
+
+
+# Small inline-SVG line icons for the quick-link card row. Hand-drawn rather
+# than a webfont — the Visualizer sandbox's Tabler Icons aren't available in
+# the actual deployed static site, and this avoids adding an external CDN
+# dependency just for a handful of glyphs.
+ICONS = {
+    "recycle": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="M14.5 4.5 12 9l-2.5-4.5"/><path d="M16.5 14.5 19 19l-2.5 4.5" opacity="0"/></svg>',
+    "shield-check": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+    "cloud-up": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1-.6-7.95A5 5 0 0 1 16.2 8.9 4.5 4.5 0 0 1 16 18H7z"/><path d="M12 17v-6"/><path d="M9.5 13.5 12 11l2.5 2.5"/></svg>',
+    "cpu": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg>',
+    "layers": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>',
+    "check-list": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h14M5 18h9"/><path d="M3 6l.01 0M3 12l.01 0M3 18l.01 0"/></svg>',
+}
 
 
 def esc(s) -> str:
@@ -233,13 +310,31 @@ def render_hero(eyebrow: str, title: str, lede: str, badges_html: str = "", comp
 '''
 
 
-def render_sidebar(active_id: str) -> str:
+def render_quicklinks(items: list[dict]) -> str:
+    """A horizontal row of colorful teaser cards — icon, short title, an
+    "Explore" link. Each item: {icon, title, href, color}. `href` can be a
+    same-page anchor (e.g. "#goal-reuse") to jump further down the page
+    rather than navigating away."""
+    cards = []
+    for it in items:
+        icon_svg = ICONS.get(it["icon"], "")
+        cards.append(f'''
+    <a class="quicklink-card" href="{esc(it["href"])}" style="--ql-color:{esc(it["color"])};">
+      <span class="ql-icon">{icon_svg}</span>
+      <div class="ql-title">{esc(it["title"])}</div>
+      <div class="ql-cta">Explore &rarr;</div>
+    </a>''')
+    return f'<div class="quicklink-row">{"".join(cards)}</div>'
+
+
+def render_topnav(active_id: str) -> str:
     links_html = []
     for id_, label, href, external in NAV_LINKS:
+        if id_ == "components":
+            continue  # rendered separately as the CTA button, not a plain nav link
         cls = "active" if id_ == active_id else ""
-        arrow = '<span class="ext-arrow">↗</span>' if external else ""
-        links_html.append(f'<a class="{cls}" href="{esc(href)}">{esc(label)}{arrow}</a>')
-    return f'''<div class="sidebar">
+        links_html.append(f'<a class="{cls}" href="{esc(href)}">{esc(label)}</a>')
+    return f'''<div class="topnav">
   <div class="brand">
     <img src="RDK-logo.png" alt="RDK logo" onerror="this.style.display='none'">
     <div class="brand-text">RDK-B Core Broadband</div>
@@ -247,12 +342,126 @@ def render_sidebar(active_id: str) -> str:
   <nav>
     {"".join(links_html)}
   </nav>
+  <a class="cta" href="{esc(COMPONENTS_URL)}">Core RDK Components ↗</a>
 </div>'''
 
 
-def render_page(active_id: str, head_extra: str, body_html: str) -> str:
+CHATBOX_HTML = """
+<button class="chatbox-toggle" id="chatbox-toggle" aria-label="Search the site">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-11.9 7.8L3 21l1.7-6.1A8.5 8.5 0 1 1 21 11.5z"/></svg>
+</button>
+<div class="chatbox-panel" id="chatbox-panel">
+  <div class="chatbox-header">
+    <div>
+      <div class="title">Search RDK-B Core Broadband</div>
+      <div class="subtitle">Keyword search across this site — not an AI, just a fast index</div>
+    </div>
+    <button class="chatbox-close" id="chatbox-close" aria-label="Close">&times;</button>
+  </div>
+  <div class="chatbox-body" id="chatbox-body">
+    <div class="chatbox-welcome">Try: "WAN Manager", "RBUS", "TR-181", "boot chain", "modularity"...</div>
+  </div>
+  <form class="chatbox-form" id="chatbox-form">
+    <input class="chatbox-input" id="chatbox-input" type="text" placeholder="Ask a question…" autocomplete="off">
+    <button class="chatbox-submit" type="submit">Search</button>
+  </form>
+</div>
+"""
+
+CHATBOX_SCRIPT = """
+<script>
+(function() {
+  let searchDocs = null;
+
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s ?? '';
+    return d.innerHTML;
+  }
+
+  function score(doc, terms) {
+    const title = doc.title.toLowerCase();
+    const text = doc.text.toLowerCase();
+    let s = 0;
+    for (const t of terms) {
+      if (title.includes(t)) s += 10;
+      if (text.includes(t)) s += 2;
+    }
+    return s;
+  }
+
+  function runSearch(query) {
+    const body = document.getElementById('chatbox-body');
+    const terms = query.toLowerCase().split(/\\s+/).filter(Boolean);
+    if (!terms.length) return;
+
+    if (!searchDocs) {
+      body.innerHTML = '<div class="chatbox-welcome">Loading search index…</div>';
+      fetch('search-index.json', { cache: 'no-store' })
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(data => { searchDocs = data.docs; renderResults(query, terms); })
+        .catch(err => { body.innerHTML = '<div class="chatbox-welcome">Could not load the search index (' + esc(err.message) + ').</div>'; });
+      return;
+    }
+    renderResults(query, terms);
+  }
+
+  function renderResults(query, terms) {
+    const body = document.getElementById('chatbox-body');
+    const scored = searchDocs
+      .map(doc => ({ doc, s: score(doc, terms) }))
+      .filter(x => x.s > 0)
+      .sort((a, b) => b.s - a.s);
+
+    if (!scored.length) {
+      body.innerHTML = '<div class="chatbox-welcome">No matches for "' + esc(query) + '". Try a different term — component names, standard names, or words like "modularity" or "RBUS" work well.</div>';
+      return;
+    }
+
+    const best = scored[0].doc;
+    const rest = scored.slice(1, 6);
+
+    let html = '<div class="chatbox-answer">' +
+      '<div class="cb-cat">' + esc(best.category) + '</div>' +
+      '<div class="cb-title">' + esc(best.title) + '</div>' +
+      '<div class="cb-text">' + esc(best.text) + '</div>' +
+      '</div>';
+
+    if (rest.length) {
+      html += '<div class="chatbox-related">Related</div>';
+      html += rest.map(x => {
+        const href = x.doc.url.endsWith('#') ? x.doc.url.slice(0, -1) || '#' : x.doc.url;
+        return '<a class="chatbox-result" href="' + esc(href) + '">' +
+          '<div class="cb-r-title">' + esc(x.doc.title) + '</div>' +
+          '<div class="cb-r-cat">' + esc(x.doc.category) + '</div>' +
+          '</a>';
+      }).join('');
+    }
+    body.innerHTML = html;
+  }
+
+  const toggle = document.getElementById('chatbox-toggle');
+  const panel = document.getElementById('chatbox-panel');
+  const closeBtn = document.getElementById('chatbox-close');
+  const form = document.getElementById('chatbox-form');
+  const input = document.getElementById('chatbox-input');
+
+  toggle.addEventListener('click', () => { panel.classList.toggle('open'); if (panel.classList.contains('open')) input.focus(); });
+  closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+  form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value.trim()) runSearch(input.value.trim()); });
+})();
+</script>
+"""
+
+
+def render_page(active_id: str, head_extra: str, body_html: str, script: str = "") -> str:
     """Wrap body_html (hero + sections + footer, everything but <head>/sidebar)
-    in the shared shell. body_html should NOT include <html>/<head>/<body> tags."""
+    in the shared shell. body_html should NOT include <html>/<head>/<body> tags.
+    Pass any <script> block via `script`, not inside head_extra — head_extra
+    renders inside <head>, before the body (and the elements a script needs
+    to attach to) exists yet. `script` renders at the very end of <body>,
+    after body_html, so document.getElementById(...) etc. always find real
+    elements instead of null."""
     return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -266,10 +475,13 @@ def render_page(active_id: str, head_extra: str, body_html: str) -> str:
 </head>
 <body>
 <div class="accent-bar"></div>
-{render_sidebar(active_id)}
+{render_topnav(active_id)}
 <div class="page-main">
 {body_html}
 </div>
+{CHATBOX_HTML}
+{script}
+{CHATBOX_SCRIPT}
 </body>
 </html>
 '''
