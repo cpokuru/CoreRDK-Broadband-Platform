@@ -336,8 +336,7 @@ def render_topnav(active_id: str) -> str:
         links_html.append(f'<a class="{cls}" href="{esc(href)}">{esc(label)}</a>')
     return f'''<div class="topnav">
   <div class="brand">
-    <img src="RDK-logo.png" alt="RDK logo" onerror="this.style.display='none'">
-    <div class="brand-text"></div>
+    <img src="RDK-logo.png" alt="RDK-B Core Broadband logo" onerror="this.style.display='none'">
   </div>
   <nav>
     {"".join(links_html)}

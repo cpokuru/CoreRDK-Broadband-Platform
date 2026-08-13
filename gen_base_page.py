@@ -124,7 +124,7 @@ def build_about_page(spec: dict, about: dict) -> str:
         '<span class="badge">Apache-2.0 / LGPL-2.1</span>'
     )
     body = f'''
-{render_hero("Core RDK Broadband", "RDK-B Core Broadband Platform", about["definition"], hero_badges, visual_key="about")}
+{render_hero("Core RDK Broadband", "Core RDK Broadband Platform", about["definition"], hero_badges, visual_key="about")}
 
 <div class="stats">
   <div class="stat"><div class="num"></div><div class="lbl"></div></div>
