@@ -494,7 +494,7 @@ CHATBOX_SCRIPT = """
 # confirmation email asking you to click "Activate Form"; every submission
 # after that lands straight in the inbox. Sent via their /ajax/ endpoint so
 # the page never redirects away — the result renders in this same panel.
-CONTACT_EMAIL = "support@rdkcentral.com"
+CONTACT_EMAIL = "chandrakanth_pokuru2@comcast.com"
 
 CONTACT_HTML = f"""
 <button class="contact-toggle" id="contact-toggle" aria-label="Contact us">
