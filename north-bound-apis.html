@@ -294,6 +294,15 @@ function esc(s) {
   return d.innerHTML;
 }
 
+// dml-repos.json entries can be either:
+//   "Component Name": "RepoSlug"                                  (file defaults to dml.json)
+//   "Component Name": { "repo": "RepoSlug", "file": "custom.json" } (explicit filename)
+// so each component's data file doesn't have to be literally named dml.json.
+function resolveRepoEntry(mapValue) {
+  if (typeof mapValue === 'string') return { repo: mapValue, file: 'dml.json' };
+  return { repo: mapValue.repo, file: mapValue.file || 'dml.json' };
+}
+
 // ---- generic renderer for whatever shape dml.json turns out to be ----
 function findRecordArray(value) {
   if (Array.isArray(value)) return value;
@@ -324,9 +333,48 @@ function renderTree(value) {
 }
 
 function renderDmlPayload(data) {
-  // A DML export commonly separates "objects" (the tree nodes) from
-  // "parameters" (the leaves) -- render each as its own table when present,
-  // otherwise fall back to the generic array/tree detection.
+  // Shape A: { componentInterfaceDefinition: {...}, elements: { "Device.X...": {...}, ... } }
+  // A real TR-181-style export, keyed by full parameter path rather than an
+  // array. Show the component metadata as a header, then flatten `elements`
+  // into a Path / Kind / Type / Access / Description table, splitting TR-181
+  // "object" container rows (table nodes ending in a trailing dot) from
+  // "parameter" leaf rows for a clearer picture of the interface surface.
+  if (data && typeof data === 'object' && data.elements && typeof data.elements === 'object' && !Array.isArray(data.elements)) {
+    const def = data.componentInterfaceDefinition || {};
+    let out = '';
+    if (def.name || def.description) {
+      out += `<div class="card" style="margin-bottom:16px;">
+        <h3>${esc(def.name || 'Interface')}${def.version ? ' <span class="mono" style="font-weight:400;font-size:0.8rem;color:var(--muted);">v' + esc(def.version) + '</span>' : ''}</h3>
+        <p style="margin-bottom:6px;">${esc(def.description || '')}</p>
+        <p class="mono" style="font-size:0.78rem; margin-bottom:0;">${esc(def.moduleName || '')}${def.generated ? ' · generated ' + esc(def.generated) : ''}</p>
+      </div>`;
+    }
+
+    const rows = Object.entries(data.elements).map(([path, el]) => {
+      const isObject = path.trim().endsWith('.') || 'maxInstance' in el || 'numberOfEntriesElement' in el;
+      return {
+        Path: path,
+        Kind: isObject ? 'object' : 'parameter',
+        Type: el.type || (isObject ? 'table' : ''),
+        Access: Array.isArray(el.access) ? el.access.join(', ') : (el.access || ''),
+        Description: el.description || '',
+      };
+    });
+    const objectRows = rows.filter(r => r.Kind === 'object');
+    const paramRows = rows.filter(r => r.Kind === 'parameter');
+
+    if (objectRows.length) {
+      out += `<div class="subhead" style="margin-top:0;">Objects (${objectRows.length})</div>` + renderRecordTable(objectRows);
+    }
+    if (paramRows.length) {
+      out += `<div class="subhead">Parameters (${paramRows.length})</div>` + renderRecordTable(paramRows);
+    }
+    return out;
+  }
+
+  // Shape B: a DML export that already separates "objects" from "parameters"
+  // as flat arrays -- render each as its own table when present, otherwise
+  // fall back to the generic array/tree detection.
   if (data && typeof data === 'object' && !Array.isArray(data) && (data.objects || data.parameters)) {
     let out = '';
     if (data.objects) {
@@ -346,9 +394,9 @@ let allComponents = [];
 let repoMap = {};
 
 function componentRowHtml(c) {
-  const repo = repoMap[c.name];
-  const action = repo
-    ? `<button class="dml-btn" data-name="${esc(c.name)}" data-repo="${esc(repo)}">View DML</button>`
+  const repoEntry = repoMap[c.name];
+  const action = repoEntry
+    ? `<button class="dml-btn" data-name="${esc(c.name)}">View DML</button>`
     : `<span class="muted" style="font-size:0.85rem;">Not available yet</span>`;
   return `<tr>
     <td>${esc(c.name)}</td>
@@ -363,13 +411,14 @@ function renderComponentTable(filterText) {
   document.getElementById('component-table-body').innerHTML = rows.map(componentRowHtml).join('');
   document.getElementById('component-count').textContent = `${rows.length} of ${allComponents.length} components`;
   document.querySelectorAll('.dml-btn').forEach(btn => {
-    btn.addEventListener('click', () => loadDml(btn.dataset.name, btn.dataset.repo));
+    btn.addEventListener('click', () => loadDml(btn.dataset.name));
   });
 }
 
-function loadDml(name, repo) {
+function loadDml(name) {
+  const { repo, file } = resolveRepoEntry(repoMap[name]);
   const panel = document.getElementById('dml-panel');
-  const url = RAW_BASE + repo + '/main/dml.json';
+  const url = RAW_BASE + repo + '/main/' + file;
   panel.innerHTML = `
     <div class="subhead" style="margin-top:0;">${esc(name)} <span class="mono" style="font-weight:400;font-size:0.8rem;color:var(--muted);">// ${esc(repo)}</span></div>
     <p>Loading <code>${esc(url)}</code>…</p>`;
