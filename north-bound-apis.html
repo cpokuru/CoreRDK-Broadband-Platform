@@ -340,12 +340,15 @@ function esc(s) {
 }
 
 // dml-repos.json entries can be either:
-//   "Component Name": "RepoSlug"                                  (file defaults to dml.json)
-//   "Component Name": { "repo": "RepoSlug", "file": "custom.json" } (explicit filename)
-// so each component's data file doesn't have to be literally named dml.json.
+//   "Component Name": "RepoSlug"                                  (file defaults to dml.json, branch defaults to main)
+//   "Component Name": { "repo": "RepoSlug", "file": "custom.json" }                    (explicit filename, still main)
+//   "Component Name": { "repo": "RepoSlug", "file": "custom.json", "branch": "develop" } (explicit filename + branch)
+// so each component's data file doesn't have to be literally named dml.json,
+// or live on main -- some repos publish their interface file on develop or
+// another branch before it's merged.
 function resolveRepoEntry(mapValue) {
-  if (typeof mapValue === 'string') return { repo: mapValue, file: 'dml.json' };
-  return { repo: mapValue.repo, file: mapValue.file || 'dml.json' };
+  if (typeof mapValue === 'string') return { repo: mapValue, file: 'dml.json', branch: 'main' };
+  return { repo: mapValue.repo, file: mapValue.file || 'dml.json', branch: mapValue.branch || 'main' };
 }
 
 // ---- generic renderer for whatever shape dml.json turns out to be ----
@@ -558,9 +561,9 @@ function renderComponentTable(filterText) {
 }
 
 function loadDml(name) {
-  const { repo, file } = resolveRepoEntry(repoMap[name]);
+  const { repo, file, branch } = resolveRepoEntry(repoMap[name]);
   const panel = document.getElementById('dml-panel');
-  const url = RAW_BASE + repo + '/main/' + file;
+  const url = RAW_BASE + repo + '/' + branch + '/' + file;
   panel.innerHTML = `
     <div class="subhead" style="margin-top:0;">${esc(name)} <span class="mono" style="font-weight:400;font-size:0.8rem;color:var(--muted);">// ${esc(repo)}</span></div>
     <p>Loading <code>${esc(url)}</code>…</p>`;

@@ -6,11 +6,13 @@ Unlike the other stub pages (gen_stub_pages.py), this one isn't a generic
   1. A table of every component, built from components/ethwan-router-components.json
      (the same data the Components profile page already uses).
   2. Clicking a component with a known DML source fetches
-     https://raw.githubusercontent.com/cpokuru/<repo>/main/<file> and renders
-     it. Which components have a DML source, which repo, and which filename
-     is controlled entirely by dml-repos.json — a component's data file
-     doesn't have to be literally named dml.json (e.g. wanmanager_interface_v4.json
-     works fine), no HTML/script changes needed either way.
+     https://raw.githubusercontent.com/cpokuru/<repo>/<branch>/<file> and
+     renders it. Which components have a DML source, which repo, which
+     branch (defaults to main), and which filename is controlled entirely
+     by dml-repos.json — a component's data file doesn't have to be
+     literally named dml.json or live on main (e.g. wanmanager_interface_v3.json
+     on main, ethagent_interface_v1.json on develop both work), no
+     HTML/script changes needed either way.
   3. Renders whatever shape the file turns out to be: a real TR-181-style
      export ({componentInterfaceDefinition, elements: {"Device.X...": {...}}}),
      a simpler {objects, parameters} export, a flat array, or anything else
@@ -44,12 +46,15 @@ function esc(s) {
 }
 
 // dml-repos.json entries can be either:
-//   "Component Name": "RepoSlug"                                  (file defaults to dml.json)
-//   "Component Name": { "repo": "RepoSlug", "file": "custom.json" } (explicit filename)
-// so each component's data file doesn't have to be literally named dml.json.
+//   "Component Name": "RepoSlug"                                  (file defaults to dml.json, branch defaults to main)
+//   "Component Name": { "repo": "RepoSlug", "file": "custom.json" }                    (explicit filename, still main)
+//   "Component Name": { "repo": "RepoSlug", "file": "custom.json", "branch": "develop" } (explicit filename + branch)
+// so each component's data file doesn't have to be literally named dml.json,
+// or live on main -- some repos publish their interface file on develop or
+// another branch before it's merged.
 function resolveRepoEntry(mapValue) {
-  if (typeof mapValue === 'string') return { repo: mapValue, file: 'dml.json' };
-  return { repo: mapValue.repo, file: mapValue.file || 'dml.json' };
+  if (typeof mapValue === 'string') return { repo: mapValue, file: 'dml.json', branch: 'main' };
+  return { repo: mapValue.repo, file: mapValue.file || 'dml.json', branch: mapValue.branch || 'main' };
 }
 
 // ---- generic renderer for whatever shape dml.json turns out to be ----
@@ -262,9 +267,9 @@ function renderComponentTable(filterText) {
 }
 
 function loadDml(name) {
-  const { repo, file } = resolveRepoEntry(repoMap[name]);
+  const { repo, file, branch } = resolveRepoEntry(repoMap[name]);
   const panel = document.getElementById('dml-panel');
-  const url = RAW_BASE + repo + '/main/' + file;
+  const url = RAW_BASE + repo + '/' + branch + '/' + file;
   panel.innerHTML = `
     <div class="subhead" style="margin-top:0;">${esc(name)} <span class="mono" style="font-weight:400;font-size:0.8rem;color:var(--muted);">// ${esc(repo)}</span></div>
     <p>Loading <code>${esc(url)}</code>…</p>`;
