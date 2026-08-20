@@ -9,7 +9,7 @@ Unlike the other stub pages (gen_stub_pages.py), this one isn't a generic
      https://raw.githubusercontent.com/cpokuru/<repo>/main/<file> and renders
      it. Which components have a DML source, which repo, and which filename
      is controlled entirely by dml-repos.json — a component's data file
-     doesn't have to be literally named dml.json (e.g. wanmanager_interface_v3.json
+     doesn't have to be literally named dml.json (e.g. wanmanager_interface_v4.json
      works fine), no HTML/script changes needed either way.
   3. Renders whatever shape the file turns out to be: a real TR-181-style
      export ({componentInterfaceDefinition, elements: {"Device.X...": {...}}}),
