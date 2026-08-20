@@ -166,15 +166,16 @@ function renderObjectNode(node, pathPrefix, depth) {
   const { leaves, objects } = splitLeafAndObjectChildren(node);
   const fullPath = pathPrefix + node.name + (Object.keys(node.children).length ? '.' : '');
   const meta = node.own ? node.own.meta : {};
+  const headClass = 'bbf-object-head' + (leaves.length ? ' bbf-object-head-with-table' : '');
   let html = `<div style="margin-left:${depth * 18}px; margin-bottom:18px;">`;
-  html += `<div class="bbf-object-head" style="font-size:${depth === 0 ? '0.95rem' : '0.86rem'};">${esc(fullPath)}${leaves.length ? `<span class="bbf-count">${leaves.length} ${leaves.length === 1 ? 'entry' : 'entries'}</span>` : ''}</div>`;
+  html += `<div class="${headClass}" style="font-size:${depth === 0 ? '0.95rem' : '0.86rem'};">${esc(fullPath)}${leaves.length ? `<span class="bbf-count">${leaves.length} ${leaves.length === 1 ? 'entry' : 'entries'}</span>` : ''}</div>`;
   if (meta.description && meta.description.trim()) {
     html += `<p class="bbf-desc">${esc(meta.description)}</p>`;
   }
   if (leaves.length) {
-    html += `<table class="bbf-table"><thead><tr><th>Name</th><th>Type</th><th>Access</th><th>Description</th></tr></thead><tbody>` +
+    html += `<div class="bbf-table-wrap"><table class="bbf-table"><thead><tr><th>Name</th><th>Type</th><th>Access</th><th>Description</th></tr></thead><tbody>` +
       leaves.map(([name, child]) => renderParamRow(name, child, fullPath)).join('') +
-      `</tbody></table>`;
+      `</tbody></table></div>`;
   }
   html += '</div>';
   for (const [, child] of objects) {
@@ -189,7 +190,7 @@ function renderBbfTree(elements) {
   // skip straight to rendering its real children (e.g. X_RDK_WanManager).
   const { objects } = splitLeafAndObjectChildren(root);
   if (!objects.length) return renderTree(elements); // defensive fallback, shouldn't normally happen
-  return `<div class="mono" style="font-size:0.95rem; font-weight:700; color:var(--ink); margin-bottom:10px;">Device.</div>` +
+  return `<div class="bbf-object-head bbf-object-head-root">Device.</div>` +
     objects.map(([, child]) => renderObjectNode(child, 'Device.', 0)).join('');
 }
 
@@ -326,17 +327,28 @@ EXTRA_CSS = """
   /* ---- BBF-inspired DML tree styling ---- */
   .bbf-object-head {
     background: linear-gradient(135deg, #fef9e7, #fef3c7); border: 1px solid #fde68a;
-    border-radius: 8px; padding: 8px 14px; margin: 4px 0 8px;
+    border-radius: 8px; padding: 8px 14px; margin: 4px 0 0;
     font-family: "JetBrains Mono", monospace; font-weight: 700; color: #78350f;
   }
+  .bbf-object-head-root {
+    background: linear-gradient(135deg, #451a03, #78350f); border-color: #78350f;
+    color: #fef3c7; font-size: 1rem; margin-bottom: 14px; box-shadow: var(--shadow-sm);
+  }
+  .bbf-object-head-with-table { border-radius: 8px 8px 0 0; margin-bottom: 0; }
   .bbf-object-head .bbf-count { font-weight: 500; font-size: 0.78rem; color: #92400e; margin-left: 8px; }
-  .bbf-desc { font-size: 0.82rem; color: var(--muted); margin: 0 0 10px; }
-  table.bbf-table { width: 100%; border-collapse: collapse; margin: 0 0 14px; font-size: 0.85rem; }
+  .bbf-object-head-root .bbf-count { color: #fde68a; }
+  .bbf-desc { font-size: 0.82rem; color: var(--muted); margin: 8px 0 0; padding: 0 14px; }
+  .bbf-table-wrap {
+    border: 1px solid var(--border); border-top: none; border-radius: 0 0 10px 10px;
+    overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 8px;
+  }
+  table.bbf-table { width: 100%; border-collapse: collapse; margin: 0; font-size: 0.85rem; }
   table.bbf-table th {
     background: #eef1f6; text-align: left; padding: 8px 12px; font-size: 0.72rem;
     text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); border-bottom: 2px solid var(--border);
   }
   table.bbf-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.bbf-table tbody tr.bbf-row-param:nth-child(even) { background: #f8fafc; }
   table.bbf-table tr.bbf-row-count { background: #eef2ff; }
   table.bbf-table tr.bbf-row-method { background: #ecfdf5; }
   table.bbf-table tr.bbf-row-event { background: #eff6ff; }
