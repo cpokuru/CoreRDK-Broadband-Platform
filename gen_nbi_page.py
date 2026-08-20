@@ -139,13 +139,26 @@ function renderParamRow(name, child, pathPrefix) {
   const meta = child.own ? child.own.meta : {};
   const type = meta.type || '';
   const access = Array.isArray(meta.access) ? meta.access.join(', ') : (meta.access || '');
-  const desc = meta.description || '';
+  const desc = (meta.description || '').trim();
   const isMethod = name.endsWith('()');
-  return `<tr>
-    <td class="mono">${esc(name)}${isNumberOfEntriesName(name) ? ' <span class="pill" style="background:#eef2ff;color:#3730a3;font-size:0.66rem;padding:2px 6px;">count</span>' : ''}</td>
-    <td class="mono">${esc(type || (isMethod ? 'method' : ''))}</td>
-    <td>${esc(access)}</td>
-    <td>${esc(desc)}</td>
+  const isEvent = Array.isArray(meta.access) && meta.access.includes('subscribeOnChange') && !type;
+  const isCount = isNumberOfEntriesName(name);
+
+  let rowClass = 'bbf-row-param';
+  let tag = '';
+  if (isCount) { rowClass = 'bbf-row-count'; tag = '<span class="bbf-tag bbf-tag-count">count</span>'; }
+  else if (isMethod) { rowClass = 'bbf-row-method'; tag = '<span class="bbf-tag bbf-tag-method">method</span>'; }
+  else if (isEvent) { rowClass = 'bbf-row-event'; tag = '<span class="bbf-tag bbf-tag-event">event</span>'; }
+
+  const descCell = desc
+    ? `<td class="bbf-desc">${esc(desc)}</td>`
+    : `<td class="bbf-desc bbf-desc-empty">not documented</td>`;
+
+  return `<tr class="${rowClass}">
+    <td class="bbf-name">${esc(name)}${tag}</td>
+    <td class="bbf-type">${esc(type || (isMethod ? 'method' : ''))}</td>
+    <td class="bbf-access">${esc(access)}</td>
+    ${descCell}
   </tr>`;
 }
 
@@ -154,12 +167,12 @@ function renderObjectNode(node, pathPrefix, depth) {
   const fullPath = pathPrefix + node.name + (Object.keys(node.children).length ? '.' : '');
   const meta = node.own ? node.own.meta : {};
   let html = `<div style="margin-left:${depth * 18}px; margin-bottom:18px;">`;
-  html += `<div class="mono" style="font-size:${depth === 0 ? '0.95rem' : '0.86rem'}; font-weight:700; color:var(--ink); margin-bottom:4px;">${esc(fullPath)}</div>`;
-  if (meta.description) {
-    html += `<p style="font-size:0.82rem; margin:0 0 8px;">${esc(meta.description)}</p>`;
+  html += `<div class="bbf-object-head" style="font-size:${depth === 0 ? '0.95rem' : '0.86rem'};">${esc(fullPath)}${leaves.length ? `<span class="bbf-count">${leaves.length} ${leaves.length === 1 ? 'entry' : 'entries'}</span>` : ''}</div>`;
+  if (meta.description && meta.description.trim()) {
+    html += `<p class="bbf-desc">${esc(meta.description)}</p>`;
   }
   if (leaves.length) {
-    html += `<table class="def-table" style="margin:6px 0 10px;"><thead><tr><th>Name</th><th>Type</th><th>Access</th><th>Description</th></tr></thead><tbody>` +
+    html += `<table class="bbf-table"><thead><tr><th>Name</th><th>Type</th><th>Access</th><th>Description</th></tr></thead><tbody>` +
       leaves.map(([name, child]) => renderParamRow(name, child, fullPath)).join('') +
       `</tbody></table>`;
   }
@@ -309,6 +322,40 @@ EXTRA_CSS = """
   }
   .dml-btn:hover { background: #1442ad; }
   #dml-panel { margin-top: 20px; }
+
+  /* ---- BBF-inspired DML tree styling ---- */
+  .bbf-object-head {
+    background: linear-gradient(135deg, #fef9e7, #fef3c7); border: 1px solid #fde68a;
+    border-radius: 8px; padding: 8px 14px; margin: 4px 0 8px;
+    font-family: "JetBrains Mono", monospace; font-weight: 700; color: #78350f;
+  }
+  .bbf-object-head .bbf-count { font-weight: 500; font-size: 0.78rem; color: #92400e; margin-left: 8px; }
+  .bbf-desc { font-size: 0.82rem; color: var(--muted); margin: 0 0 10px; }
+  table.bbf-table { width: 100%; border-collapse: collapse; margin: 0 0 14px; font-size: 0.85rem; }
+  table.bbf-table th {
+    background: #eef1f6; text-align: left; padding: 8px 12px; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); border-bottom: 2px solid var(--border);
+  }
+  table.bbf-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.bbf-table tr.bbf-row-count { background: #eef2ff; }
+  table.bbf-table tr.bbf-row-method { background: #ecfdf5; }
+  table.bbf-table tr.bbf-row-event { background: #eff6ff; }
+  table.bbf-table tr.bbf-row-param:hover,
+  table.bbf-table tr.bbf-row-count:hover,
+  table.bbf-table tr.bbf-row-method:hover,
+  table.bbf-table tr.bbf-row-event:hover { filter: brightness(0.97); }
+  table.bbf-table td.bbf-name { font-family: "JetBrains Mono", monospace; font-weight: 600; color: var(--ink); }
+  table.bbf-table td.bbf-type { font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: #4338ca; }
+  table.bbf-table td.bbf-access { font-size: 0.8rem; }
+  table.bbf-table td.bbf-desc { color: var(--muted); font-size: 0.8rem; }
+  table.bbf-table td.bbf-desc.bbf-desc-empty { color: #cbd5e1; font-style: italic; }
+  .bbf-tag {
+    display: inline-block; font-size: 0.64rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.03em; padding: 2px 7px; border-radius: 999px; margin-left: 7px;
+  }
+  .bbf-tag-count { background: #e0e7ff; color: #3730a3; }
+  .bbf-tag-method { background: #d1fae5; color: #065f46; }
+  .bbf-tag-event { background: #dbeafe; color: #1e40af; }
 </style>
 """
 
