@@ -81,13 +81,115 @@ function renderTree(value) {
   return `<pre style="background:#0b1220;color:#cbd5e1;padding:20px;border-radius:10px;overflow-x:auto;font-size:0.82rem;max-height:600px;">${esc(JSON.stringify(value, null, 2))}</pre>`;
 }
 
+// ---- BBF-style hierarchical tree (matches the official TR-181 USP HTML
+// data model browser layout: Device. -> Device.X_RDK_WanManager. -> nested
+// objects, each showing its own parameters before its child objects) ----
+
+function isObjectPath(path) {
+  return path.trim().endsWith('.');
+}
+
+function buildBbfTree(elements) {
+  // root node represents the implicit top-level "Device" umbrella; every
+  // element's path is threaded down through it segment by segment.
+  const root = { name: 'Device', children: {}, own: null };
+  for (const [path, meta] of Object.entries(elements)) {
+    const clean = path.trim().replace(/\.$/, '');
+    const segments = clean.split('.');
+    let node = root;
+    for (let i = 1; i < segments.length; i++) { // start at 1: segment 0 is always "Device" itself
+      const seg = segments[i];
+      if (!node.children[seg]) node.children[seg] = { name: seg, children: {}, own: null };
+      node = node.children[seg];
+    }
+    node.own = { path, meta, isObject: isObjectPath(path) };
+  }
+  return root;
+}
+
+function isNumberOfEntriesName(name) {
+  return /NumberOfEntries$/i.test(name);
+}
+
+function splitLeafAndObjectChildren(node) {
+  const entries = Object.entries(node.children);
+  const leaves = [];
+  const objects = [];
+  for (const [name, child] of entries) {
+    const hasGrandchildren = Object.keys(child.children).length > 0;
+    if (hasGrandchildren || (child.own && child.own.isObject)) {
+      objects.push([name, child]);
+    } else {
+      leaves.push([name, child]);
+    }
+  }
+  // BBF convention: *NumberOfEntries parameters first, then the rest
+  // alphabetically (the source data carries no explicit schema order, so
+  // alphabetical is the most defensible default for everything else).
+  leaves.sort(([a], [b]) => {
+    const aNoe = isNumberOfEntriesName(a), bNoe = isNumberOfEntriesName(b);
+    if (aNoe !== bNoe) return aNoe ? -1 : 1;
+    return a.localeCompare(b);
+  });
+  objects.sort(([a], [b]) => a.localeCompare(b));
+  return { leaves, objects };
+}
+
+function renderParamRow(name, child, pathPrefix) {
+  const meta = child.own ? child.own.meta : {};
+  const type = meta.type || '';
+  const access = Array.isArray(meta.access) ? meta.access.join(', ') : (meta.access || '');
+  const desc = meta.description || '';
+  const isMethod = name.endsWith('()');
+  return `<tr>
+    <td class="mono">${esc(name)}${isNumberOfEntriesName(name) ? ' <span class="pill" style="background:#eef2ff;color:#3730a3;font-size:0.66rem;padding:2px 6px;">count</span>' : ''}</td>
+    <td class="mono">${esc(type || (isMethod ? 'method' : ''))}</td>
+    <td>${esc(access)}</td>
+    <td>${esc(desc)}</td>
+  </tr>`;
+}
+
+function renderObjectNode(node, pathPrefix, depth) {
+  const { leaves, objects } = splitLeafAndObjectChildren(node);
+  const fullPath = pathPrefix + node.name + (Object.keys(node.children).length ? '.' : '');
+  const meta = node.own ? node.own.meta : {};
+  let html = `<div style="margin-left:${depth * 18}px; margin-bottom:18px;">`;
+  html += `<div class="mono" style="font-size:${depth === 0 ? '0.95rem' : '0.86rem'}; font-weight:700; color:var(--ink); margin-bottom:4px;">${esc(fullPath)}</div>`;
+  if (meta.description) {
+    html += `<p style="font-size:0.82rem; margin:0 0 8px;">${esc(meta.description)}</p>`;
+  }
+  if (leaves.length) {
+    html += `<table class="def-table" style="margin:6px 0 10px;"><thead><tr><th>Name</th><th>Type</th><th>Access</th><th>Description</th></tr></thead><tbody>` +
+      leaves.map(([name, child]) => renderParamRow(name, child, fullPath)).join('') +
+      `</tbody></table>`;
+  }
+  html += '</div>';
+  for (const [, child] of objects) {
+    html += renderObjectNode(child, fullPath, depth + 1);
+  }
+  return html;
+}
+
+function renderBbfTree(elements) {
+  const root = buildBbfTree(elements);
+  // root itself ("Device") is never a real object with its own params --
+  // skip straight to rendering its real children (e.g. X_RDK_WanManager).
+  const { objects } = splitLeafAndObjectChildren(root);
+  if (!objects.length) return renderTree(elements); // defensive fallback, shouldn't normally happen
+  return `<div class="mono" style="font-size:0.95rem; font-weight:700; color:var(--ink); margin-bottom:10px;">Device.</div>` +
+    objects.map(([, child]) => renderObjectNode(child, 'Device.', 0)).join('');
+}
+
 function renderDmlPayload(data) {
   // Shape A: { componentInterfaceDefinition: {...}, elements: { "Device.X...": {...}, ... } }
   // A real TR-181-style export, keyed by full parameter path rather than an
-  // array. Show the component metadata as a header, then flatten `elements`
-  // into a Path / Kind / Type / Access / Description table, splitting TR-181
-  // "object" container rows (table nodes ending in a trailing dot) from
-  // "parameter" leaf rows for a clearer picture of the interface surface.
+  // array. Rendered as a genuine hierarchical tree matching the BBF USP HTML
+  // data model browser convention (e.g. tr-181-2-21-0-usp.html): Device. ->
+  // Device.X_RDK_WanManager. -> nested objects, each object showing its own
+  // direct parameters before its child objects, with *NumberOfEntries
+  // parameters hoisted to the top of that list (BBF convention: the count
+  // parameter for a table is documented immediately under its parent
+  // object, ahead of the table's own row schema).
   if (data && typeof data === 'object' && data.elements && typeof data.elements === 'object' && !Array.isArray(data.elements)) {
     const def = data.componentInterfaceDefinition || {};
     let out = '';
@@ -98,26 +200,7 @@ function renderDmlPayload(data) {
         <p class="mono" style="font-size:0.78rem; margin-bottom:0;">${esc(def.moduleName || '')}${def.generated ? ' · generated ' + esc(def.generated) : ''}</p>
       </div>`;
     }
-
-    const rows = Object.entries(data.elements).map(([path, el]) => {
-      const isObject = path.trim().endsWith('.') || 'maxInstance' in el || 'numberOfEntriesElement' in el;
-      return {
-        Path: path,
-        Kind: isObject ? 'object' : 'parameter',
-        Type: el.type || (isObject ? 'table' : ''),
-        Access: Array.isArray(el.access) ? el.access.join(', ') : (el.access || ''),
-        Description: el.description || '',
-      };
-    });
-    const objectRows = rows.filter(r => r.Kind === 'object');
-    const paramRows = rows.filter(r => r.Kind === 'parameter');
-
-    if (objectRows.length) {
-      out += `<div class="subhead" style="margin-top:0;">Objects (${objectRows.length})</div>` + renderRecordTable(objectRows);
-    }
-    if (paramRows.length) {
-      out += `<div class="subhead">Parameters (${paramRows.length})</div>` + renderRecordTable(paramRows);
-    }
+    out += renderBbfTree(data.elements);
     return out;
   }
 
