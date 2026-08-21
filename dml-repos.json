@@ -6,5 +6,6 @@
   "P&M": {"repo": "provisioning-and-management", "file": "pandm_interface_v2.json", "branch": "develop"},
   "lan-manager-lite": {"repo": "lan-manager-lite", "file": "lmlite_interface_v2.json", "branch": "develop"},
   "OneWiFi": {"repo": "OneWifi", "file": "onewifi_wifi_only_v1.json", "branch": "develop"},
-  "WebConfig": {"repo": "webcfg", "file": "webcfg_interface_v1.json", "branch": "master"}
+  "WebConfig": {"repo": "webcfg", "file": "webcfg_interface_v1.json", "branch": "master"},
+  "dhcp-manager (recipe for DHCP client and Server)": {"repo": "dhcp-manager", "file": "dhcpmgr_interface_v1.json", "branch": "develop"}
 }
