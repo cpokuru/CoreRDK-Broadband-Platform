@@ -3,5 +3,5 @@
   "WAN Manager": {"repo": "RdkWanManager", "file": "wanmanager_interface_v3.json"},
   "Ethernet Agent (used for WAN)": {"repo": "ethernet-agent", "file": "ethagent_interface_v1.json", "branch": "develop"},
   "Test & Diagnostics": {"repo": "test-and-diagnostic", "file": "tad_interface_v1.json", "branch": "develop"},
-  "P&M": {"repo": "provisioning-and-management", "file": "pandm_interface_v1.json", "branch": "develop"}
+  "P&M": {"repo": "provisioning-and-management", "file": "pandm_interface_v2.json", "branch": "develop"}
 }
