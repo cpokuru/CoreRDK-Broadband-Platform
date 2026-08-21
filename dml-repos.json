@@ -1,12 +1,47 @@
 {
   "_comment": "Maps a component's display name (exactly as it appears in components/ethwan-router-components.json) to where its interface data lives. Two forms: a plain string is the cpokuru repo slug, defaulting to dml.json on main; an object {\"repo\": \"...\", \"file\": \"...\", \"branch\": \"...\"} lets you point at any filename/branch (branch defaults to main if omitted). Add a line per component as its data file goes up -- no code changes needed either way.",
-  "WAN Manager": {"repo": "RdkWanManager", "file": "wanmanager_interface_v3.json"},
-  "Ethernet Agent (used for WAN)": {"repo": "ethernet-agent", "file": "ethagent_interface_v1.json", "branch": "develop"},
-  "Test & Diagnostics": {"repo": "test-and-diagnostic", "file": "tad_interface_v1.json", "branch": "develop"},
-  "P&M": {"repo": "provisioning-and-management", "file": "pandm_interface_v2.json", "branch": "develop"},
-  "lan-manager-lite": {"repo": "lan-manager-lite", "file": "lmlite_interface_v2.json", "branch": "develop"},
-  "OneWiFi": {"repo": "OneWifi", "file": "onewifi_wifi_only_v1.json", "branch": "develop"},
-  "WebConfig": {"repo": "webcfg", "file": "webcfg_interface_v1.json", "branch": "master"},
-  "dhcp-manager (recipe for DHCP client and Server)": {"repo": "dhcp-manager", "file": "dhcpmgr_interface_v1.json", "branch": "develop"},
-  "Web PA including: - parodus - parodus2ccsp - start-parodus - wdmp-c": {"repo": "parodus2ccsp", "file": "parodus2ccsp_interface_v1.json", "branch": "master"}
+  "WAN Manager": {
+    "repo": "RdkWanManager",
+    "file": "wanmanager_interface_v3.json"
+  },
+  "Ethernet Agent (used for WAN)": {
+    "repo": "ethernet-agent",
+    "file": "ethagent_interface_v1.json",
+    "branch": "develop"
+  },
+  "Test & Diagnostics": {
+    "repo": "test-and-diagnostic",
+    "file": "tad_interface_v1.json",
+    "branch": "develop"
+  },
+  "P&M": {
+    "repo": "provisioning-and-management",
+    "file": "pandm_interface_v2.json",
+    "branch": "develop"
+  },
+  "lan-manager-lite": {
+    "repo": "lan-manager-lite",
+    "file": "lmlite_interface_v2.json",
+    "branch": "develop"
+  },
+  "OneWiFi": {
+    "repo": "OneWifi",
+    "file": "onewifi_wifi_only_v1.json",
+    "branch": "develop"
+  },
+  "WebConfig": {
+    "repo": "webcfg",
+    "file": "webcfg_interface_v1.json",
+    "branch": "master"
+  },
+  "dhcp-manager (recipe for DHCP client and Server)": {
+    "repo": "dhcp-manager",
+    "file": "dhcpmgr_interface_v1.json",
+    "branch": "develop"
+  },
+  "Web PA\n\nincluding:\n- parodus\n- parodus2ccsp\n- start-parodus\n- wdmp-c": {
+    "repo": "parodus2ccsp",
+    "file": "parodus2ccsp_interface_v1.json",
+    "branch": "master"
+  }
 }
