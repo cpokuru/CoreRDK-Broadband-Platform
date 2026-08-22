@@ -43,5 +43,10 @@
     "repo": "parodus2ccsp",
     "file": "parodus2ccsp_interface_v1.json",
     "branch": "master"
+  },
+  "tr069-protocol-agent": {
+    "repo": "tr069-protocol-agent",
+    "file": "tr69pa_interface_v1.json",
+    "branch": "develop"
   }
 }
