@@ -53,5 +53,10 @@
     "repo": "telemetry",
     "file": "t2_interface_v1.json",
     "branch": "develop"
+  },
+  "DSM": {
+    "repo": "DSM",
+    "file": "dsm_interface_v1.json",
+    "branch": "main"
   }
 }
