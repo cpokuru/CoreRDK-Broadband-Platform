@@ -16,7 +16,7 @@
   },
   "P&M": {
     "repo": "provisioning-and-management",
-    "file": "pandm_interface_v3.json",
+    "file": "pandm_interface_v4.json",
     "branch": "develop"
   },
   "lan-manager-lite": {
