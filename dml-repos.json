@@ -48,5 +48,10 @@
     "repo": "tr069-protocol-agent",
     "file": "tr69pa_interface_v1.json",
     "branch": "develop"
+  },
+  "T2 Telemetry": {
+    "repo": "telemetry",
+    "file": "t2_interface_v1.json",
+    "branch": "develop"
   }
 }
