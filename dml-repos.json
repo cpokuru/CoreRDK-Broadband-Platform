@@ -9,6 +9,11 @@
     "file": "ethagent_interface_v1.json",
     "branch": "develop"
   },
+    "Ethernet Agent (used for LAN)": {
+    "repo": "ethernet-agent",
+    "file": "ethagent_interface_v1.json",
+    "branch": "develop"
+  },
   "Test & Diagnostics": {
     "repo": "test-and-diagnostic",
     "file": "tad_interface_v1.json",
