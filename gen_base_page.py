@@ -120,7 +120,7 @@ def build_about_page(spec: dict, about: dict) -> str:
     hero_badges = (
         '<span class="badge">26 features</span>'
         '<span class="badge">7 device profiles</span>'
-        '<span class="badge">Five-tier system diagram</span>'
+        '<span class="badge">Five-tier system</span>'
         '<span class="badge">Apache-2.0 / LGPL-2.1</span>'
     )
     body = f'''
