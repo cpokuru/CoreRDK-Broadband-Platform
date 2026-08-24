@@ -63,5 +63,10 @@
     "repo": "DSM",
     "file": "dsm_interface_v1.json",
     "branch": "main"
+  },
+   "inter-device-manager": {
+    "repo": "inter-device-manager",
+    "file": "idm_interface_v1.json",
+    "branch": "main"
   }
 }
