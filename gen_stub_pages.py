@@ -133,8 +133,7 @@ function renderTree(value) {{
 function render(value, sourceLabel) {{
   const content = document.getElementById('data-content');
   const records = findRecordArray(value);
-  content.innerHTML = `<div class="subhead" style="margin-top:0;">Loaded from ${{esc(sourceLabel)}}</div>` +
-    (records ? renderTable(records) : renderTree(value));
+  content.innerHTML = records ? renderTable(records) : renderTree(value);
 }}
 
 function showEmptyState() {{
