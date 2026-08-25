@@ -274,6 +274,100 @@ def extract_industry_standards(pdf) -> list[dict]:
     return out
 
 
+_BOILERPLATE_RE = re.compile(
+    r"^(RDK-B Core Broadband Platform.*Confidential|© 2026 RDK Central\. All rights reserved\. Page \d+)$"
+)
+_PROCESS_HEADING_RE = re.compile(r"^(7(?:\.\d+){2,4})\.?\s+([A-Za-z0-9][^\n]{1,90})$")
+_NUM_LIST_RE = re.compile(r"^\d+\.\s+")
+
+
+def _classify_process_line(ln: str):
+    """Returns (kind, number_or_None, text) for one line of §7.2/§7.3 body
+    text. kind is 'heading' | 'bullet' | 'para'. Handles the PDF's own
+    formatting quirk where a couple of headings (e.g. "7.2.3.3 Bug Fix")
+    land inside a bulleted line instead of on their own."""
+    m = _PROCESS_HEADING_RE.match(ln)
+    if m:
+        return "heading", m.group(1), m.group(2).strip()
+    stripped = ln.lstrip("•").strip()
+    m2 = _PROCESS_HEADING_RE.match(stripped)
+    if ln.startswith("•") and m2:
+        return "heading", m2.group(1), m2.group(2).strip()
+    if ln.startswith("•"):
+        return "bullet", None, stripped
+    if _NUM_LIST_RE.match(ln):
+        return "bullet", None, _NUM_LIST_RE.sub("", ln).strip()
+    return "para", None, ln
+
+
+def extract_process_sections(pdf, start_marker: str, stop_re: "re.Pattern") -> list[dict]:
+    """Section 7.2 / 7.3 — narrative governance-process text with a deep
+    numbered heading hierarchy (7.2.1, 7.2.3.1, 7.2.19.3 ...), bullet lists,
+    and a handful of small 2-column lookup tables (component lifecycle
+    states, health-review outcomes, interface stability tags) interleaved
+    within the prose. Unlike the clean §7.1 tables, this can't be reduced to
+    one table shape, so each heading becomes a section with an ordered list
+    of {type:p|li|table} content blocks, preserving document reading order."""
+    start = find_page_with(pdf, start_marker)
+    sections: list[dict] = []
+    current: dict | None = None
+    p = start
+    while p < len(pdf.pages):
+        page = pdf.pages[p]
+        page_text = page.extract_text() or ""
+        if p > start and stop_re.search(page_text):
+            break
+
+        tables = page.find_tables()
+        table_ranges = [(t.bbox[1], t.bbox[3]) for t in tables]
+
+        def in_table(top: float) -> bool:
+            return any(t0 - 2 <= top <= t1 + 2 for t0, t1 in table_ranges)
+
+        combined = []
+        for line in page.extract_text_lines():
+            txt = line["text"].strip()
+            if not txt or _BOILERPLATE_RE.match(txt) or in_table(line["top"]):
+                continue
+            combined.append((line["top"], "line", txt))
+        for t in tables:
+            rows = t.extract()
+            if not rows or len(rows) < 2:
+                continue
+            headers = [norm(c or "") for c in rows[0]]
+            data_rows = [[norm(c or "") for c in row] for row in rows[1:] if any(row)]
+            if not data_rows:
+                continue
+            combined.append((t.bbox[1], "table", {"type": "table", "headers": headers, "rows": data_rows}))
+        combined.sort(key=lambda x: x[0])
+
+        for _, kind, payload in combined:
+            if kind == "table":
+                if current is not None:
+                    current["blocks"].append(payload)
+                continue
+            line_kind, num, txt = _classify_process_line(payload)
+            if line_kind == "heading":
+                if current is not None:
+                    sections.append(current)
+                current = {"number": num, "title": txt, "level": num.count("."), "blocks": []}
+            elif current is not None:
+                if line_kind == "bullet":
+                    current["blocks"].append({"type": "li", "text": txt})
+                else:
+                    prev = current["blocks"][-1] if current["blocks"] else None
+                    if prev and prev["type"] in ("p", "li"):
+                        prev["text"] += " " + txt
+                    else:
+                        current["blocks"].append({"type": "p", "text": txt})
+        p += 1
+        if p - start > 30:  # safety bound
+            break
+    if current is not None:
+        sections.append(current)
+    return sections
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("pdf")
@@ -286,6 +380,10 @@ def main() -> None:
         test_suites = extract_test_suites(pdf)
         governance = extract_governance_standards(pdf)
         industry = extract_industry_standards(pdf)
+        technical_governance_process = extract_process_sections(
+            pdf, "7.2 Technical Governance Process", re.compile(r"7\.3 Component Governance Process"))
+        component_governance_process = extract_process_sections(
+            pdf, "7.3 Component Governance Process", re.compile(r"7\.4 Escalation Process"))
 
     payload = {
         "schemaVersion": SCHEMA_VERSION,
@@ -295,6 +393,8 @@ def main() -> None:
         "test_suites": test_suites,
         "governance_standards": governance,
         "industry_standards": industry,
+        "technical_governance_process": technical_governance_process,
+        "component_governance_process": component_governance_process,
     }
     Path(args.out).write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Wrote {args.out}")
@@ -303,6 +403,8 @@ def main() -> None:
     print(f"  test_suites: {len(test_suites)} entries")
     print(f"  governance_standards: {len(governance)} entries")
     print(f"  industry_standards: {len(industry)} entries")
+    print(f"  technical_governance_process: {len(technical_governance_process)} sections")
+    print(f"  component_governance_process: {len(component_governance_process)} sections")
 
 
 if __name__ == "__main__":

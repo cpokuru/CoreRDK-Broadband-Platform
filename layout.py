@@ -183,6 +183,25 @@ SHARED_CSS = """
     width: 26%; min-width: 200px;
   }
   table.def-table td.mono { color: var(--ink); font-weight: 600; }
+
+  /* ---- governance process sections (§7.2 / §7.3 narrative content) ---- */
+  .gov-section.level-2 { padding-top: 22px; margin-top: 22px; border-top: 1px solid var(--border); }
+  .gov-section.level-2:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+  .gov-section h3, .gov-section h4, .gov-section h5 {
+    display: flex; align-items: baseline; gap: 10px; font-family: "Space Grotesk", sans-serif;
+  }
+  .gov-section h3 { font-size: 1.12rem; }
+  .gov-section h4 { font-size: 1.0rem; margin-top: 14px; }
+  .gov-section h5 { font-size: 0.92rem; color: var(--muted); margin-top: 10px; }
+  .gov-num {
+    font-family: "JetBrains Mono", monospace; font-size: 0.72rem; font-weight: 700;
+    color: #fff; background: var(--middleware); padding: 2px 8px; border-radius: 5px;
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .gov-section p { margin: 6px 0 10px; font-size: 0.92rem; }
+  .gov-section ul { margin: 6px 0 16px; padding-left: 20px; color: var(--muted); }
+  .gov-section ul li { margin-bottom: 5px; line-height: 1.6; font-size: 0.92rem; }
+  .gov-section table.def-table { margin: 10px 0 18px; font-size: 0.86rem; }
   .timeline { border-left: 2px solid var(--border); margin-left: 6px; padding-left: 24px; display: flex; flex-direction: column; gap: 18px; }
   .tl-item { position: relative; }
   .tl-item::before { content: ""; position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--middleware); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--middleware); }

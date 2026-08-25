@@ -56,6 +56,23 @@ PAGES = [
         "title": "Development Standards",
         "lede": "Process, implementation, and coding standards every new or refactored "
                 "component is held to.",
+        "tables": [
+            {"slug": "technical-governance"},
+            {
+                "slug": "technical-governance-process",
+                "kind": "sections",
+                "heading": "Technical Governance Process",
+                "blurb": "How a change moves from proposal to merge — classification, entry "
+                         "criteria, architecture review, testing, and release governance (§7.2).",
+            },
+            {
+                "slug": "component-governance",
+                "kind": "sections",
+                "heading": "Component Governance Process",
+                "blurb": "How components are registered, owned, health-reviewed, deprecated, "
+                         "and how interface stability is tagged over their lifecycle (§7.3).",
+            },
+        ],
     },
     {
         "active_id": "sbi",
@@ -138,8 +155,40 @@ function renderTree(value) {{
   return `<pre style="background:#0b1220;color:#cbd5e1;padding:20px;border-radius:10px;overflow-x:auto;font-size:0.85rem;">${{esc(JSON.stringify(value, null, 2))}}</pre>`;
 }}
 
-function render(containerId, value) {{
+function renderSections(sections) {{
+  let html = '';
+  for (const s of sections) {{
+    const level = s.level || 2;
+    const tag = level <= 2 ? 'h3' : (level === 3 ? 'h4' : 'h5');
+    html += `<div class="gov-section level-${{level}}">`;
+    html += `<${{tag}}><span class="gov-num">${{esc(s.number)}}</span><span>${{esc(s.title)}}</span></${{tag}}>`;
+    let listOpen = false;
+    for (const b of (s.blocks || [])) {{
+      if (b.type === 'table') {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += '<table class="def-table"><thead><tr>' + b.headers.map(h => `<th>${{esc(h)}}</th>`).join('') + '</tr></thead><tbody>' +
+          b.rows.map(r => `<tr>${{r.map(c => `<td>${{esc(c)}}</td>`).join('')}}</tr>`).join('') + '</tbody></table>';
+      }} else if (b.type === 'li') {{
+        if (!listOpen) {{ html += '<ul>'; listOpen = true; }}
+        html += `<li>${{esc(b.text)}}</li>`;
+      }} else {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += `<p>${{esc(b.text)}}</p>`;
+      }}
+    }}
+    if (listOpen) html += '</ul>';
+    html += '</div>';
+  }}
+  return html;
+}}
+
+function render(containerId, value, kind) {{
   const content = document.getElementById(containerId);
+  if (kind === 'sections') {{
+    const sections = Array.isArray(value) ? value : (Array.isArray(value && value.docs) ? value.docs : findRecordArray(value));
+    content.innerHTML = sections ? renderSections(sections) : renderTree(value);
+    return;
+  }}
   const records = findRecordArray(value);
   content.innerHTML = records ? renderTable(records) : renderTree(value);
 }}
@@ -159,14 +208,14 @@ function loadTable(t) {{
   const xmlFile = t.slug + '.xml';
   fetch(jsonFile, {{ cache: 'no-store' }})
     .then(res => {{ if (!res.ok) throw new Error('no json'); return res.json(); }})
-    .then(data => render(t.containerId, data))
+    .then(data => render(t.containerId, data, t.kind))
     .catch(() => {{
       fetch(xmlFile, {{ cache: 'no-store' }})
         .then(res => {{ if (!res.ok) throw new Error('no xml'); return res.text(); }})
         .then(text => {{
           const xml = new DOMParser().parseFromString(text, 'application/xml');
           if (xml.getElementsByTagName('parsererror').length > 0) throw new Error('bad xml');
-          render(t.containerId, xmlToObj(xml.documentElement));
+          render(t.containerId, xmlToObj(xml.documentElement), t.kind);
         }})
         .catch(() => showEmptyState(t.containerId, jsonFile, xmlFile));
     }});
@@ -183,7 +232,7 @@ def build_stub_page(page: dict) -> str:
     tables_js = []
     for i, t in enumerate(tables):
         container_id = "data-content" if i == 0 else f"data-content-{i + 1}"
-        tables_js.append({"containerId": container_id, "slug": t["slug"]})
+        tables_js.append({"containerId": container_id, "slug": t["slug"], "kind": t.get("kind", "table")})
         heading_html = ""
         if t.get("heading"):
             blurb = f'<p>{t["blurb"]}</p>' if t.get("blurb") else ""
