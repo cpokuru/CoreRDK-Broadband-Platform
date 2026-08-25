@@ -2,6 +2,30 @@
   "source": "RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0.pdf §7.1.3",
   "docs": [
     {
+      "Category": "Remote management & data modeling",
+      "Standard / Body": "Broadband Forum TR-069 (CWMP)",
+      "Applies To": "ACS Server, TR-069 adapter",
+      "Note": "Legacy remote management protocol"
+    },
+    {
+      "Category": "Remote management & data modeling",
+      "Standard / Body": "Broadband Forum TR-369 (USP)",
+      "Applies To": "USP Controller, TR-369 adapter",
+      "Note": "Transport-agnostic (WebSocket/MQTT/STOMP/CoAP)"
+    },
+    {
+      "Category": "Remote management & data modeling",
+      "Standard / Body": "Broadband Forum TR-181 Device:2 Data Model",
+      "Applies To": "All TR-181-backed parameters (WebPA,TR-069, USP and internal components that use TR-181 as the IPC contract) and OneWiFi interface to 3rd party WiFi optimization software using DataElements, downloaded apps that provide or consume services.",
+      "Note": "Single underlying data model across northbound protocols, internal components, 3rd party differentiating components and downloaded apps."
+    },
+    {
+      "Category": "Remote management & data modeling",
+      "Standard / Body": "OpenAPI 3.x",
+      "Applies To": "Any REST API surface (RestAPI-tagged USP/WebPA paths)",
+      "Note": "Required for documenting REST interfaces"
+    },
+    {
       "Category": "Wireless & local networking",
       "Standard / Body": "IEEE 802.11ax / 802.11be",
       "Applies To": "OneWifi, rdk-wifi-hal, Vendor Wi-Fi HAL",
@@ -236,25 +260,25 @@
       "Note": "Ties to your libbundlegen/Dobby OCI work"
     },
     {
-      "Category": "Containers & application platform",
+      "Category": "Security & coding standards",
       "Standard / Body": "MISRA-C:2012 / CERT C Secure Coding Standard",
       "Applies To": "C/C++ coding anti-pattern enforcement (7.1.2)",
       "Note": "External normative anchor for the internal coding rule"
     },
     {
-      "Category": "Containers & application platform",
+      "Category": "Security & coding standards",
       "Standard / Body": "IETF RFC 8446 (TLS 1.3) / RFC 5280 (X.509 PKI)",
       "Applies To": "WebPA/USP/ACS transport security, secure boot certs",
       "Note": ""
     },
     {
-      "Category": "Containers & application platform",
+      "Category": "Security & coding standards",
       "Standard / Body": "NIST SP 800-57 (key management)",
       "Applies To": "PSM-backed credential storage",
       "Note": ""
     },
     {
-      "Category": "Containers & application platform",
+      "Category": "Security & coding standards",
       "Standard / Body": "OWASP IoT Top 10",
       "Applies To": "General embedded device security review checklist",
       "Note": ""

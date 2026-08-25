@@ -160,6 +160,60 @@ def extract_governance_standards(pdf) -> list[dict]:
     return out
 
 
+def _is_header_cell(c: str) -> bool:
+    key = re.sub(r"\s*/\s*$", "", c.lower().strip())
+    key = re.sub(r"\s+", " ", key)
+    return key in {"standard", "standard / body", "body", "applies to", "note"}
+
+
+def _parse_standards_table(rows: list[list]) -> list[dict]:
+    """Given a raw pdfplumber-extracted table, locate the 'Standard / Body |
+    Applies To | Note' header — which may be split across several ragged
+    leading rows and/or include a stray empty column, as happens for the
+    7.1.3.1 table — then extract the data rows that follow. Returns [] if
+    this doesn't look like a standards table at all."""
+    if not rows:
+        return []
+    ncols = max(len(r) for r in rows)
+    norm_rows = [list(r) + [None] * (ncols - len(r)) for r in rows]
+
+    col = {}  # "standard" | "applies_to" | "note" -> column index
+    data_start = None
+    for ri, row in enumerate(norm_rows):
+        cells = [norm(c or "") for c in row]
+        if not any(cells):
+            continue  # blank row inside a ragged header block; keep scanning
+        is_header_row = any(_is_header_cell(c) for c in cells if c)
+        if is_header_row:
+            for ci, c in enumerate(cells):
+                key = c.lower().replace(" ", "")
+                if not key:
+                    continue
+                if "standard" in key or key == "body":
+                    col.setdefault("standard", ci)
+                elif "appliesto" in key:
+                    col.setdefault("applies_to", ci)
+                elif "note" in key:
+                    col.setdefault("note", ci)
+            continue
+        data_start = ri
+        break
+
+    if data_start is None or "standard" not in col:
+        return []
+
+    out = []
+    for row in norm_rows[data_start:]:
+        cells = [norm(c or "") for c in row]
+        std = cells[col["standard"]] if col["standard"] < len(cells) else ""
+        if not std:
+            continue
+        applies = cells[col["applies_to"]] if "applies_to" in col and col["applies_to"] < len(cells) else ""
+        note = cells[col["note"]] if "note" in col and col["note"] < len(cells) else ""
+        out.append({"standard": std, "applies_to": applies, "note": note})
+    return out
+
+
 def extract_industry_standards(pdf) -> list[dict]:
     """Section 7.1.3.x — multiple clean 'Standard / Body | Applies To | Note'
     tables, one per sub-domain (remote management, wireless, IoT, etc.).
@@ -180,7 +234,7 @@ def extract_industry_standards(pdf) -> list[dict]:
         words = page.extract_words()
         headings = []  # (top, category_text)
         full_text = " ".join(w["text"] for w in sorted(words, key=lambda w: (w["top"], w["x0"])))
-        for m in re.finditer(r"7\.1\.3\.(\d)\.", full_text):
+        for m in re.finditer(r"7\.1\.3\.(\d+)\.", full_text):
             tag = f"7.1.3.{m.group(1)}."
             for w in words:
                 if w["text"] == tag or w["text"].startswith(f"7.1.3.{m.group(1)}"):
@@ -190,32 +244,28 @@ def extract_industry_standards(pdf) -> list[dict]:
                     band = [x for x in words if w["top"] - 2 <= x["top"] <= w["top"] + 16]
                     band.sort(key=lambda x: (x["top"], x["x0"]))
                     heading_text = " ".join(x["text"] for x in band)
-                    heading_text = re.sub(r"^7\.1\.3\.\d\.\s*", "", heading_text).strip()
+                    heading_text = re.sub(r"^7\.1\.3\.\d+\.\s*", "", heading_text).strip()
                     heading_text = heading_text.split(" (")[0].strip()
                     headings.append((w["top"], heading_text))
                     break
 
         for t in page.find_tables():
             rows = t.extract()
-            if not rows:
-                continue
-            header = [norm(c or "") for c in rows[0][:3]]
-            if header[:2] not in (["Standard / Body", "Applies To"], ["Standard /", "Applies To"]):
+            records = _parse_standards_table(rows)
+            if not records:
                 continue
             table_top = t.bbox[1]
             category = last_category
             for h_top, h_text in headings:
                 if h_top <= table_top + 5:
                     category = h_text
-            for row in rows[1:]:
-                cells = [norm(c or "") for c in row[:3]]
-                if cells[0]:
-                    out.append({
-                        "category": category,
-                        "standard": cells[0],
-                        "applies_to": cells[1] if len(cells) > 1 else "",
-                        "note": cells[2] if len(cells) > 2 else "",
-                    })
+            for rec in records:
+                out.append({
+                    "category": category,
+                    "standard": rec["standard"],
+                    "applies_to": rec["applies_to"],
+                    "note": rec["note"],
+                })
         if headings:
             last_category = headings[-1][1]
         p += 1
