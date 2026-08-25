@@ -12,16 +12,26 @@ import html
 
 COMPONENTS_URL = "components/"
 
-# (id, label, href, external) — external items get an "external link" arrow
-# and open the components site rather than a local page in this repo.
+# Nav structure: each top-level entry is either
+#   ("link", id, label, href, external)      -- a plain nav link
+#   ("group", id, label, [child_link, ...])   -- a dropdown; children are
+#                                                 ("link", id, label, href, external) tuples
+# external items get an "external link" arrow and open the components site
+# rather than a local page in this repo.
 NAV_LINKS = [
-    ("about", "About Core RDK Broadband", "index.html", False),
-    ("architecture-standards", "Architecture Standards", "architecture-standards.html", False),
-    ("technical-governance", "Development Standards", "technical-governance.html", False),
-    ("nbi", "North Bound APIs", "north-bound-apis.html", False),
-    ("sbi", "South Bound APIs", "south-bound-apis.html", False),
-    ("hwcompat", "Hardware Compatibility", "hardware-compatibility.html", False),
-    ("components", "Core RDK Components", COMPONENTS_URL, True),
+    ("link", "about", "About Core RDK Broadband", "index.html", False),
+    ("group", "standards", "Standards", [
+        ("link", "architecture-standards", "Architecture Standards", "architecture-standards.html", False),
+        ("link", "industry-standards", "Industry Conformance Standards", "industry-standards.html", False),
+        ("link", "technical-governance", "Development Standards", "technical-governance.html", False),
+    ]),
+    ("group", "nbi-group", "North Bound APIs", [
+        ("link", "nbi-spec", "North Bound Specification", "north-bound-specification.html", False),
+        ("link", "nbi", "List of North Bound APIs", "north-bound-apis.html", False),
+    ]),
+    ("link", "sbi", "South Bound APIs", "south-bound-apis.html", False),
+    ("link", "hwcompat", "Hardware Compatibility", "hardware-compatibility.html", False),
+    ("link", "components", "Core RDK Components", COMPONENTS_URL, True),
 ]
 
 SHARED_CSS = """
@@ -76,6 +86,31 @@ SHARED_CSS = """
     text-decoration: none; white-space: nowrap;
   }
 
+  /* ---- nav dropdown groups (Standards, North Bound APIs) ---- */
+  .nav-group { position: relative; }
+  .nav-group-toggle {
+    display: flex; align-items: center; gap: 5px; cursor: pointer; background: none; border: none;
+    font-family: inherit; color: #aab8d4; text-decoration: none; font-size: 0.82rem; font-weight: 500;
+    padding: 8px 12px; border-radius: 6px; white-space: nowrap;
+    border-bottom: 2px solid transparent; transition: color 0.12s;
+  }
+  .nav-group-toggle:hover, .nav-group.open .nav-group-toggle { color: #fff; }
+  .nav-group-toggle.active { color: var(--rdk-blue); border-bottom-color: var(--rdk-blue); font-weight: 600; }
+  .nav-group-toggle .caret { font-size: 0.65em; transition: transform 0.15s; }
+  .nav-group.open .nav-group-toggle .caret { transform: rotate(180deg); }
+  .nav-dropdown {
+    display: none; position: absolute; top: calc(100% + 8px); left: 0; min-width: 230px;
+    background: #10182b; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+    box-shadow: var(--shadow-md); padding: 6px; z-index: 55;
+  }
+  .nav-group:hover .nav-dropdown, .nav-group.open .nav-dropdown, .nav-group:focus-within .nav-dropdown { display: block; }
+  .nav-dropdown a {
+    display: block; color: #cbd5e1; text-decoration: none; font-size: 0.84rem; font-weight: 500;
+    padding: 9px 12px; border-radius: 7px; white-space: nowrap; border-bottom: none;
+  }
+  .nav-dropdown a:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .nav-dropdown a.active { color: var(--rdk-blue); font-weight: 600; }
+
   /* ---- main content area ---- */
   .page-main { min-height: 100vh; margin-top: 61px; }
 
@@ -83,6 +118,7 @@ SHARED_CSS = """
     .topnav { flex-wrap: wrap; padding: 10px 16px; }
     .topnav nav { order: 3; width: 100%; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 8px; }
     .page-main { margin-top: 108px; }
+    .nav-dropdown { position: static; box-shadow: none; border: none; background: rgba(255,255,255,0.03); margin: 2px 0 6px 12px; }
   }
 
   /* ---- hero ---- */
@@ -407,11 +443,27 @@ def render_quicklinks(items: list[dict]) -> str:
 
 def render_topnav(active_id: str) -> str:
     links_html = []
-    for id_, label, href, external in NAV_LINKS:
-        if id_ == "components":
-            continue  # rendered separately as the CTA button, not a plain nav link
-        cls = "active" if id_ == active_id else ""
-        links_html.append(f'<a class="{cls}" href="{esc(href)}">{esc(label)}</a>')
+    for entry in NAV_LINKS:
+        kind = entry[0]
+        if kind == "link":
+            _, id_, label, href, external = entry
+            if id_ == "components":
+                continue  # rendered separately as the CTA button, not a plain nav link
+            cls = "active" if id_ == active_id else ""
+            links_html.append(f'<a class="{cls}" href="{esc(href)}">{esc(label)}</a>')
+        else:  # "group"
+            _, group_id, group_label, children = entry
+            child_ids = {c[1] for c in children}
+            toggle_cls = "active" if active_id in child_ids else ""
+            open_cls = "open" if active_id in child_ids else ""
+            child_links = "".join(
+                f'<a class="{"active" if cid == active_id else ""}" href="{esc(chref)}">{esc(clabel)}</a>'
+                for _, cid, clabel, chref, _cext in children
+            )
+            links_html.append(f'''<div class="nav-group {open_cls}">
+      <button type="button" class="nav-group-toggle {toggle_cls}">{esc(group_label)} <span class="caret">&#9662;</span></button>
+      <div class="nav-dropdown">{child_links}</div>
+    </div>''')
     return f'''<div class="topnav">
   <div class="brand">
     <img src="RDK-logo.png" alt="RDK-B Core Broadband logo" onerror="this.style.display='none'">
@@ -420,7 +472,23 @@ def render_topnav(active_id: str) -> str:
     {"".join(links_html)}
   </nav>
   <a class="cta" href="{esc(COMPONENTS_URL)}">Core RDK Components ↗</a>
-</div>'''
+</div>
+<script>
+  // Click-to-toggle for touch devices; desktop still gets :hover/:focus-within
+  // from CSS for free. Closes other open groups and closes on outside click.
+  document.querySelectorAll('.nav-group-toggle').forEach(btn => {{
+    btn.addEventListener('click', (e) => {{
+      e.stopPropagation();
+      const group = btn.closest('.nav-group');
+      const wasOpen = group.classList.contains('open');
+      document.querySelectorAll('.nav-group.open').forEach(g => g.classList.remove('open'));
+      if (!wasOpen) group.classList.add('open');
+    }});
+  }});
+  document.addEventListener('click', () => {{
+    document.querySelectorAll('.nav-group.open').forEach(g => g.classList.remove('open'));
+  }});
+</script>'''
 
 
 CHATBOX_HTML = """

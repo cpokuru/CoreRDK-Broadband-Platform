@@ -28,8 +28,9 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from urllib.parse import quote
 
-from layout import render_hero, render_page
+from layout import esc, render_hero, render_page
 
 PAGES = [
     {
@@ -37,16 +38,18 @@ PAGES = [
         "slug": "architecture-standards",
         "eyebrow": "Architecture Standards",
         "title": "Architecture Standards",
-        "lede": "Industry standards RDK-B conforms to where its functionality overlaps "
-                "an established global standard.",
+        "lede": "Architectural rules every new or refactored component follows — "
+                "modularity, IPC, dependency management, and data model documentation (§7.1.1).",
+    },
+    {
+        "active_id": "industry-standards",
+        "slug": "industry-standards",
+        "eyebrow": "Industry Conformance Standards",
+        "title": "Industry Conformance Standards",
+        "lede": "Where RDK-B functionality overlaps an established external standards "
+                "body, tracked by category (§7.1.3).",
         "tables": [
-            {"slug": "architecture-standards"},
-            {
-                "slug": "architecture-standards-industry",
-                "heading": "Industry Standards Conformance",
-                "blurb": "Where RDK-B functionality overlaps an established external "
-                         "standards body, tracked by category (§7.1.3).",
-            },
+            {"slug": "architecture-standards-industry"},
         ],
     },
     {
@@ -73,6 +76,15 @@ PAGES = [
                          "and how interface stability is tagged over their lifecycle (§7.3).",
             },
         ],
+    },
+    {
+        "active_id": "nbi-spec",
+        "slug": "north-bound-specification",
+        "eyebrow": "North Bound APIs",
+        "title": "North Bound Specification",
+        "lede": "The RDK-B High Level API Specification — the northbound protocol and "
+                "data-model contract (TR-069, TR-369/USP, WebPA, TR-181).",
+        "pdf": "docs/hlspec/RDKB High Level API Spec 2026-August-11_v1.pdf",
     },
     {
         "active_id": "sbi",
@@ -226,6 +238,29 @@ TABLES.forEach(loadTable);
 """
 
 
+def build_pdf_page(page: dict) -> str:
+    """A PDF-embed page (e.g. North Bound Specification): no JSON loader,
+    just an <iframe> pointing at the PDF already checked into the repo, plus
+    a plain-link fallback for browsers/mobile viewers that force a download
+    instead of rendering the iframe inline."""
+    pdf_src = quote(page["pdf"], safe="/")
+    body = render_hero(page["eyebrow"], page["title"], page["lede"], compact=True, visual_key=page["active_id"]) + f'''
+<section class="tight-top">
+  <div class="pdf-embed-wrap">
+    <iframe src="{esc(pdf_src)}" title="{esc(page["title"])}" loading="lazy"></iframe>
+  </div>
+  <p style="margin-top:14px; font-size:0.86rem;">
+    Viewer not loading? <a href="{esc(pdf_src)}" target="_blank" rel="noopener">Open the PDF directly ↗</a>
+  </p>
+</section>
+'''
+    head_extra = f"<title>{page['title']} — RDK-B Core Broadband</title>\n" + \
+        '<style>.pdf-embed-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;' \
+        'box-shadow:var(--shadow-sm);height:82vh;min-height:520px;}' \
+        '.pdf-embed-wrap iframe{width:100%;height:100%;border:none;display:block;}</style>'
+    return render_page(page["active_id"], head_extra, body)
+
+
 def build_stub_page(page: dict) -> str:
     tables = page.get("tables") or [{"slug": page["slug"]}]
     sections = []
@@ -260,7 +295,8 @@ def main() -> None:
 
     for page in PAGES:
         path = out_dir / f"{page['slug']}.html"
-        path.write_text(build_stub_page(page), encoding="utf-8")
+        html = build_pdf_page(page) if "pdf" in page else build_stub_page(page)
+        path.write_text(html, encoding="utf-8")
         print(f"Wrote {path}")
 
 

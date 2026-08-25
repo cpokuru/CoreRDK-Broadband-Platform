@@ -319,6 +319,30 @@
       "url": "technical-governance.html"
     },
     {
+      "title": "Broadband Forum TR-069 (CWMP)",
+      "text": "Applies to: ACS Server, TR-069 adapter. Legacy remote management protocol",
+      "category": "Architecture Standards — Remote management & data modeling",
+      "url": "architecture-standards.html"
+    },
+    {
+      "title": "Broadband Forum TR-369 (USP)",
+      "text": "Applies to: USP Controller, TR-369 adapter. Transport-agnostic (WebSocket/MQTT/STOMP/CoAP)",
+      "category": "Architecture Standards — Remote management & data modeling",
+      "url": "architecture-standards.html"
+    },
+    {
+      "title": "Broadband Forum TR-181 Device:2 Data Model",
+      "text": "Applies to: All TR-181-backed parameters (WebPA,TR-069, USP and internal components that use TR-181 as the IPC contract) and OneWiFi interface to 3rd party WiFi optimization software using DataElements, downloaded apps that provide or consume services.. Single underlying data model across northbound protocols, internal components, 3rd party differentiating components and downloaded apps.",
+      "category": "Architecture Standards — Remote management & data modeling",
+      "url": "architecture-standards.html"
+    },
+    {
+      "title": "OpenAPI 3.x",
+      "text": "Applies to: Any REST API surface (RestAPI-tagged USP/WebPA paths). Required for documenting REST interfaces",
+      "category": "Architecture Standards — Remote management & data modeling",
+      "url": "architecture-standards.html"
+    },
+    {
       "title": "IEEE 802.11ax / 802.11be",
       "text": "Applies to: OneWifi, rdk-wifi-hal, Vendor Wi-Fi HAL. Wi-Fi 6/6E/7 PHY-MAC conformance",
       "category": "Architecture Standards — Wireless & local networking",
@@ -555,25 +579,25 @@
     {
       "title": "MISRA-C:2012 / CERT C Secure Coding Standard",
       "text": "Applies to: C/C++ coding anti-pattern enforcement (7.1.2). External normative anchor for the internal coding rule",
-      "category": "Architecture Standards — Containers & application platform",
+      "category": "Architecture Standards — Security & coding standards",
       "url": "architecture-standards.html"
     },
     {
       "title": "IETF RFC 8446 (TLS 1.3) / RFC 5280 (X.509 PKI)",
       "text": "Applies to: WebPA/USP/ACS transport security, secure boot certs.",
-      "category": "Architecture Standards — Containers & application platform",
+      "category": "Architecture Standards — Security & coding standards",
       "url": "architecture-standards.html"
     },
     {
       "title": "NIST SP 800-57 (key management)",
       "text": "Applies to: PSM-backed credential storage.",
-      "category": "Architecture Standards — Containers & application platform",
+      "category": "Architecture Standards — Security & coding standards",
       "url": "architecture-standards.html"
     },
     {
       "title": "OWASP IoT Top 10",
       "text": "Applies to: General embedded device security review checklist.",
-      "category": "Architecture Standards — Containers & application platform",
+      "category": "Architecture Standards — Security & coding standards",
       "url": "architecture-standards.html"
     },
     {
