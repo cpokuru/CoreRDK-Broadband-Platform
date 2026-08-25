@@ -71,14 +71,22 @@ SHARED_CSS = """
   .topnav .brand { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
   .topnav .brand img { height: 26px; width: auto; display: block; }
   .topnav .brand-text { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 0.86rem; color: #fff; white-space: nowrap; }
-  .topnav nav { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; row-gap: 8px; flex: 1 1 auto; min-width: 0; }
-  .topnav nav a {
-    color: #aab8d4; text-decoration: none; font-size: 0.82rem; font-weight: 500;
-    padding: 8px 10px; border-radius: 6px; white-space: nowrap;
-    border-bottom: 2px solid transparent; transition: color 0.12s; outline: none;
+  .topnav nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; row-gap: 8px; flex: 1 1 auto; min-width: 0; }
+
+  /* Every nav control — plain links, dropdown toggles, all of it — shares
+     this one pill style so the whole bar reads as one consistent design
+     echoing the "Core RDK Components" CTA's blue, instead of a mix of plain
+     text and boxes. */
+  .topnav nav a, .nav-group-toggle {
+    display: flex; align-items: center; gap: 5px; cursor: pointer;
+    background: rgba(41,182,232,0.1); border: 1px solid rgba(111,168,232,0.35);
+    font-family: inherit; color: #cfe0f5; text-decoration: none; font-size: 0.82rem; font-weight: 500;
+    padding: 7px 13px; border-radius: 999px; white-space: nowrap; transition: all 0.12s; outline: none;
   }
-  .topnav nav a:hover { color: #fff; }
-  .topnav nav a.active { color: var(--rdk-blue); border-bottom-color: var(--rdk-blue); font-weight: 600; }
+  .topnav nav a:hover, .nav-group-toggle:hover { background: rgba(41,182,232,0.18); border-color: var(--rdk-blue); color: #fff; }
+  .topnav nav a.active, .nav-group.open .nav-group-toggle, .nav-group-toggle.active {
+    background: rgba(41,182,232,0.22); border-color: var(--rdk-blue); color: var(--rdk-blue); font-weight: 600;
+  }
   .topnav nav a .ext-arrow { font-size: 0.78em; color: #6fa8e8; }
   .topnav nav a:focus-visible, .nav-group-toggle:focus-visible {
     outline: none; box-shadow: 0 0 0 3px rgba(41,182,232,0.35); color: #fff;
@@ -86,31 +94,21 @@ SHARED_CSS = """
   .topnav .cta {
     flex: 0 0 auto; background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); color: #fff;
     font-size: 0.76rem; font-weight: 600; padding: 7px 14px; border-radius: 999px;
-    text-decoration: none; white-space: nowrap;
+    text-decoration: none; white-space: nowrap; border: none;
   }
 
-  /* ---- nav dropdown groups (Standards, North Bound APIs) — pill style
-     echoing the "Core RDK Components" CTA's blue, so they read as related
-     controls rather than a stray box around plain text. ---- */
+  /* ---- nav dropdown groups (Standards, North Bound APIs) ---- */
   .nav-group { position: relative; flex: 0 0 auto; }
-  .nav-group-toggle {
-    display: flex; align-items: center; gap: 5px; cursor: pointer;
-    background: rgba(41,182,232,0.1); border: 1px solid rgba(111,168,232,0.35);
-    font-family: inherit; color: #cfe0f5; text-decoration: none; font-size: 0.82rem; font-weight: 500;
-    padding: 7px 13px; border-radius: 999px; white-space: nowrap; transition: all 0.12s; outline: none;
-  }
-  .nav-group-toggle:hover { background: rgba(41,182,232,0.18); border-color: var(--rdk-blue); color: #fff; }
-  .nav-group.open .nav-group-toggle, .nav-group-toggle.active {
-    background: rgba(41,182,232,0.22); border-color: var(--rdk-blue); color: var(--rdk-blue); font-weight: 600;
-  }
   .nav-group-toggle .caret { font-size: 0.65em; transition: transform 0.15s; }
   .nav-group.open .nav-group-toggle .caret { transform: rotate(180deg); }
   .nav-dropdown {
-    display: none; position: absolute; top: calc(100% + 8px); left: 0; min-width: 230px;
-    background: #10182b; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-    box-shadow: var(--shadow-md); padding: 6px; z-index: 55;
+    display: none; position: absolute; top: 100%; left: 0; padding-top: 8px; z-index: 55;
   }
   .nav-group:hover .nav-dropdown, .nav-group.open .nav-dropdown, .nav-group:focus-within .nav-dropdown { display: block; }
+  .nav-dropdown-inner {
+    min-width: 230px; background: #10182b; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+    box-shadow: var(--shadow-md); padding: 6px;
+  }
   .nav-dropdown a {
     display: block; color: #cbd5e1; text-decoration: none; font-size: 0.84rem; font-weight: 500;
     padding: 9px 12px; border-radius: 7px; white-space: nowrap; border-bottom: none;
@@ -126,7 +124,8 @@ SHARED_CSS = """
     .topnav { flex-wrap: wrap; padding: 10px 16px; }
     .topnav nav { order: 3; width: 100%; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 8px; }
     .page-main { margin-top: 108px; }
-    .nav-dropdown { position: static; box-shadow: none; border: none; background: rgba(255,255,255,0.03); margin: 2px 0 6px 12px; }
+    .nav-dropdown { position: static; padding-top: 0; }
+    .nav-dropdown-inner { box-shadow: none; border: none; background: rgba(255,255,255,0.03); margin: 2px 0 6px 12px; }
   }
 
   /* ---- hero ---- */
@@ -473,7 +472,7 @@ def render_topnav(active_id: str) -> str:
             )
             links_html.append(f'''<div class="nav-group {open_cls}">
       <button type="button" class="nav-group-toggle {toggle_cls}">{esc(group_label)} <span class="caret">&#9662;</span></button>
-      <div class="nav-dropdown">{child_links}</div>
+      <div class="nav-dropdown"><div class="nav-dropdown-inner">{child_links}</div></div>
     </div>''')
     return f'''<div class="topnav">
   <div class="brand">
@@ -497,6 +496,21 @@ def render_topnav(active_id: str) -> str:
   }});
   document.addEventListener('click', () => {{
     document.querySelectorAll('.nav-group.open').forEach(g => g.classList.remove('open'));
+  }});
+
+  // Belt-and-braces for mouse users: mirror hover with 'open' via JS too, with
+  // a short close delay, so the menu survives brief gaps/edge cases in pure
+  // CSS :hover tracking instead of relying on it alone.
+  let navCloseTimer = null;
+  document.querySelectorAll('.nav-group').forEach(group => {{
+    group.addEventListener('mouseenter', () => {{
+      clearTimeout(navCloseTimer);
+      document.querySelectorAll('.nav-group.open').forEach(g => {{ if (g !== group) g.classList.remove('open'); }});
+      group.classList.add('open');
+    }});
+    group.addEventListener('mouseleave', () => {{
+      navCloseTimer = setTimeout(() => group.classList.remove('open'), 250);
+    }});
   }});
 </script>'''
 
