@@ -71,9 +71,7 @@ SHARED_CSS = """
   .topnav .brand { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
   .topnav .brand img { height: 26px; width: auto; display: block; }
   .topnav .brand-text { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 0.86rem; color: #fff; white-space: nowrap; }
-  .topnav nav { display: flex; align-items: center; gap: 2px; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; min-width: 0; scrollbar-width: thin; }
-  .topnav nav::-webkit-scrollbar { height: 4px; }
-  .topnav nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+  .topnav nav { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; row-gap: 8px; flex: 1 1 auto; min-width: 0; }
   .topnav nav a {
     color: #aab8d4; text-decoration: none; font-size: 0.82rem; font-weight: 500;
     padding: 8px 10px; border-radius: 6px; white-space: nowrap;
@@ -83,24 +81,28 @@ SHARED_CSS = """
   .topnav nav a.active { color: var(--rdk-blue); border-bottom-color: var(--rdk-blue); font-weight: 600; }
   .topnav nav a .ext-arrow { font-size: 0.78em; color: #6fa8e8; }
   .topnav nav a:focus-visible, .nav-group-toggle:focus-visible {
-    outline: 2px solid var(--rdk-blue); outline-offset: 2px; border-radius: 6px; color: #fff;
+    outline: none; box-shadow: 0 0 0 3px rgba(41,182,232,0.35); color: #fff;
   }
   .topnav .cta {
     flex: 0 0 auto; background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); color: #fff;
     font-size: 0.76rem; font-weight: 600; padding: 7px 14px; border-radius: 999px;
-    text-decoration: none; white-space: nowrap; margin-left: 6px;
+    text-decoration: none; white-space: nowrap;
   }
 
-  /* ---- nav dropdown groups (Standards, North Bound APIs) ---- */
+  /* ---- nav dropdown groups (Standards, North Bound APIs) — pill style
+     echoing the "Core RDK Components" CTA's blue, so they read as related
+     controls rather than a stray box around plain text. ---- */
   .nav-group { position: relative; flex: 0 0 auto; }
   .nav-group-toggle {
-    display: flex; align-items: center; gap: 5px; cursor: pointer; background: none; border: none;
-    font-family: inherit; color: #aab8d4; text-decoration: none; font-size: 0.82rem; font-weight: 500;
-    padding: 8px 10px; border-radius: 6px; white-space: nowrap;
-    border-bottom: 2px solid transparent; transition: color 0.12s; outline: none;
+    display: flex; align-items: center; gap: 5px; cursor: pointer;
+    background: rgba(41,182,232,0.1); border: 1px solid rgba(111,168,232,0.35);
+    font-family: inherit; color: #cfe0f5; text-decoration: none; font-size: 0.82rem; font-weight: 500;
+    padding: 7px 13px; border-radius: 999px; white-space: nowrap; transition: all 0.12s; outline: none;
   }
-  .nav-group-toggle:hover, .nav-group.open .nav-group-toggle { color: #fff; }
-  .nav-group-toggle.active { color: var(--rdk-blue); border-bottom-color: var(--rdk-blue); font-weight: 600; }
+  .nav-group-toggle:hover { background: rgba(41,182,232,0.18); border-color: var(--rdk-blue); color: #fff; }
+  .nav-group.open .nav-group-toggle, .nav-group-toggle.active {
+    background: rgba(41,182,232,0.22); border-color: var(--rdk-blue); color: var(--rdk-blue); font-weight: 600;
+  }
   .nav-group-toggle .caret { font-size: 0.65em; transition: transform 0.15s; }
   .nav-group.open .nav-group-toggle .caret { transform: rotate(180deg); }
   .nav-dropdown {
@@ -115,7 +117,7 @@ SHARED_CSS = """
   }
   .nav-dropdown a:hover { background: rgba(255,255,255,0.06); color: #fff; }
   .nav-dropdown a.active { color: var(--rdk-blue); font-weight: 600; }
-  .nav-dropdown a:focus-visible { outline: 2px solid var(--rdk-blue); outline-offset: -2px; }
+  .nav-dropdown a:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(41,182,232,0.35) inset; }
 
   /* ---- main content area ---- */
   .page-main { min-height: 100vh; margin-top: 61px; }
@@ -454,9 +456,12 @@ def render_topnav(active_id: str) -> str:
         if kind == "link":
             _, id_, label, href, external = entry
             if id_ == "components":
-                continue  # rendered separately as the CTA button, not a plain nav link
+                continue  # placed separately, right after "About", not in normal order
             cls = "active" if id_ == active_id else ""
             links_html.append(f'<a class="{cls}" href="{esc(href)}">{esc(label)}</a>')
+            if id_ == "about":
+                # "Core RDK Components" goes immediately after the About link.
+                links_html.append(f'<a class="cta" href="{esc(COMPONENTS_URL)}">Core RDK Components ↗</a>')
         else:  # "group"
             _, group_id, group_label, children = entry
             child_ids = {c[1] for c in children}
@@ -477,7 +482,6 @@ def render_topnav(active_id: str) -> str:
   <nav>
     {"".join(links_html)}
   </nav>
-  <a class="cta" href="{esc(COMPONENTS_URL)}">Core RDK Components ↗</a>
 </div>
 <script>
   // Click-to-toggle for touch devices; desktop still gets :hover/:focus-within
