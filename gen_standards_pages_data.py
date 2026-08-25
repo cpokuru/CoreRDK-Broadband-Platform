@@ -1,6 +1,7 @@
-"""Derive architecture-standards.json and technical-governance.json (the two
-data files the generic stub-page loader fetches at runtime) from
-docs/spec-content.json's governance_standards list.
+"""Derive architecture-standards.json, technical-governance.json, and
+architecture-standards-industry.json (the data files the stub-page loader
+fetches at runtime) from docs/spec-content.json's governance_standards
+(§7.1.1 + §7.1.2) and industry_standards (§7.1.3) lists.
 
 Run this right after build_site.py (which regenerates spec-content.json from
 the PDF) and before/after gen_stub_pages.py — order between those two doesn't
@@ -25,6 +26,7 @@ def main() -> None:
 
     spec = json.loads(Path(args.spec_json).read_text(encoding="utf-8"))
     rows = spec.get("governance_standards", [])
+    industry_rows = spec.get("industry_standards", [])
 
     arch = [r for r in rows if r.get("section") == "7.1.1"]
     tech = [r for r in rows if r.get("section") == "7.1.2"]
@@ -32,19 +34,34 @@ def main() -> None:
     def to_docs(rows: list[dict]) -> list[dict]:
         return [{"Standard": r["name"], "Requirements": r["requirement"]} for r in rows]
 
+    def industry_to_docs(rows: list[dict]) -> list[dict]:
+        return [
+            {
+                "Category": r.get("category", ""),
+                "Standard / Body": r.get("standard", ""),
+                "Applies To": r.get("applies_to", ""),
+                "Note": r.get("note", ""),
+            }
+            for r in rows
+        ]
+
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     arch_payload = {"source": f"{spec.get('sourcePdf', '')} §7.1.1", "docs": to_docs(arch)}
     tech_payload = {"source": f"{spec.get('sourcePdf', '')} §7.1.2", "docs": to_docs(tech)}
+    industry_payload = {"source": f"{spec.get('sourcePdf', '')} §7.1.3", "docs": industry_to_docs(industry_rows)}
 
     (out_dir / "architecture-standards.json").write_text(
         json.dumps(arch_payload, indent=2, ensure_ascii=False), encoding="utf-8")
     (out_dir / "technical-governance.json").write_text(
         json.dumps(tech_payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    (out_dir / "architecture-standards-industry.json").write_text(
+        json.dumps(industry_payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
     print(f"Wrote architecture-standards.json ({len(arch)} entries)")
     print(f"Wrote technical-governance.json ({len(tech)} entries)")
+    print(f"Wrote architecture-standards-industry.json ({len(industry_rows)} entries)")
 
 
 if __name__ == "__main__":

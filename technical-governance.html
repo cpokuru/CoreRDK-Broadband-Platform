@@ -291,9 +291,7 @@
 <title>Development Standards — RDK-B Core Broadband</title>
 
 <script>
-const SLUG = "technical-governance";
-const JSON_FILE = SLUG + ".json";
-const XML_FILE = SLUG + ".xml";
+const TABLES = [{"containerId": "data-content", "slug": "technical-governance"}];
 
 function esc(s) {
   const d = document.createElement('div');
@@ -354,35 +352,41 @@ function renderTree(value) {
   return `<pre style="background:#0b1220;color:#cbd5e1;padding:20px;border-radius:10px;overflow-x:auto;font-size:0.85rem;">${esc(JSON.stringify(value, null, 2))}</pre>`;
 }
 
-function render(value, sourceLabel) {
-  const content = document.getElementById('data-content');
+function render(containerId, value) {
+  const content = document.getElementById(containerId);
   const records = findRecordArray(value);
   content.innerHTML = records ? renderTable(records) : renderTree(value);
 }
 
-function showEmptyState() {
-  document.getElementById('data-content').innerHTML = `
+function showEmptyState(containerId, jsonFile, xmlFile) {
+  document.getElementById(containerId).innerHTML = `
     <div class="empty-state">
       <div class="icon">📄</div>
       <h3>No data published yet</h3>
-      <p>This page renders automatically once a data file is added.<br>Drop either file next to this page:</p>
-      <p><code>${esc(JSON_FILE)}</code> &nbsp;or&nbsp; <code>${esc(XML_FILE)}</code></p>
+      <p>This section renders automatically once a data file is added.<br>Drop either file next to this page:</p>
+      <p><code>${esc(jsonFile)}</code> &nbsp;or&nbsp; <code>${esc(xmlFile)}</code></p>
     </div>`;
 }
 
-fetch(JSON_FILE, { cache: 'no-store' })
-  .then(res => { if (!res.ok) throw new Error('no json'); return res.json(); })
-  .then(data => render(data, JSON_FILE))
-  .catch(() => {
-    fetch(XML_FILE, { cache: 'no-store' })
-      .then(res => { if (!res.ok) throw new Error('no xml'); return res.text(); })
-      .then(text => {
-        const xml = new DOMParser().parseFromString(text, 'application/xml');
-        if (xml.getElementsByTagName('parsererror').length > 0) throw new Error('bad xml');
-        render(xmlToObj(xml.documentElement), XML_FILE);
-      })
-      .catch(() => showEmptyState());
-  });
+function loadTable(t) {
+  const jsonFile = t.slug + '.json';
+  const xmlFile = t.slug + '.xml';
+  fetch(jsonFile, { cache: 'no-store' })
+    .then(res => { if (!res.ok) throw new Error('no json'); return res.json(); })
+    .then(data => render(t.containerId, data))
+    .catch(() => {
+      fetch(xmlFile, { cache: 'no-store' })
+        .then(res => { if (!res.ok) throw new Error('no xml'); return res.text(); })
+        .then(text => {
+          const xml = new DOMParser().parseFromString(text, 'application/xml');
+          if (xml.getElementsByTagName('parsererror').length > 0) throw new Error('bad xml');
+          render(t.containerId, xmlToObj(xml.documentElement));
+        })
+        .catch(() => showEmptyState(t.containerId, jsonFile, xmlFile));
+    });
+}
+
+TABLES.forEach(loadTable);
 </script>
 
 </head>
@@ -399,7 +403,6 @@ fetch(JSON_FILE, { cache: 'no-store' })
 </div>
 <div class="page-main">
 
-
 <div class="hero" style="padding:48px 40px 40px;">
   <div class="hero-flex">
     <div class="hero-inner">
@@ -412,8 +415,8 @@ fetch(JSON_FILE, { cache: 'no-store' })
   </div>
 </div>
 
-
 <section class="tight-top">
+  
   <div id="data-content"><div class="empty-state"><p>Loading…</p></div></div>
 </section>
 

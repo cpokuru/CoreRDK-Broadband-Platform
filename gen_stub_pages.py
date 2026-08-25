@@ -26,6 +26,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 from layout import render_hero, render_page
@@ -38,6 +39,15 @@ PAGES = [
         "title": "Architecture Standards",
         "lede": "Industry standards RDK-B conforms to where its functionality overlaps "
                 "an established global standard.",
+        "tables": [
+            {"slug": "architecture-standards"},
+            {
+                "slug": "architecture-standards-industry",
+                "heading": "Industry Standards Conformance",
+                "blurb": "Where RDK-B functionality overlaps an established external "
+                         "standards body, tracked by category (§7.1.3).",
+            },
+        ],
     },
     {
         "active_id": "technical-governance",
@@ -67,9 +77,7 @@ PAGES = [
 
 LOADER_SCRIPT_TEMPLATE = """
 <script>
-const SLUG = "{slug}";
-const JSON_FILE = SLUG + ".json";
-const XML_FILE = SLUG + ".xml";
+const TABLES = {tables_json};
 
 function esc(s) {{
   const d = document.createElement('div');
@@ -130,49 +138,67 @@ function renderTree(value) {{
   return `<pre style="background:#0b1220;color:#cbd5e1;padding:20px;border-radius:10px;overflow-x:auto;font-size:0.85rem;">${{esc(JSON.stringify(value, null, 2))}}</pre>`;
 }}
 
-function render(value, sourceLabel) {{
-  const content = document.getElementById('data-content');
+function render(containerId, value) {{
+  const content = document.getElementById(containerId);
   const records = findRecordArray(value);
   content.innerHTML = records ? renderTable(records) : renderTree(value);
 }}
 
-function showEmptyState() {{
-  document.getElementById('data-content').innerHTML = `
+function showEmptyState(containerId, jsonFile, xmlFile) {{
+  document.getElementById(containerId).innerHTML = `
     <div class="empty-state">
       <div class="icon">📄</div>
       <h3>No data published yet</h3>
-      <p>This page renders automatically once a data file is added.<br>Drop either file next to this page:</p>
-      <p><code>${{esc(JSON_FILE)}}</code> &nbsp;or&nbsp; <code>${{esc(XML_FILE)}}</code></p>
+      <p>This section renders automatically once a data file is added.<br>Drop either file next to this page:</p>
+      <p><code>${{esc(jsonFile)}}</code> &nbsp;or&nbsp; <code>${{esc(xmlFile)}}</code></p>
     </div>`;
 }}
 
-fetch(JSON_FILE, {{ cache: 'no-store' }})
-  .then(res => {{ if (!res.ok) throw new Error('no json'); return res.json(); }})
-  .then(data => render(data, JSON_FILE))
-  .catch(() => {{
-    fetch(XML_FILE, {{ cache: 'no-store' }})
-      .then(res => {{ if (!res.ok) throw new Error('no xml'); return res.text(); }})
-      .then(text => {{
-        const xml = new DOMParser().parseFromString(text, 'application/xml');
-        if (xml.getElementsByTagName('parsererror').length > 0) throw new Error('bad xml');
-        render(xmlToObj(xml.documentElement), XML_FILE);
-      }})
-      .catch(() => showEmptyState());
-  }});
+function loadTable(t) {{
+  const jsonFile = t.slug + '.json';
+  const xmlFile = t.slug + '.xml';
+  fetch(jsonFile, {{ cache: 'no-store' }})
+    .then(res => {{ if (!res.ok) throw new Error('no json'); return res.json(); }})
+    .then(data => render(t.containerId, data))
+    .catch(() => {{
+      fetch(xmlFile, {{ cache: 'no-store' }})
+        .then(res => {{ if (!res.ok) throw new Error('no xml'); return res.text(); }})
+        .then(text => {{
+          const xml = new DOMParser().parseFromString(text, 'application/xml');
+          if (xml.getElementsByTagName('parsererror').length > 0) throw new Error('bad xml');
+          render(t.containerId, xmlToObj(xml.documentElement));
+        }})
+        .catch(() => showEmptyState(t.containerId, jsonFile, xmlFile));
+    }});
+}}
+
+TABLES.forEach(loadTable);
 </script>
 """
 
 
 def build_stub_page(page: dict) -> str:
-    body = f'''
-{render_hero(page["eyebrow"], page["title"], page["lede"], compact=True, visual_key=page["active_id"])}
-
+    tables = page.get("tables") or [{"slug": page["slug"]}]
+    sections = []
+    tables_js = []
+    for i, t in enumerate(tables):
+        container_id = "data-content" if i == 0 else f"data-content-{i + 1}"
+        tables_js.append({"containerId": container_id, "slug": t["slug"]})
+        heading_html = ""
+        if t.get("heading"):
+            blurb = f'<p>{t["blurb"]}</p>' if t.get("blurb") else ""
+            heading_html = f'<div class="section-head"><h2>{t["heading"]}</h2>{blurb}</div>'
+        sections.append(f'''
 <section class="tight-top">
-  <div id="data-content"><div class="empty-state"><p>Loading…</p></div></div>
+  {heading_html}
+  <div id="{container_id}"><div class="empty-state"><p>Loading…</p></div></div>
 </section>
-'''
+''')
+
+    body = render_hero(page["eyebrow"], page["title"], page["lede"], compact=True, visual_key=page["active_id"]) \
+        + "".join(sections)
     head_extra = f"<title>{page['title']} — RDK-B Core Broadband</title>\n" + \
-        LOADER_SCRIPT_TEMPLATE.format(slug=page["slug"])
+        LOADER_SCRIPT_TEMPLATE.format(tables_json=json.dumps(tables_js))
     return render_page(page["active_id"], head_extra, body)
 
 
