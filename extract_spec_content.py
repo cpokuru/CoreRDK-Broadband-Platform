@@ -130,16 +130,22 @@ def extract_test_suites(pdf) -> list[dict]:
 
 def extract_governance_standards(pdf) -> list[dict]:
     """Section 7.1.1 + 7.1.2 — 'Standard / Requirements' two-column tables, spread
-    across a few consecutive pages."""
+    across a few consecutive pages. Each row is tagged with which of the two
+    sub-sections it belongs to (detected from the PDF's own "7.1.2" heading,
+    not a hardcoded row count) so callers can split architecture standards
+    (7.1.1) from technical/process standards (7.1.2) without re-parsing."""
     start = find_page_with(pdf, "7.1.1 Process")
     out = []
     p = start
     consecutive_misses = 0
+    section = "7.1.1"
     while consecutive_misses < 2 and p < len(pdf.pages):
         page = pdf.pages[p]
         text = page.extract_text() or ""
         if "7.1.3 Industry Standards" in text:
             break
+        if re.search(r"\b7\.1\.2\b", text):
+            section = "7.1.2"
         found_table = False
         for t in page.find_tables():
             rows = t.extract()
@@ -148,7 +154,7 @@ def extract_governance_standards(pdf) -> list[dict]:
                 for row in rows[1:]:
                     name, req = norm(row[0] or ""), norm(row[1] or "")
                     if name and req:
-                        out.append({"name": name, "requirement": req})
+                        out.append({"name": name, "requirement": req, "section": section})
         consecutive_misses = 0 if found_table else consecutive_misses + 1
         p += 1
     return out
