@@ -93,5 +93,10 @@
     "repo": "secure-upnp",
     "file": "secureupnp_interface_v1.json",
     "branch": "develop"
+  },
+   "harvester": {
+    "repo": "harvester",
+    "file": "harvester_interface_v1.json",
+    "branch": "develop"
   }
 }
