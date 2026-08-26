@@ -84,7 +84,6 @@ PAGES = [
         "title": "North Bound Specification",
         "lede": "The RDK-B High Level API Specification — the northbound protocol and "
                 "data-model contract (TR-069, TR-369/USP, WebPA, TR-181).",
-        "pdf": "docs/hlspec/RDKB High Level API Spec 2026-August-11_v1.pdf",
     },
     {
         "active_id": "sbi",
