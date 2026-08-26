@@ -95,13 +95,18 @@ def render_benefits(groups: list[dict]) -> str:
 def render_five_tier(tiers: list[dict]) -> str:
     out = []
     for t in sorted(tiers, key=lambda x: -x["tier"]):
+        if "split" in t:
+            cols = "".join(
+                f'<div class="split-col"><h4>{esc(c["title"])}</h4><p>{esc(c["text"])}</p></div>'
+                for c in t["split"]
+            )
+            body = f'<div class="body body-split">{cols}</div>'
+        else:
+            body = f'<div class="body"><h4>{esc(t["layer"])}</h4><p>{esc(t["description"])}</p></div>'
         out.append(f'''
     <div class="tier t{t["tier"]}">
       <div class="num">{t["tier"]}</div>
-      <div class="body">
-        <h4>{esc(t["layer"])}</h4>
-        <p>{esc(t["description"])}</p>
-      </div>
+      {body}
     </div>''')
     return "\n".join(out)
 

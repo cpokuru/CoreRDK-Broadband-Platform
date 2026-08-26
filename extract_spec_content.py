@@ -45,7 +45,12 @@ FIVE_TIER = [
     {"tier": 4, "layer": "RDK-B Protocol Agent Components", "note": "",
      "description": "parodus/WebPA, usp-pa-vendor-rdk, tr069-protocol-agent, xconf-client, WebconfigFramework, T2 telemetry."},
     {"tier": 3, "layer": "RDK-B Middleware", "note": "",
-     "description": "Other RDK-B Components: Examples: OneWiFi, wan-manager, dhcp-manager, DSM, Dobby, BartonCore, all feature components. All communicate via RBUS. RDK-B Downloadable Apps: Broadband apps that may be downloaded and run within the RDK-B app framework."},
+     "split": [
+         {"title": "Other RDK-B Components",
+          "text": "Examples: OneWiFi, wan-manager, dhcp-manager, DSM, Dobby, BartonCore, all feature components. All communicate via RBUS."},
+         {"title": "RDK-B Downloadable Apps",
+          "text": "Broadband apps that may be downloaded and run within the RDK-B app framework."},
+     ]},
     {"tier": 2, "layer": "RDK-B HAL Interfaces", "note": "",
      "description": "Standard Linux interfaces and RDK-defined interfaces used to abstract vendor software/hardware."},
     {"tier": 1, "layer": "Vendor Layer", "note": "Base",
