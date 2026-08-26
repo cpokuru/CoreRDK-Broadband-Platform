@@ -78,5 +78,10 @@
     "repo": "xdns",
     "file": "xdns_interface_v1.json",
     "branch": "develop"
+  },
+   "advanced-security": {
+    "repo": "advanced-security",
+    "file": "advsec_interface_v1.json",
+    "branch": "develop"
   }
 }
