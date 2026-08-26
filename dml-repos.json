@@ -68,5 +68,10 @@
     "repo": "inter-device-manager",
     "file": "idm_interface_v1.json",
     "branch": "main"
+  },
+  "telco-voice-manager": {
+    "repo": "telco-voice-manager",
+    "file": "telco_interface_v1.json",
+    "branch": "main"
   }
 }
