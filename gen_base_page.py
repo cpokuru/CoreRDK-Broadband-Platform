@@ -40,8 +40,7 @@ FOOTER = """
     <a href="https://github.com/rdkcentral">rdkcentral on GitHub<span>Component source repositories</span></a>
   </div>
   <div class="footer-meta">
-    RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0 · RDKM · © 2026 RDK Central. All rights reserved.
-    Generated from {source_pdf}.
+    RDKM · © 2026 RDK Central. All rights reserved. Generated from {source_pdf}.
   </div>
 </footer>
 """.format(components_url=COMPONENTS_URL, components_full_url=COMPONENTS_FULL_URL,

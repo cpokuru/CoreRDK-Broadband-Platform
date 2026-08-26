@@ -113,11 +113,12 @@ def main() -> None:
     if not args.skip_xlsx:
         print("  components/RDK-B_Component_List_2026.xlsx  (synced copy, read by full-list.html)")
         print("  components/ethwan-router-components.json  (read by components/index.html)")
-    print("\ncomponents/full-list.html and components/index.html are static — not")
-    print("touched by this script. Regenerate full-list.html with plain")
-    print("'python3 gen_html.py' (no --sync-only) only if the page design itself")
-    print("changes, not the data. components/index.html has no generator at all")
-    print("by design; edit it directly if its design needs to change.")
+    print("\ncomponents/full-list.html is static — not touched by this script.")
+    print("Regenerate it with plain 'python3 gen_html.py' (no --sync-only)")
+    print("only if the page design itself changes, not the data.")
+    print("\ncomponents/index.html IS generated — from ethwan-router-components.json,")
+    print("via 'python3 components/gen_components_page.py'. Run that after this")
+    print("script (step 4 above regenerates the JSON it reads from).")
 
 
 if __name__ == "__main__":
