@@ -73,5 +73,10 @@
     "repo": "telco-voice-manager",
     "file": "telco_interface_v1.json",
     "branch": "main"
+  },
+ "ccsp-xdns": {
+    "repo": "xdns",
+    "file": "xdns_interface_v1",
+    "branch": "develop"
   }
 }
