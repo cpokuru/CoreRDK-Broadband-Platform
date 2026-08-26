@@ -467,13 +467,13 @@
     <div class="card" id="modularity-build-time-dependencies" style="margin-bottom:16px; scroll-margin-top:80px;">
       <h3>Modularity — Build-Time Dependencies</h3>
       <p><strong style="color:var(--ink);">Goal —</strong> Avoid tight coupling and unnecessary build-time dependencies. Developers shouldn&#x27;t have to manually edit and strip dependencies every time a component is reused.</p>
-      <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Many components — Cable Modem Agent, OneWifi, WAN Manager, DHCP Manager, P&amp;M, Utopia, Test and Diag, TR-069 PA, Xconf, and others — carry an unnecessary build-time dependency on the cable modem HAL interface today.</p>
+      <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Some components have problem build-time dependencies with other components. If these components are not in the software build, then a build time error will occur. For example: OneWifi, WAN Manager, DHCP Manager, P&amp;M, Utopia, Test and Diag, TR-069 PA, Xconf, and others — carry an unnecessary build-time dependency on the cable modem HAL interface today.</p>
     </div>
 
     <div class="card" id="modularity-run-time-dependencies" style="margin-bottom:16px; scroll-margin-top:80px;">
       <h3>Modularity — Run-Time Dependencies</h3>
       <p><strong style="color:var(--ink);">Goal —</strong> Run-time dependencies to optional components and apps must be flexible and dynamic. A component that relies on another&#x27;s methods or properties must keep providing its expected feature subset even when that component isn&#x27;t present.</p>
-      <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Many components — Utopia, RFC, CcspCr, Test and Diag, TR-069 PA, Xconf, OneWifi, CcspWiFiAgent, CcspHotspot, and others — have an inflexible run-time dependency on T2 telemetry, which is actually optional; some operators use other telemetry approaches entirely.</p>
+      <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Some components have problem run-time dependencies with other components. If these components are not in the software build, then a run-time error, unexpected behavior or crash may occur. For example: Utopia, RFC, CcspCr, Test and Diag, TR-069 PA, Xconf, OneWifi, CcspWiFiAgent, CcspHotspot, and others — have an inflexible run-time dependency on T2 telemetry. This can be a problem because T2 telemetry is an optional component; some operators use other telemetry approaches entirely.</p>
     </div>
 
     <div class="card" id="reduced-code-size" style="margin-bottom:16px; scroll-margin-top:80px;">
@@ -494,7 +494,7 @@
     <div class="two-col">
     <div class="card">
       <h3>Well-defined interfaces to vendor code</h3>
-      <p style="margin-bottom:0;">Use industry-standard vendor interfaces (e.g. NL80211) as the RDKB HAL wherever they already exist. Where gaps remain, RDK components support a well-documented HAL interface spec instead — or a standard interface plus RDK-defined extensions. Vendor interfaces evolve over time, so tight version control is maintained between each HAL spec, the RDKB component using it, and the vendor code certified against it.</p>
+      <p style="margin-bottom:0;">Use industry-standard vendor interfaces (e.g. NL80211) as the RDKB HAL wherever they already exist. Where gaps remain, RDK components support an RDK-defined HAL interface — or a standard HAL interface plus RDK-defined HAL extensions. Vendor interfaces evolve over time, so tight version control is maintained between each HAL spec, the RDKB component using it, and the vendor code certified against it.</p>
     </div>
     <div class="card">
       <h3>Test and certification program</h3>
