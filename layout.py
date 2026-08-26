@@ -448,7 +448,10 @@ def render_quicklinks(items: list[dict]) -> str:
     return f'<div class="quicklink-row">{"".join(cards)}</div>'
 
 
-def render_topnav(active_id: str) -> str:
+def render_topnav(active_id: str, path_prefix: str = "") -> str:
+    """path_prefix: relative-path prefix for links to root-level pages and
+    the logo, e.g. "../" when rendering a page one directory deeper than the
+    repo root (components/index.html). Root-level pages pass "" (default)."""
     links_html = []
     for entry in NAV_LINKS:
         kind = entry[0]
@@ -457,17 +460,20 @@ def render_topnav(active_id: str) -> str:
             if id_ == "components":
                 continue  # placed separately, right after "About", not in normal order
             cls = "active" if id_ == active_id else ""
-            links_html.append(f'<a class="{cls}" href="{esc(href)}">{esc(label)}</a>')
+            links_html.append(f'<a class="{cls}" href="{esc(path_prefix + href)}">{esc(label)}</a>')
             if id_ == "about":
                 # "Core RDK Components" goes immediately after the About link.
-                links_html.append(f'<a class="cta" href="{esc(COMPONENTS_URL)}">Core RDK Components ↗</a>')
+                # When we ARE the components page, link to self ("."); otherwise
+                # link down into components/ from wherever we are.
+                cta_href = "." if active_id == "components" else path_prefix + COMPONENTS_URL
+                links_html.append(f'<a class="cta" href="{esc(cta_href)}">Core RDK Components ↗</a>')
         else:  # "group"
             _, group_id, group_label, children = entry
             child_ids = {c[1] for c in children}
             toggle_cls = "active" if active_id in child_ids else ""
             open_cls = "open" if active_id in child_ids else ""
             child_links = "".join(
-                f'<a class="{"active" if cid == active_id else ""}" href="{esc(chref)}">{esc(clabel)}</a>'
+                f'<a class="{"active" if cid == active_id else ""}" href="{esc(path_prefix + chref)}">{esc(clabel)}</a>'
                 for _, cid, clabel, chref, _cext in children
             )
             links_html.append(f'''<div class="nav-group {open_cls}">
@@ -476,7 +482,7 @@ def render_topnav(active_id: str) -> str:
     </div>''')
     return f'''<div class="topnav">
   <div class="brand">
-    <img src="RDK-logo.png" alt="RDK-B Core Broadband logo" onerror="this.style.display='none'">
+    <img src="{esc(path_prefix)}RDK-logo.png" alt="RDK-B Core Broadband logo" onerror="this.style.display='none'">
   </div>
   <nav>
     {"".join(links_html)}
@@ -537,55 +543,56 @@ CHATBOX_HTML = """
 </div>
 """
 
-CHATBOX_SCRIPT = """
+def render_chatbox_script(path_prefix: str = "") -> str:
+    return f"""
 <script>
-(function() {
+(function() {{
   let searchDocs = null;
 
-  function esc(s) {
+  function esc(s) {{
     const d = document.createElement('div');
     d.textContent = s ?? '';
     return d.innerHTML;
-  }
+  }}
 
-  function score(doc, terms) {
+  function score(doc, terms) {{
     const title = doc.title.toLowerCase();
     const text = doc.text.toLowerCase();
     let s = 0;
-    for (const t of terms) {
+    for (const t of terms) {{
       if (title.includes(t)) s += 10;
       if (text.includes(t)) s += 2;
-    }
+    }}
     return s;
-  }
+  }}
 
-  function runSearch(query) {
+  function runSearch(query) {{
     const body = document.getElementById('chatbox-body');
     const terms = query.toLowerCase().split(/\\s+/).filter(Boolean);
     if (!terms.length) return;
 
-    if (!searchDocs) {
+    if (!searchDocs) {{
       body.innerHTML = '<div class="chatbox-welcome">Loading search index…</div>';
-      fetch('search-index.json', { cache: 'no-store' })
-        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then(data => { searchDocs = data.docs; renderResults(query, terms); })
-        .catch(err => { body.innerHTML = '<div class="chatbox-welcome">Could not load the search index (' + esc(err.message) + ').</div>'; });
+      fetch('{path_prefix}search-index.json', {{ cache: 'no-store' }})
+        .then(r => {{ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }})
+        .then(data => {{ searchDocs = data.docs; renderResults(query, terms); }})
+        .catch(err => {{ body.innerHTML = '<div class="chatbox-welcome">Could not load the search index (' + esc(err.message) + ').</div>'; }});
       return;
-    }
+    }}
     renderResults(query, terms);
-  }
+  }}
 
-  function renderResults(query, terms) {
+  function renderResults(query, terms) {{
     const body = document.getElementById('chatbox-body');
     const scored = searchDocs
-      .map(doc => ({ doc, s: score(doc, terms) }))
+      .map(doc => ({{ doc, s: score(doc, terms) }}))
       .filter(x => x.s > 0)
       .sort((a, b) => b.s - a.s);
 
-    if (!scored.length) {
+    if (!scored.length) {{
       body.innerHTML = '<div class="chatbox-welcome">No matches for "' + esc(query) + '". Try a different term — component names, standard names, or words like "modularity" or "RBUS" work well.</div>';
       return;
-    }
+    }}
 
     const best = scored[0].doc;
     const rest = scored.slice(1, 6);
@@ -596,18 +603,19 @@ CHATBOX_SCRIPT = """
       '<div class="cb-text">' + esc(best.text) + '</div>' +
       '</div>';
 
-    if (rest.length) {
+    if (rest.length) {{
       html += '<div class="chatbox-related">Related</div>';
-      html += rest.map(x => {
-        const href = x.doc.url.endsWith('#') ? x.doc.url.slice(0, -1) || '#' : x.doc.url;
+      html += rest.map(x => {{
+        let href = x.doc.url.endsWith('#') ? x.doc.url.slice(0, -1) || '#' : x.doc.url;
+        if (href !== '#' && !/^([a-z]+:)?\\/\\//i.test(href)) href = '{path_prefix}' + href;
         return '<a class="chatbox-result" href="' + esc(href) + '">' +
           '<div class="cb-r-title">' + esc(x.doc.title) + '</div>' +
           '<div class="cb-r-cat">' + esc(x.doc.category) + '</div>' +
           '</a>';
-      }).join('');
-    }
+      }}).join('');
+    }}
     body.innerHTML = html;
-  }
+  }}
 
   const toggle = document.getElementById('chatbox-toggle');
   const panel = document.getElementById('chatbox-panel');
@@ -615,10 +623,10 @@ CHATBOX_SCRIPT = """
   const form = document.getElementById('chatbox-form');
   const input = document.getElementById('chatbox-input');
 
-  toggle.addEventListener('click', () => { panel.classList.toggle('open'); if (panel.classList.contains('open')) input.focus(); });
+  toggle.addEventListener('click', () => {{ panel.classList.toggle('open'); if (panel.classList.contains('open')) input.focus(); }});
   closeBtn.addEventListener('click', () => panel.classList.remove('open'));
-  form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value.trim()) runSearch(input.value.trim()); });
-})();
+  form.addEventListener('submit', (e) => {{ e.preventDefault(); if (input.value.trim()) runSearch(input.value.trim()); }});
+}})();
 </script>
 """
 
@@ -718,7 +726,7 @@ CONTACT_SCRIPT = f"""
 """
 
 
-def render_page(active_id: str, head_extra: str, body_html: str, script: str = "") -> str:
+def render_page(active_id: str, head_extra: str, body_html: str, script: str = "", path_prefix: str = "") -> str:
     """Wrap body_html (hero + sections + footer, everything but <head>/sidebar)
     in the shared shell. body_html should NOT include <html>/<head>/<body> tags.
     Pass any <script> block via `script`, not inside head_extra — head_extra
@@ -742,14 +750,14 @@ def render_page(active_id: str, head_extra: str, body_html: str, script: str = "
 </head>
 <body>
 <div class="accent-bar"></div>
-{render_topnav(active_id)}
+{render_topnav(active_id, path_prefix)}
 <div class="page-main">
 {body_html}
 </div>
 {CHATBOX_HTML}
 {CONTACT_HTML}
 {script}
-{CHATBOX_SCRIPT}
+{render_chatbox_script(path_prefix)}
 {CONTACT_SCRIPT}
 </body>
 </html>

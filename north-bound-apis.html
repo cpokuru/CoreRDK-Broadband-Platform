@@ -883,7 +883,8 @@ Promise.all([
     if (rest.length) {
       html += '<div class="chatbox-related">Related</div>';
       html += rest.map(x => {
-        const href = x.doc.url.endsWith('#') ? x.doc.url.slice(0, -1) || '#' : x.doc.url;
+        let href = x.doc.url.endsWith('#') ? x.doc.url.slice(0, -1) || '#' : x.doc.url;
+        if (href !== '#' && !/^([a-z]+:)?\/\//i.test(href)) href = '' + href;
         return '<a class="chatbox-result" href="' + esc(href) + '">' +
           '<div class="cb-r-title">' + esc(x.doc.title) + '</div>' +
           '<div class="cb-r-cat">' + esc(x.doc.category) + '</div>' +
