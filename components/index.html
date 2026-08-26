@@ -220,6 +220,11 @@
   .gov-section ul { margin: 6px 0 16px; padding-left: 20px; color: var(--muted); }
   .gov-section ul li { margin-bottom: 5px; line-height: 1.6; font-size: 0.92rem; }
   .gov-section table.def-table { margin: 10px 0 18px; font-size: 0.86rem; }
+  .gov-section pre.code-block {
+    background: #0b1220; color: #cbd5e1; padding: 16px 18px; border-radius: 10px;
+    overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.8rem;
+    line-height: 1.55; margin: 10px 0 18px; white-space: pre;
+  }
   .timeline { border-left: 2px solid var(--border); margin-left: 6px; padding-left: 24px; display: flex; flex-direction: column; gap: 18px; }
   .tl-item { position: relative; }
   .tl-item::before { content: ""; position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--middleware); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--middleware); }
@@ -232,13 +237,18 @@
   .tier .body { flex: 1; padding: 19px 24px; }
   .tier .body h4 { margin: 0 0 4px; font-size: 1.02rem; }
   .tier .body p { margin: 0; font-size: 0.88rem; }
-  .tier.t5 { background: var(--cloud-bg); color: var(--cloud-fg); }
-  .tier.t5 .num { background: #d9e2ff; color: var(--cloud-fg); }
-  .tier.t4 { background: #e3f7ef; color: #065f46; }
-  .tier.t4 .num { background: var(--mgmt); color: #fff; }
+  .tier .body-split { display: flex; padding: 0; }
+  .tier .body-split .split-col { flex: 1; padding: 19px 24px; }
+  .tier .body-split .split-col:first-child { border-right: 1px solid rgba(255,255,255,0.25); }
+  .tier .body-split h4 { margin: 0 0 4px; font-size: 1.02rem; }
+  .tier .body-split p { margin: 0; font-size: 0.88rem; }
+  .tier.t5 { background: #e5e7eb; color: #1f2937; }
+  .tier.t5 .num { background: #d1d5db; color: #1f2937; }
+  .tier.t4 { background: #cfe0fb; color: #10284d; }
+  .tier.t4 .num { background: #9dc0f2; color: #10284d; }
   .tier.t3 { background: var(--middleware); color: #fff; }
   .tier.t3 .num { background: #1a3fb5; color: #fff; }
-  .tier.t3 .body p { color: #dce6ff; }
+  .tier.t3 .body p, .tier.t3 .body-split p { color: #dce6ff; }
   .tier.t2 { background: var(--hal); color: #fff; }
   .tier.t2 .num { background: #0e2144; color: #fff; }
   .tier.t2 .body p { color: #c5d3e6; }
@@ -410,7 +420,7 @@
 
 <section class="tight-top">
   <p style="color:var(--muted); font-size:0.85rem; margin:0 0 14px;">
-    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-08-26T18:45:53Z
+    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-08-26T19:00:26Z
   </p>
   <div style="margin-bottom:18px;"><span class="pill" style="background:#fef3c7;color:#92400e">Common Core</span><span class="pill" style="background:#dbeafe;color:#1e40af">Required</span><span class="pill" style="background:#f3f4f6;color:#374151">Optional</span></div>
   <table class="def-table">
