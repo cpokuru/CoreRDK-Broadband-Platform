@@ -80,7 +80,7 @@ def build_body(data: dict) -> str:
         url_cell = f'<a href="{esc(url)}" target="_blank" rel="noopener">{esc(url)}</a>' if url else '<span class="muted">—</span>'
         rows_html.append(f'''<tr>
           <td>{esc(c["name"])}</td>
-          <td><span class="pill" style="background:{cat_style["bg"]};color:{cat_style["fg"]}">{esc(c["category"] or "Uncategorized")}</span></td>
+          <td><span class="pill" style="background:{cat_style["bg"]};color:{cat_style["fg"]};border-radius:8px;line-height:1.5;">{esc(c["category"] or "Uncategorized")}</span></td>
           <td><span class="pill" style="background:{tier_style["bg"]};color:{tier_style["fg"]}">{esc(tier["label"])}</span></td>
           <td>{url_cell}</td>
         </tr>''')
