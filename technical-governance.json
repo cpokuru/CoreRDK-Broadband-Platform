@@ -51,7 +51,7 @@
     },
     {
       "Standard": "Scripting Usage Standards",
-      "Requirements": "Shell scripts MAY be used for one-shot boot/init orchestration and MUST NOT be used for long running stateful logic. Interpreted languages are discouraged on memory/flash- constrained profiles unless explicitly justified — native C/C++ or RUST SHOULD be used"
+      "Requirements": "Shell scripts MAY be used for one-shot boot/init orchestration and MUST NOT be used for long running stateful logic. Interpreted languages are discouraged on memory/flash-constrained profiles unless explicitly justified — native C/C++ or RUST SHOULD be used"
     },
     {
       "Standard": "Calling C/C++ from Scripts",

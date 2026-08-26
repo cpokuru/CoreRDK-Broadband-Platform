@@ -10,12 +10,12 @@
       "Requirements": "RBUS APIs are the authoritative interface for RDKB component to component interprocess communications (IPC). All new software contributions to existing and new components MUST exclusively use RBUS APIs for IPC with other RDKB components. Contributions to both existing and new components MUST be scanned using a common RDK static analysis tool to compare with previous versions of the component (if any) to ensure that no new usage of older IPC mechanisms is added, including syseventd, DMCLI or CCSP APIs."
     },
     {
-      "Standard": "Component Build- Time Dependency Policy",
+      "Standard": "Component Build-Time Dependency Policy",
       "Requirements": "Mandatory architecture review MUST be conducted for all new inter-component build-time dependencies. RDKB components MUST NOT have build-time dependencies with other RDKB components that are optional or N/A for any software profile(s). Components MAY have build-time dependencies with Common Core Components."
     },
     {
-      "Standard": "Component Run- Time Dependency Policy",
-      "Requirements": "Mandatory architecture review MUST be conducted for all new inter-component run- time dependencies. RDKB components MAY access/consume data model elements implemented in other components or implemented in downloaded apps. This MAY include data model elements implemented in components that are optional or N/A for any profile. Components MUST NOT have hard (inflexible) run-time dependencies on these data model elements. If data model element(s) are not available, the accessing/consuming component MUST dynamically adapt to use only the data model elements and capabilities that are available at runtime. Components that attempt to access/consume data models that are unavailable MUST NOT stall, crash or fail to provide features unrelated to the missing data model elements."
+      "Standard": "Component Run-Time Dependency Policy",
+      "Requirements": "Mandatory architecture review MUST be conducted for all new inter-component run-time dependencies. RDKB components MAY access/consume data model elements implemented in other components or implemented in downloaded apps. This MAY include data model elements implemented in components that are optional or N/A for any profile. Components MUST NOT have hard (inflexible) run-time dependencies on these data model elements. If data model element(s) are not available, the accessing/consuming component MUST dynamically adapt to use only the data model elements and capabilities that are available at runtime. Components that attempt to access/consume data models that are unavailable MUST NOT stall, crash or fail to provide features unrelated to the missing data model elements."
     },
     {
       "Standard": "Component Unit Testing Requirements",
@@ -27,7 +27,7 @@
     },
     {
       "Standard": "Data Model Standards (TR-181)",
-      "Requirements": "Data models used in RDKB software contributions SHOULD follow the TR-181 standard when possible. Software contributions that use a data model name previously documented in the TR-181 standard MUST fully comply with the most recent TR-181 documentation for that name. If the most recent TR181 standard does not provide a data model name with the desired new functionality or the software contribution does not fully comply with how TR- 181 standard describes how an existing name is used, then a new data model name MAY be created. New data model names MUST use the TR-181 organization and hierarchy when possible. New data model names MUST comply with the applicable extension format for non-standard names. New data model names SHOULD use the format: <existing TR- 181 object hierarchy>.X_RDK-<new name>."
+      "Requirements": "Data models used in RDKB software contributions SHOULD follow the TR-181 standard when possible. Software contributions that use a data model name previously documented in the TR-181 standard MUST fully comply with the most recent TR-181 documentation for that name. If the most recent TR181 standard does not provide a data model name with the desired new functionality or the software contribution does not fully comply with how TR-181 standard describes how an existing name is used, then a new data model name MAY be created. New data model names MUST use the TR-181 organization and hierarchy when possible. New data model names MUST comply with the applicable extension format for non-standard names. New data model names SHOULD use the format: <existing TR-181 object hierarchy>.X_RDK-<new name>."
     },
     {
       "Standard": "HAL Documentation Standards",
@@ -55,11 +55,11 @@
     },
     {
       "Standard": "Code Quality & Static Analysis Standards",
-      "Requirements": "New C/C++ components MUST pass static analysis (cppcheck/Coverity) with zero high- severity findings before merge. Coding style MUST conform to the published RDK-B style guide. Memory safety tooling (ASan/Valgrind) runs in CI for native builds."
+      "Requirements": "New C/C++ components MUST pass static analysis (cppcheck/Coverity) with zero high-severity findings before merge. Coding style MUST conform to the published RDK-B style guide. Memory safety tooling (ASan/Valgrind) runs in CI for native builds."
     },
     {
       "Standard": "Northbound Protocol Onboarding",
-      "Requirements": "Any new remote-management protocol (beyond TR-369/TR- 069/WebPA/Webconfig/SNMP/DAC/SSH) MUST be supported with a new Protocol Adapter component designed to abstract that protocol and allow the protocol to transparently send corresponding messages to other components using RBUS APIs. New protocols MUST NOT reach into RDKB components directly."
+      "Requirements": "Any new remote-management protocol (beyond TR-369/TR-069/WebPA/Webconfig/SNMP/DAC/SSH) MUST be supported with a new Protocol Adapter component designed to abstract that protocol and allow the protocol to transparently send corresponding messages to other components using RBUS APIs. New protocols MUST NOT reach into RDKB components directly."
     },
     {
       "Standard": "WAN Technology Onboarding",

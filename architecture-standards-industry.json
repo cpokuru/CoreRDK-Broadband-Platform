@@ -119,7 +119,7 @@
       "Category": "Network services",
       "Standard / Body": "IETF RFC 1661/1662 (PPP) + RFC 2516 (PPPoE)",
       "Applies To": "RDKPPPManager",
-      "Note": "Relevant for DSL/fiber ISPs using PPP- based WAN authentication"
+      "Note": "Relevant for DSL/fiber ISPs using PPP-based WAN authentication"
     },
     {
       "Category": "Network services",
@@ -153,7 +153,7 @@
     },
     {
       "Category": "Access network / WAN technologies",
-      "Standard / Body": "ITU-T G.9807.1 (XGS- PON)",
+      "Standard / Body": "ITU-T G.9807.1 (XGS-PON)",
       "Applies To": "Forward-looking GPON evolution",
       "Note": ""
     },
@@ -227,7 +227,7 @@
       "Category": "Boot chain, kernel & firmware integrity",
       "Standard / Body": "Arm PSA Certified / TrustZone",
       "Applies To": "Secure boot chain on ARM-based reference platforms (e.g. MT7988/BPI R4)",
-      "Note": "Security/attestation, distinct from SystemReady's boot- interface scope"
+      "Note": "Security/attestation, distinct from SystemReady's boot-interface scope"
     },
     {
       "Category": "Boot chain, kernel & firmware integrity",
@@ -251,7 +251,7 @@
       "Category": "Cryptographic signing for secure boot",
       "Standard / Body": "IETF RFC 8032 (EdDSA/Ed25519)",
       "Applies To": "Alternative signing scheme",
-      "Note": "Increasingly used over ECDSA for boot- time verification due to faster, simpler constant-time implementation"
+      "Note": "Increasingly used over ECDSA for boot-time verification due to faster, simpler constant-time implementation"
     },
     {
       "Category": "Containers & application platform",

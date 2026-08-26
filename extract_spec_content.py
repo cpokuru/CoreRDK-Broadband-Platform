@@ -37,17 +37,19 @@ import pdfplumber
 SCHEMA_VERSION = "1.0"
 
 # Curated — see module docstring for why this one table isn't auto-parsed.
+# Synced to match docs/RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.1.pdf §2.3
+# (page 19) as of 2026-08-26.
 FIVE_TIER = [
     {"tier": 5, "layer": "Cloud / ACS", "note": "Top",
      "description": "Operator cloud: ACS, USP Controller, xConf, WebConfig, Telemetry backends, Crash collection, Log aggregation."},
-    {"tier": 4, "layer": "Management Protocols", "note": "",
+    {"tier": 4, "layer": "RDK-B Protocol Agent Components", "note": "",
      "description": "parodus/WebPA, usp-pa-vendor-rdk, tr069-protocol-agent, xconf-client, WebconfigFramework, T2 telemetry."},
     {"tier": 3, "layer": "RDK-B Middleware", "note": "",
-     "description": "RDK-B components: OneWiFi, wan-manager, dhcp-manager, DSM, Dobby, BartonCore, all feature components. All communicate via RBUS."},
-    {"tier": 2, "layer": "HAL / BSP", "note": "",
-     "description": "rdkb-halif-* interface libraries and vendor BSP. Boundary between RDK-B middleware and SoC firmware."},
-    {"tier": 1, "layer": "Hardware / SoC", "note": "Base",
-     "description": "Physical silicon: SoC CPU, Wi-Fi radio, modem chipset, Ethernet switch, Flash/RAM."},
+     "description": "Other RDK-B Components: Examples: OneWiFi, wan-manager, dhcp-manager, DSM, Dobby, BartonCore, all feature components. All communicate via RBUS. RDK-B Downloadable Apps: Broadband apps that may be downloaded and run within the RDK-B app framework."},
+    {"tier": 2, "layer": "RDK-B HAL Interfaces", "note": "",
+     "description": "Standard Linux interfaces and RDK-defined interfaces used to abstract vendor software/hardware."},
+    {"tier": 1, "layer": "Vendor Layer", "note": "Base",
+     "description": "Physical silicon, vendor BSP and driver software."},
 ]
 
 
@@ -60,7 +62,16 @@ def pdftotext(path: Path, first: int, last: int) -> str:
 
 
 def norm(s: str) -> str:
-    return re.sub(r"\s+", " ", s).strip()
+    s = re.sub(r"\s+", " ", s).strip()
+    # PDF line-wraps sometimes split a hyphenated compound across lines
+    # ("Build-\nTime" -> "Build-" + "Time"); the whitespace collapse above
+    # turns that into "Build- Time" (stray space after the hyphen). A word
+    # char immediately before the hyphen with no space, followed by
+    # whitespace then another word char, only happens from this kind of
+    # break — real " - " dash usage always has a space *before* the hyphen
+    # too, so this is safe to rejoin without the space.
+    s = re.sub(r"(\w)-\s+(\w)", r"\1-\2", s)
+    return s
 
 
 def find_page_with(pdf: "pdfplumber.PDF", needle: str, start: int = 10) -> int:
