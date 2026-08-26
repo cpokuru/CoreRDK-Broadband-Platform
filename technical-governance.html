@@ -225,6 +225,11 @@
     overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.8rem;
     line-height: 1.55; margin: 10px 0 18px; white-space: pre;
   }
+  .gov-section h5.gov-subhead {
+    font-family: "Space Grotesk", sans-serif; font-size: 0.82rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em; color: var(--middleware);
+    margin: 18px 0 6px; display: block;
+  }
   .timeline { border-left: 2px solid var(--border); margin-left: 6px; padding-left: 24px; display: flex; flex-direction: column; gap: 18px; }
   .tl-item { position: relative; }
   .tl-item::before { content: ""; position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--middleware); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--middleware); }
@@ -433,6 +438,9 @@ function renderSections(sections) {
       } else if (b.type === 'pre') {
         if (listOpen) { html += '</ul>'; listOpen = false; }
         html += `<pre class="code-block">${esc(b.text)}</pre>`;
+      } else if (b.type === 'h') {
+        if (listOpen) { html += '</ul>'; listOpen = false; }
+        html += `<h5 class="gov-subhead">${esc(b.text)}</h5>`;
       } else if (b.type === 'li') {
         if (!listOpen) { html += '<ul>'; listOpen = true; }
         html += `<li>${esc(b.text)}</li>`;

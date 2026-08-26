@@ -26,6 +26,26 @@ _BOILERPLATE_RE = re.compile(r"^(Core RDK — RDKB High Level API|CONFIDENTIAL �
 _HEADING_RE = re.compile(r"^(\d+(?:\.\d+)?)\.?\s+([A-Za-z][^\n]{1,80})$")
 _BULLET_RE = re.compile(r"^[•]\s*|^-\s+")
 _TERM_RE = re.compile(r"^[A-Z][A-Za-z0-9 /&]{2,60}:\s")
+_PSEUDO_HEADING_BODY_RE = re.compile(r"^[A-Za-z0-9 /&\-]+$")
+_PSEUDO_HEADING_STOPWORDS = ("a ", "an ", "the ", "this ", "for ", "note", "example", "suppose", "these ", "supported ")
+
+
+def is_pseudo_heading(txt: str) -> bool:
+    """A handful of section-5 sub-topics (OBJECT NAMES:, ELEMENT NAMES:,
+    NON-STANDARD NAMES, DATA MODEL OPERATIONS:, ...) act as sub-headings in
+    the source but aren't numbered like §4.1 etc — just a short standalone
+    label line, sometimes ALL CAPS, sometimes Title Case with a trailing
+    colon. Distinguished from ordinary lead-in phrases like "For example:"
+    or "Supported operations include:" by excluding sentence-starter words."""
+    body = txt.rstrip(":").strip()
+    if not body or not body[0].isupper() or len(txt) > 58:
+        return False
+    if body.lower().startswith(_PSEUDO_HEADING_STOPWORDS):
+        return False
+    if not _PSEUDO_HEADING_BODY_RE.match(body):
+        return False
+    is_all_caps = body == body.upper() and any(c.isalpha() for c in body)
+    return is_all_caps or txt.endswith(":")
 
 
 def norm(s: str) -> str:
@@ -110,7 +130,9 @@ def extract_sections(pdf) -> list[dict]:
                 continue
 
             bullet_m = _BULLET_RE.match(txt)
-            if bullet_m:
+            if is_pseudo_heading(txt):
+                current["blocks"].append({"type": "h", "text": txt.rstrip(":")})
+            elif bullet_m:
                 current["blocks"].append({"type": "li", "text": txt[bullet_m.end():].strip()})
             elif _TERM_RE.match(txt):
                 # Unbulleted "Term: definition" entries (§3 Definitions) —

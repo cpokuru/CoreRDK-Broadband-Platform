@@ -185,6 +185,9 @@ function renderSections(sections) {{
       }} else if (b.type === 'pre') {{
         if (listOpen) {{ html += '</ul>'; listOpen = false; }}
         html += `<pre class="code-block">${{esc(b.text)}}</pre>`;
+      }} else if (b.type === 'h') {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += `<h5 class="gov-subhead">${{esc(b.text)}}</h5>`;
       }} else if (b.type === 'li') {{
         if (!listOpen) {{ html += '<ul>'; listOpen = true; }}
         html += `<li>${{esc(b.text)}}</li>`;
