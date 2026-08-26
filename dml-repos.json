@@ -103,5 +103,10 @@
     "repo": "platform-manager",
     "file": "platmgr_interface_v1.json",
     "branch": "develop"
+  },
+   "led-manager": {
+    "repo": "led-manager",
+    "file": "led_interface_v1.json",
+    "branch": "main"
   }
 }
