@@ -84,6 +84,9 @@ PAGES = [
         "title": "North Bound Specification",
         "lede": "The RDK-B High Level API Specification — the northbound protocol and "
                 "data-model contract (TR-069, TR-369/USP, WebPA, TR-181).",
+        "tables": [
+            {"slug": "north-bound-specification", "kind": "sections"},
+        ],
     },
     {
         "active_id": "sbi",
@@ -179,6 +182,9 @@ function renderSections(sections) {{
         if (listOpen) {{ html += '</ul>'; listOpen = false; }}
         html += '<table class="def-table"><thead><tr>' + b.headers.map(h => `<th>${{esc(h)}}</th>`).join('') + '</tr></thead><tbody>' +
           b.rows.map(r => `<tr>${{r.map(c => `<td>${{esc(c)}}</td>`).join('')}}</tr>`).join('') + '</tbody></table>';
+      }} else if (b.type === 'pre') {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += `<pre class="code-block">${{esc(b.text)}}</pre>`;
       }} else if (b.type === 'li') {{
         if (!listOpen) {{ html += '<ul>'; listOpen = true; }}
         html += `<li>${{esc(b.text)}}</li>`;
