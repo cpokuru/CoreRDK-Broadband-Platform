@@ -73,26 +73,26 @@
       "url": "index.html#"
     },
     {
-      "title": "Tier 4 — Management Protocols",
+      "title": "Tier 4 — RDK-B Protocol Agent Components",
       "text": "parodus/WebPA, usp-pa-vendor-rdk, tr069-protocol-agent, xconf-client, WebconfigFramework, T2 telemetry.",
       "category": "Architecture — five-tier model",
       "url": "index.html#"
     },
     {
       "title": "Tier 3 — RDK-B Middleware",
-      "text": "RDK-B components: OneWiFi, wan-manager, dhcp-manager, DSM, Dobby, BartonCore, all feature components. All communicate via RBUS.",
+      "text": "Other RDK-B Components: Examples: OneWiFi, wan-manager, dhcp-manager, DSM, Dobby, BartonCore, all feature components. All communicate via RBUS. RDK-B Downloadable Apps: Broadband apps that may be downloaded and run within the RDK-B app framework.",
       "category": "Architecture — five-tier model",
       "url": "index.html#"
     },
     {
-      "title": "Tier 2 — HAL / BSP",
-      "text": "rdkb-halif-* interface libraries and vendor BSP. Boundary between RDK-B middleware and SoC firmware.",
+      "title": "Tier 2 — RDK-B HAL Interfaces",
+      "text": "Standard Linux interfaces and RDK-defined interfaces used to abstract vendor software/hardware.",
       "category": "Architecture — five-tier model",
       "url": "index.html#"
     },
     {
-      "title": "Tier 1 — Hardware / SoC",
-      "text": "Physical silicon: SoC CPU, Wi-Fi radio, modem chipset, Ethernet switch, Flash/RAM.",
+      "title": "Tier 1 — Vendor Layer",
+      "text": "Physical silicon, vendor BSP and driver software.",
       "category": "Architecture — five-tier model",
       "url": "index.html#"
     },
@@ -121,14 +121,14 @@
       "url": "technical-governance.html"
     },
     {
-      "title": "Component Build- Time Dependency Policy",
+      "title": "Component Build-Time Dependency Policy",
       "text": "Mandatory architecture review MUST be conducted for all new inter-component build-time dependencies. RDKB components MUST NOT have build-time dependencies with other RDKB components that are optional or N/A for any software profile(s). Components MAY have build-time dependencies with Common Core Components.",
       "category": "Technical Governance",
       "url": "technical-governance.html"
     },
     {
-      "title": "Component Run- Time Dependency Policy",
-      "text": "Mandatory architecture review MUST be conducted for all new inter-component run- time dependencies. RDKB components MAY access/consume data model elements implemented in other components or implemented in downloaded apps. This MAY include data model elements implemented in components that are optional or N/A for any profile. Components MUST NOT have hard (inflexible) run-time dependencies on these data model elements. If data model element(s) are not available, the accessing/consuming component MUST dynamically adapt to use only the data model elements and capabilities that are available at runtime. Components that attempt to access/consume data models that are unavailable MUST NOT stall, crash or fail to provide features unrelated to the missing data model elements.",
+      "title": "Component Run-Time Dependency Policy",
+      "text": "Mandatory architecture review MUST be conducted for all new inter-component run-time dependencies. RDKB components MAY access/consume data model elements implemented in other components or implemented in downloaded apps. This MAY include data model elements implemented in components that are optional or N/A for any profile. Components MUST NOT have hard (inflexible) run-time dependencies on these data model elements. If data model element(s) are not available, the accessing/consuming component MUST dynamically adapt to use only the data model elements and capabilities that are available at runtime. Components that attempt to access/consume data models that are unavailable MUST NOT stall, crash or fail to provide features unrelated to the missing data model elements.",
       "category": "Technical Governance",
       "url": "technical-governance.html"
     },
@@ -146,7 +146,7 @@
     },
     {
       "title": "Data Model Standards (TR-181)",
-      "text": "Data models used in RDKB software contributions SHOULD follow the TR-181 standard when possible. Software contributions that use a data model name previously documented in the TR-181 standard MUST fully comply with the most recent TR-181 documentation for that name. If the most recent TR181 standard does not provide a data model name with the desired new functionality or the software contribution does not fully comply with how TR- 181 standard describes how an existing name is used, then a new data model name MAY be created. New data model names MUST use the TR-181 organization and hierarchy when possible. New data model names MUST comply with the applicable extension format for non-standard names. New data model names SHOULD use the format: <existing TR- 181 object hierarchy>.X_RDK-<new name>.",
+      "text": "Data models used in RDKB software contributions SHOULD follow the TR-181 standard when possible. Software contributions that use a data model name previously documented in the TR-181 standard MUST fully comply with the most recent TR-181 documentation for that name. If the most recent TR181 standard does not provide a data model name with the desired new functionality or the software contribution does not fully comply with how TR-181 standard describes how an existing name is used, then a new data model name MAY be created. New data model names MUST use the TR-181 organization and hierarchy when possible. New data model names MUST comply with the applicable extension format for non-standard names. New data model names SHOULD use the format: <existing TR-181 object hierarchy>.X_RDK-<new name>.",
       "category": "Technical Governance",
       "url": "technical-governance.html"
     },
@@ -188,13 +188,13 @@
     },
     {
       "title": "Code Quality & Static Analysis Standards",
-      "text": "New C/C++ components MUST pass static analysis (cppcheck/Coverity) with zero high- severity findings before merge. Coding style MUST conform to the published RDK-B style guide. Memory safety tooling (ASan/Valgrind) runs in CI for native builds.",
+      "text": "New C/C++ components MUST pass static analysis (cppcheck/Coverity) with zero high-severity findings before merge. Coding style MUST conform to the published RDK-B style guide. Memory safety tooling (ASan/Valgrind) runs in CI for native builds.",
       "category": "Technical Governance",
       "url": "technical-governance.html"
     },
     {
       "title": "Northbound Protocol Onboarding",
-      "text": "Any new remote-management protocol (beyond TR-369/TR- 069/WebPA/Webconfig/SNMP/DAC/SSH) MUST be supported with a new Protocol Adapter component designed to abstract that protocol and allow the protocol to transparently send corresponding messages to other components using RBUS APIs. New protocols MUST NOT reach into RDKB components directly.",
+      "text": "Any new remote-management protocol (beyond TR-369/TR-069/WebPA/Webconfig/SNMP/DAC/SSH) MUST be supported with a new Protocol Adapter component designed to abstract that protocol and allow the protocol to transparently send corresponding messages to other components using RBUS APIs. New protocols MUST NOT reach into RDKB components directly.",
       "category": "Technical Governance",
       "url": "technical-governance.html"
     },
@@ -290,7 +290,7 @@
     },
     {
       "title": "Scripting Usage Standards",
-      "text": "Shell scripts MAY be used for one-shot boot/init orchestration and MUST NOT be used for long running stateful logic. Interpreted languages are discouraged on memory/flash- constrained profiles unless explicitly justified — native C/C++ or RUST SHOULD be used",
+      "text": "Shell scripts MAY be used for one-shot boot/init orchestration and MUST NOT be used for long running stateful logic. Interpreted languages are discouraged on memory/flash-constrained profiles unless explicitly justified — native C/C++ or RUST SHOULD be used",
       "category": "Technical Governance",
       "url": "technical-governance.html"
     },
@@ -440,7 +440,7 @@
     },
     {
       "title": "IETF RFC 1661/1662 (PPP) + RFC 2516 (PPPoE)",
-      "text": "Applies to: RDKPPPManager. Relevant for DSL/fiber ISPs using PPP- based WAN authentication",
+      "text": "Applies to: RDKPPPManager. Relevant for DSL/fiber ISPs using PPP-based WAN authentication",
       "category": "Architecture Standards — Network services",
       "url": "architecture-standards.html"
     },
@@ -475,7 +475,7 @@
       "url": "architecture-standards.html"
     },
     {
-      "title": "ITU-T G.9807.1 (XGS- PON)",
+      "title": "ITU-T G.9807.1 (XGS-PON)",
       "text": "Applies to: Forward-looking GPON evolution.",
       "category": "Architecture Standards — Access network / WAN technologies",
       "url": "architecture-standards.html"
@@ -548,7 +548,7 @@
     },
     {
       "title": "Arm PSA Certified / TrustZone",
-      "text": "Applies to: Secure boot chain on ARM-based reference platforms (e.g. MT7988/BPI R4). Security/attestation, distinct from SystemReady's boot- interface scope",
+      "text": "Applies to: Secure boot chain on ARM-based reference platforms (e.g. MT7988/BPI R4). Security/attestation, distinct from SystemReady's boot-interface scope",
       "category": "Architecture Standards — Boot chain, kernel & firmware integrity",
       "url": "architecture-standards.html"
     },
@@ -572,7 +572,7 @@
     },
     {
       "title": "IETF RFC 8032 (EdDSA/Ed25519)",
-      "text": "Applies to: Alternative signing scheme. Increasingly used over ECDSA for boot- time verification due to faster, simpler constant-time implementation",
+      "text": "Applies to: Alternative signing scheme. Increasingly used over ECDSA for boot-time verification due to faster, simpler constant-time implementation",
       "category": "Architecture Standards — Cryptographic signing for secure boot",
       "url": "architecture-standards.html"
     },
