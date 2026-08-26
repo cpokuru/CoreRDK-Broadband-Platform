@@ -83,5 +83,10 @@
     "repo": "advanced-security",
     "file": "advsec_interface_v1.json",
     "branch": "develop"
+  },
+   "component-registry": {
+    "repo": "component-registry",
+    "file": "cr_interface_v1.json",
+    "branch": "develop"
   }
 }
