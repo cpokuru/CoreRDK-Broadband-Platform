@@ -88,5 +88,10 @@
     "repo": "component-registry",
     "file": "cr_interface_v1.json",
     "branch": "develop"
+  },
+   "secure-upnp": {
+    "repo": "secure-upnp",
+    "file": "secureupnp_interface_v1.json",
+    "branch": "develop"
   }
 }
