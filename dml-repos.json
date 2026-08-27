@@ -108,5 +108,10 @@
     "repo": "led-manager",
     "file": "led_interface_v1.json",
     "branch": "main"
+  },
+   "notify-component": {
+    "repo": "notify-component",
+    "file": "notify_interface_v1.json",
+    "branch": "develop"
   }
 }
