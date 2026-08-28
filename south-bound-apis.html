@@ -365,8 +365,24 @@
 </style>
 <title>South Bound APIs — RDK-B Core Broadband</title>
 
+<style>
+  .search-row { margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+  .search-row input {
+    flex: 1; max-width: 320px; padding: 9px 14px; border: 1px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 0.9rem;
+  }
+  .search-row #hal-count { font-size: 0.85rem; color: var(--muted); }
+  .dml-btn {
+    background: var(--hal); color: #fff; border: none; border-radius: 6px;
+    padding: 6px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  }
+  .dml-btn:hover { filter: brightness(1.15); }
+  #hal-panel { margin-top: 20px; }
+</style>
+
 <script>
-const TABLES = [{"containerId": "data-content", "slug": "south-bound-apis", "kind": "table"}];
+const REPO_MAP_JSON = 'hal-repos.json';
+const RAW_BASE = 'https://raw.githubusercontent.com/cpokuru/';
 
 function esc(s) {
   const d = document.createElement('div');
@@ -374,32 +390,17 @@ function esc(s) {
   return d.innerHTML;
 }
 
-// Very small generic XML -> plain-object walker. Repeated sibling tags
-// become an array; text-only leaves become strings. Good enough for a
-// simple "list of records" style XML file; deeply irregular XML falls
-// back to the raw-tree renderer further down.
-function xmlToObj(node) {
-  const children = Array.from(node.children);
-  if (children.length === 0) {
-    return (node.textContent || '').trim();
-  }
-  const out = {};
-  for (const child of children) {
-    const val = xmlToObj(child);
-    if (out[child.tagName] === undefined) {
-      out[child.tagName] = val;
-    } else if (Array.isArray(out[child.tagName])) {
-      out[child.tagName].push(val);
-    } else {
-      out[child.tagName] = [out[child.tagName], val];
-    }
-  }
-  return out;
+// hal-repos.json entries can be either:
+//   "Display Name": "RepoSlug"                                             (file falls back to repo-slug guess, branch defaults to main)
+//   "Display Name": { "repo": "RepoSlug", "file": "custom.json" }           (explicit filename, still main)
+//   "Display Name": { "repo": "RepoSlug", "file": "custom.json", "branch": "develop" }  (explicit filename + branch)
+function resolveRepoEntry(mapValue, repoFallback) {
+  if (typeof mapValue === 'string') return { repo: mapValue, file: repoFallback + '.json', branch: 'main' };
+  return { repo: mapValue.repo, file: mapValue.file, branch: mapValue.branch || 'main' };
 }
 
+// ---- generic renderer for whatever shape the HAL spec JSON turns out to be ----
 function findRecordArray(value) {
-  // Walk a parsed JSON/XML object looking for the first array of
-  // same-shaped flat objects — that's almost certainly "the data".
   if (Array.isArray(value)) return value;
   if (value && typeof value === 'object') {
     for (const v of Object.values(value)) {
@@ -410,96 +411,104 @@ function findRecordArray(value) {
   return null;
 }
 
-function renderTable(rows) {
+function renderRecordTable(rows) {
   const isFlatObjectArray = rows.every(r => r && typeof r === 'object' && !Array.isArray(r));
   if (!isFlatObjectArray) {
-    return '<ul class="def-table" style="list-style:none;padding:0;">' +
-      rows.map(r => `<li style="padding:9px 12px;border-bottom:1px solid var(--border);">${esc(String(r))}</li>`).join('') +
+    return '<ul style="list-style:none;padding:0;">' +
+      rows.map(r => `<li style="padding:9px 12px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:0.85rem;">${esc(String(r))}</li>`).join('') +
       '</ul>';
   }
   const cols = Object.keys(rows[0]);
   return `<table class="def-table"><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>` +
-    rows.map(r => `<tr>${cols.map(c => `<td>${esc(r[c])}</td>`).join('')}</tr>`).join('') +
+    rows.map(r => `<tr>${cols.map(c => `<td class="mono">${esc(typeof r[c] === 'object' ? JSON.stringify(r[c]) : r[c])}</td>`).join('')}</tr>`).join('') +
     '</tbody></table>';
 }
 
 function renderTree(value) {
-  return `<pre style="background:#0b1220;color:#cbd5e1;padding:20px;border-radius:10px;overflow-x:auto;font-size:0.85rem;">${esc(JSON.stringify(value, null, 2))}</pre>`;
+  return `<pre style="background:#0b1220;color:#cbd5e1;padding:20px;border-radius:10px;overflow-x:auto;font-size:0.82rem;max-height:600px;">${esc(JSON.stringify(value, null, 2))}</pre>`;
 }
 
-function renderSections(sections) {
-  let html = '';
-  for (const s of sections) {
-    const level = s.level || 2;
-    const tag = level <= 2 ? 'h3' : (level === 3 ? 'h4' : 'h5');
-    html += `<div class="gov-section level-${level}">`;
-    html += `<${tag}><span class="gov-num">${esc(s.number)}</span><span>${esc(s.title)}</span></${tag}>`;
-    let listOpen = false;
-    for (const b of (s.blocks || [])) {
-      if (b.type === 'table') {
-        if (listOpen) { html += '</ul>'; listOpen = false; }
-        html += '<table class="def-table"><thead><tr>' + b.headers.map(h => `<th>${esc(h)}</th>`).join('') + '</tr></thead><tbody>' +
-          b.rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('') + '</tbody></table>';
-      } else if (b.type === 'pre') {
-        if (listOpen) { html += '</ul>'; listOpen = false; }
-        html += `<pre class="code-block">${esc(b.text)}</pre>`;
-      } else if (b.type === 'h') {
-        if (listOpen) { html += '</ul>'; listOpen = false; }
-        html += `<h5 class="gov-subhead">${esc(b.text)}</h5>`;
-      } else if (b.type === 'li') {
-        if (!listOpen) { html += '<ul>'; listOpen = true; }
-        html += `<li>${esc(b.text)}</li>`;
-      } else {
-        if (listOpen) { html += '</ul>'; listOpen = false; }
-        html += `<p>${esc(b.text)}</p>`;
-      }
-    }
-    if (listOpen) html += '</ul>';
-    html += '</div>';
-  }
-  return html;
+function renderHalPayload(data) {
+  const records = findRecordArray(data);
+  const count = records ? records.length : null;
+  const body = records ? renderRecordTable(records) : renderTree(data);
+  return { count, html: body };
 }
 
-function render(containerId, value, kind) {
-  const content = document.getElementById(containerId);
-  if (kind === 'sections') {
-    const sections = Array.isArray(value) ? value : (Array.isArray(value && value.docs) ? value.docs : findRecordArray(value));
-    content.innerHTML = sections ? renderSections(sections) : renderTree(value);
-    return;
-  }
-  const records = findRecordArray(value);
-  content.innerHTML = records ? renderTable(records) : renderTree(value);
+// ---- page state ----
+let halNames = [];
+let repoMap = {};
+
+function halRowHtml(name) {
+  const repoEntry = repoMap[name];
+  const action = repoEntry
+    ? `<button class="dml-btn" data-name="${esc(name)}">View HAL APIs</button>`
+    : `<span class="muted" style="font-size:0.85rem;">Not available yet</span>`;
+  return `<tr>
+    <td>${esc(name)}</td>
+    <td class="mono" style="font-size:0.82rem;color:var(--muted);">${esc(repoEntry ? (repoEntry.repo || repoEntry) : '')}</td>
+    <td>${action}</td>
+  </tr>`;
 }
 
-function showEmptyState(containerId, jsonFile, xmlFile) {
-  document.getElementById(containerId).innerHTML = `
-    <div class="empty-state">
-      <div class="icon">📄</div>
-      <h3>No data published yet</h3>
-      <p>This section renders automatically once a data file is added.<br>Drop either file next to this page:</p>
-      <p><code>${esc(jsonFile)}</code> &nbsp;or&nbsp; <code>${esc(xmlFile)}</code></p>
-    </div>`;
+function renderHalTable(filterText) {
+  const q = (filterText || '').trim().toLowerCase();
+  const rows = halNames.filter(n => !q || n.toLowerCase().includes(q));
+  document.getElementById('hal-table-body').innerHTML = rows.map(halRowHtml).join('');
+  document.getElementById('hal-count').textContent = `${rows.length} of ${halNames.length} HAL interfaces`;
+  document.querySelectorAll('.dml-btn').forEach(btn => {
+    btn.addEventListener('click', () => loadHal(btn.dataset.name));
+  });
 }
 
-function loadTable(t) {
-  const jsonFile = t.slug + '.json';
-  const xmlFile = t.slug + '.xml';
-  fetch(jsonFile, { cache: 'no-store' })
-    .then(res => { if (!res.ok) throw new Error('no json'); return res.json(); })
-    .then(data => render(t.containerId, data, t.kind))
-    .catch(() => {
-      fetch(xmlFile, { cache: 'no-store' })
-        .then(res => { if (!res.ok) throw new Error('no xml'); return res.text(); })
-        .then(text => {
-          const xml = new DOMParser().parseFromString(text, 'application/xml');
-          if (xml.getElementsByTagName('parsererror').length > 0) throw new Error('bad xml');
-          render(t.containerId, xmlToObj(xml.documentElement), t.kind);
-        })
-        .catch(() => showEmptyState(t.containerId, jsonFile, xmlFile));
+function loadHal(name) {
+  const raw = repoMap[name];
+  const repoSlug = typeof raw === 'string' ? raw : raw.repo;
+  const { repo, file, branch } = resolveRepoEntry(raw, repoSlug);
+  const panel = document.getElementById('hal-panel');
+  const url = RAW_BASE + repo + '/' + branch + '/' + file;
+  panel.innerHTML = `
+    <div class="subhead" style="margin-top:0;">${esc(name)} <span class="mono" style="font-weight:400;font-size:0.8rem;color:var(--muted);">// ${esc(repo)}</span></div>
+    <p>Loading <code>${esc(url)}</code>…</p>`;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  fetch(url, { cache: 'no-store' })
+    .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+    .then(data => {
+      const { count, html } = renderHalPayload(data);
+      panel.innerHTML = `
+        <div class="subhead" style="margin-top:0;">${esc(name)}${count !== null ? ` <span class="mono" style="font-weight:400;font-size:0.8rem;color:var(--muted);">(${count} APIs)</span>` : ''}</div>
+        <p><a href="${esc(url)}" target="_blank" rel="noopener">${esc(url)}</a></p>
+        ${html}`;
+    })
+    .catch(err => {
+      panel.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">⚠️</div>
+          <h3>Could not load HAL spec for ${esc(name)}</h3>
+          <p>Tried: <code>${esc(url)}</code></p>
+          <p style="margin-top:8px;">${esc(err.message)}</p>
+        </div>`;
     });
 }
 
-TABLES.forEach(loadTable);
+fetch(REPO_MAP_JSON, { cache: 'no-store' })
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(repoMapData => {
+    repoMap = repoMapData;
+    delete repoMap._comment;
+    halNames = Object.keys(repoMap).sort((a, b) => a.localeCompare(b));
+    renderHalTable('');
+    document.getElementById('hal-search').addEventListener('input', e => renderHalTable(e.target.value));
+  })
+  .catch(err => {
+    document.getElementById('hal-table-wrap').innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📄</div>
+        <h3>Could not load HAL interface list</h3>
+        <p>${esc(err.message)}</p>
+      </div>`;
+  });
 </script>
 
 </head>
@@ -552,21 +561,35 @@ TABLES.forEach(loadTable);
 </script>
 <div class="page-main">
 
+
 <div class="hero" style="padding:48px 40px 40px;">
   <div class="hero-flex">
     <div class="hero-inner">
       <span class="eyebrow">South Bound APIs</span>
       <h1 style="font-size:2rem;">South Bound APIs</h1>
-      <p class="lede">The HAL and vendor-facing interfaces RDK-B exposes downward — the rdkb-halif-* contracts between middleware and SoC/BSP.</p>
+      <p class="lede">The HAL and vendor-facing interfaces RDK-B exposes downward — the rdkb-halif-* contracts between middleware and SoC/BSP. Click a HAL interface below to load its API spec.</p>
       
     </div>
     
   </div>
 </div>
 
+
 <section class="tight-top">
-  
-  <div id="data-content"><div class="empty-state"><p>Loading…</p></div></div>
+  <div id="hal-table-wrap">
+    <div class="search-row">
+      <input id="hal-search" type="text" placeholder="Filter HAL interfaces…">
+      <span id="hal-count" class="mono"></span>
+    </div>
+    <table class="def-table">
+      <thead><tr><th>HAL Interface</th><th>Repo</th><th>APIs</th></tr></thead>
+      <tbody id="hal-table-body">
+        <tr><td colspan="3">Loading HAL interfaces…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="hal-panel"></div>
 </section>
 
 </div>

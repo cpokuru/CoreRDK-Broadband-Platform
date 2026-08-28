@@ -89,14 +89,6 @@ PAGES = [
         ],
     },
     {
-        "active_id": "sbi",
-        "slug": "south-bound-apis",
-        "eyebrow": "South Bound APIs",
-        "title": "South Bound APIs",
-        "lede": "The HAL and vendor-facing interfaces RDK-B exposes downward — the "
-                "rdkb-halif-* contracts between middleware and SoC/BSP.",
-    },
-    {
         "active_id": "hwcompat",
         "slug": "hardware-compatibility",
         "eyebrow": "Hardware Compatibility",

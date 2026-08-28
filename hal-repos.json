@@ -1,0 +1,108 @@
+{
+  "_comment": "Maps a HAL interface's display name to where its per-repo HAL spec JSON lives, same convention as dml-repos.json. A plain string is the cpokuru repo slug, defaulting to <slug>.json on main; an object {\"repo\": \"...\", \"file\": \"...\", \"branch\": \"...\"} lets you point at any filename/branch (branch defaults to main if omitted). Add a line per HAL repo as its JSON goes up -- no code changes needed either way.",
+  "Bridge Utility HAL": {
+    "repo": "rdkb-halif-bridge-util",
+    "file": "bridge-util.json",
+    "branch": "develop"
+  },
+  "Cellular HAL": {
+    "repo": "rdkb-halif-cellular",
+    "file": "cellular.json",
+    "branch": "develop"
+  },
+  "Cellular Modem HAL": {
+    "repo": "rdkb-halif-cellular-modem",
+    "file": "cellular-modem.json",
+    "branch": "develop"
+  },
+  "Cable Modem HAL": {
+    "repo": "rdkb-halif-cm",
+    "file": "cm.json",
+    "branch": "develop"
+  },
+  "DHCP HAL": {
+    "repo": "rdkb-halif-dhcp",
+    "file": "dhcp.json",
+    "branch": "develop"
+  },
+  "DHCPv6 Client HAL": {
+    "repo": "rdkb-halif-dhcp6c",
+    "file": "dhcp6c.json",
+    "branch": "develop"
+  },
+  "eMMC HAL": {
+    "repo": "rdkb-halif-emmc",
+    "file": "emmc.json",
+    "branch": "develop"
+  },
+  "EPON HAL": {
+    "repo": "rdkb-halif-epon",
+    "file": "epon.json",
+    "branch": "develop"
+  },
+  "Ethernet Switch HAL": {
+    "repo": "rdkb-halif-ethsw",
+    "file": "ethsw.json",
+    "branch": "develop"
+  },
+  "Firmware Upgrade HAL": {
+    "repo": "rdkb-halif-fwupgrade",
+    "file": "fwupgrade.json",
+    "branch": "develop"
+  },
+  "GPON HAL": {
+    "repo": "rdkb-halif-gpon",
+    "file": "gpon.json",
+    "branch": "develop"
+  },
+  "LPA (eSIM) HAL": {
+    "repo": "rdkb-halif-lpa",
+    "file": "lpa.json",
+    "branch": "develop"
+  },
+  "MoCA HAL": {
+    "repo": "rdkb-halif-moca",
+    "file": "moca.json",
+    "branch": "develop"
+  },
+  "MSO HAL": {
+    "repo": "rdkb-halif-mso",
+    "file": "mso.json",
+    "branch": "develop"
+  },
+  "MTA (Voice Gateway) HAL": {
+    "repo": "rdkb-halif-mta",
+    "file": "mta.json",
+    "branch": "develop"
+  },
+  "Platform HAL": {
+    "repo": "rdkb-halif-platform",
+    "file": "platform.json",
+    "branch": "develop"
+  },
+  "VLAN HAL": {
+    "repo": "rdkb-halif-vlan",
+    "file": "vlan.json",
+    "branch": "develop"
+  },
+  "Voice HAL": {
+    "repo": "rdkb-halif-voice",
+    "file": "voice.json",
+    "branch": "develop"
+  },
+  "WAN HAL": {
+    "repo": "rdkb-halif-wan",
+    "file": "wan.json",
+    "branch": "develop"
+  },
+  "WiFi HAL": {
+    "repo": "rdkb-halif-wifi",
+    "file": "wifi.json",
+    "branch": "develop"
+  },
+  "xDSL HAL": {
+    "repo": "rdkb-halif-xdsl",
+    "file": "xdsl.json",
+    "branch": "develop"
+  }
+}
