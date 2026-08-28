@@ -52,7 +52,9 @@ function resolveRepoEntry(mapValue, repoFallback) {
   return { repo: mapValue.repo, file: mapValue.file, branch: mapValue.branch || 'main' };
 }
 
-// ---- generic renderer for whatever shape the HAL spec JSON turns out to be ----
+// ---- generic fallback renderer, used only if a repo's JSON doesn't match
+// the {component, headers: [{file, api_count, apis: [...]}], ...} shape
+// emit_hal_spec_json.py actually produces ----
 function findRecordArray(value) {
   if (Array.isArray(value)) return value;
   if (value && typeof value === 'object') {
@@ -81,7 +83,63 @@ function renderTree(value) {
   return `<pre style="background:#0b1220;color:#cbd5e1;padding:20px;border-radius:10px;overflow-x:auto;font-size:0.82rem;max-height:600px;">${esc(JSON.stringify(value, null, 2))}</pre>`;
 }
 
+// ---- dedicated renderer for emit_hal_spec_json.py's actual shape:
+// { component, repo_dir, generated_at, total_api_count,
+//   headers: [ { file, api_count, apis: [ {name, return_type, params,
+//     param_count, signature, brief, params_doc, return_doc, deprecated,
+//     line}, ... ] } ] } ----
+function renderParamsTable(params, paramsDoc) {
+  if (!params || !params.length) return '';
+  return `<table class="hal-params"><thead><tr><th>Type</th><th>Name</th><th>Description</th></tr></thead><tbody>` +
+    params.map(p => `<tr><td class="mono">${esc(p.type)}</td><td class="mono">${esc(p.name)}</td><td>${esc((paramsDoc && paramsDoc[p.name]) || '—')}</td></tr>`).join('') +
+    `</tbody></table>`;
+}
+
+function formatDoc(text) {
+  if (!text) return '';
+  // Source doc-comments use a literal "\n" marker between sentences rather
+  // than an actual newline; render each on its own line for readability.
+  return esc(text).split('\\n').map(s => s.trim()).filter(Boolean).join('<br>');
+}
+
+function renderApiCard(api) {
+  const deprecatedBadge = api.deprecated ? '<span class="hal-badge hal-badge-deprecated">deprecated</span>' : '';
+  return `<div class="hal-api-card">
+    <div class="hal-api-head">
+      <span class="hal-api-name">${esc(api.name)}</span>
+      <span class="hal-api-rt mono">${esc(api.return_type)}</span>
+      ${deprecatedBadge}
+    </div>
+    <pre class="hal-api-sig">${esc(api.signature)}</pre>
+    ${api.brief ? `<p class="hal-api-brief">${formatDoc(api.brief)}</p>` : ''}
+    ${renderParamsTable(api.params, api.params_doc)}
+    ${api.return_doc ? `<div class="hal-api-return"><strong>Returns:</strong> ${formatDoc(api.return_doc)}</div>` : ''}
+    <div class="hal-api-meta">line ${esc(api.line)}</div>
+  </div>`;
+}
+
+function renderHalSpecShape(data) {
+  let out = `<div class="hal-summary">`;
+  if (data.component) out += `<span><strong>Component:</strong> ${esc(data.component)}</span>`;
+  if (data.repo_dir) out += `<span><strong>Repo:</strong> ${esc(data.repo_dir)}</span>`;
+  if (data.generated_at) out += `<span><strong>Generated:</strong> ${esc(data.generated_at)}</span>`;
+  out += `</div>`;
+  for (const h of data.headers) {
+    out += `<div class="hal-file-head"><span class="mono">${esc(h.file)}</span><span class="hal-file-count">${esc(h.api_count)} ${h.api_count === 1 ? 'API' : 'APIs'}</span></div>`;
+    out += h.apis.map(renderApiCard).join('');
+  }
+  return out;
+}
+
+function isHalSpecShape(data) {
+  return data && typeof data === 'object' && Array.isArray(data.headers) &&
+    data.headers.every(h => h && typeof h.file === 'string' && Array.isArray(h.apis));
+}
+
 function renderHalPayload(data) {
+  if (isHalSpecShape(data)) {
+    return { count: data.total_api_count ?? null, html: renderHalSpecShape(data) };
+  }
   const records = findRecordArray(data);
   const count = records ? records.length : null;
   const body = records ? renderRecordTable(records) : renderTree(data);
@@ -179,6 +237,44 @@ EXTRA_CSS = """
   }
   .dml-btn:hover { filter: brightness(1.15); }
   #hal-panel { margin-top: 20px; }
+
+  /* ---- HAL API card rendering (emit_hal_spec_json.py shape) ---- */
+  .hal-summary {
+    display: flex; flex-wrap: wrap; gap: 18px; font-size: 0.82rem; color: var(--muted);
+    padding: 10px 14px; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  .hal-summary strong { color: var(--ink); font-weight: 600; }
+  .hal-file-head {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--hal); color: #fff; padding: 9px 14px; border-radius: 8px;
+    margin: 22px 0 10px; font-size: 0.85rem; font-weight: 600;
+  }
+  .hal-file-head:first-of-type { margin-top: 4px; }
+  .hal-file-count { font-weight: 500; font-size: 0.78rem; opacity: 0.85; }
+  .hal-api-card {
+    border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+    margin-bottom: 12px; box-shadow: var(--shadow-sm);
+  }
+  .hal-api-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .hal-api-name { font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 0.95rem; color: var(--ink); }
+  .hal-api-rt { font-size: 0.78rem; color: #4338ca; background: #eef2ff; padding: 2px 8px; border-radius: 999px; }
+  .hal-badge { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; padding: 2px 8px; border-radius: 999px; }
+  .hal-badge-deprecated { background: #fee2e2; color: #991b1b; }
+  .hal-api-sig {
+    font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: var(--muted);
+    background: #f8fafc; border-radius: 6px; padding: 8px 12px; overflow-x: auto; margin: 0 0 8px;
+    white-space: pre-wrap;
+  }
+  .hal-api-brief { font-size: 0.86rem; color: var(--ink); margin: 0 0 10px; line-height: 1.55; }
+  table.hal-params { width: 100%; border-collapse: collapse; margin: 0 0 10px; font-size: 0.82rem; }
+  table.hal-params th {
+    text-align: left; padding: 6px 10px; font-size: 0.7rem; text-transform: uppercase;
+    letter-spacing: 0.03em; color: var(--muted); border-bottom: 1px solid var(--border);
+  }
+  table.hal-params td { padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .hal-api-return { font-size: 0.84rem; color: var(--muted); margin-bottom: 6px; }
+  .hal-api-meta { font-size: 0.72rem; color: #9ca3af; font-family: "JetBrains Mono", monospace; }
 </style>
 """
 
