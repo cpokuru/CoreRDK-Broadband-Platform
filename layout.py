@@ -79,17 +79,17 @@ SHARED_CSS = """
      text and boxes. */
   .topnav nav a, .nav-group-toggle {
     display: flex; align-items: center; gap: 5px; cursor: pointer;
-    background: rgba(41,182,232,0.1); border: 1px solid rgba(111,168,232,0.35);
-    font-family: inherit; color: #cfe0f5; text-decoration: none; font-size: 0.82rem; font-weight: 500;
+    background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); border: none;
+    font-family: inherit; color: #fff; text-decoration: none; font-size: 0.82rem; font-weight: 500;
     padding: 7px 13px; border-radius: 999px; white-space: nowrap; transition: all 0.12s; outline: none;
   }
-  .topnav nav a:hover, .nav-group-toggle:hover { background: rgba(41,182,232,0.18); border-color: var(--rdk-blue); color: #fff; }
+  .topnav nav a:hover, .nav-group-toggle:hover { filter: brightness(1.12); }
   .topnav nav a.active, .nav-group.open .nav-group-toggle, .nav-group-toggle.active {
-    background: rgba(41,182,232,0.22); border-color: var(--rdk-blue); color: var(--rdk-blue); font-weight: 600;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.6) inset; font-weight: 700;
   }
-  .topnav nav a .ext-arrow { font-size: 0.78em; color: #6fa8e8; }
+  .topnav nav a .ext-arrow { font-size: 0.78em; color: #e6ebff; }
   .topnav nav a:focus-visible, .nav-group-toggle:focus-visible {
-    outline: none; box-shadow: 0 0 0 3px rgba(41,182,232,0.35); color: #fff;
+    outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.55); color: #fff;
   }
   .topnav .cta {
     flex: 0 0 auto; background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); color: #fff;
