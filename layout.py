@@ -77,18 +77,18 @@ SHARED_CSS = """
      this one pill style so the whole bar reads as one consistent design
      echoing the "Core RDK Components" CTA's blue, instead of a mix of plain
      text and boxes. */
-  .topnav nav a, .nav-group-toggle {
+  .topnav > nav > a, .nav-group-toggle {
     display: flex; align-items: center; gap: 5px; cursor: pointer;
     background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); border: none;
     font-family: inherit; color: #fff; text-decoration: none; font-size: 0.82rem; font-weight: 500;
     padding: 7px 13px; border-radius: 999px; white-space: nowrap; transition: all 0.12s; outline: none;
   }
-  .topnav nav a:hover, .nav-group-toggle:hover { filter: brightness(1.12); }
-  .topnav nav a.active, .nav-group.open .nav-group-toggle, .nav-group-toggle.active {
+  .topnav > nav > a:hover, .nav-group-toggle:hover { filter: brightness(1.12); }
+  .topnav > nav > a.active, .nav-group.open .nav-group-toggle, .nav-group-toggle.active {
     box-shadow: 0 0 0 2px rgba(255,255,255,0.6) inset; font-weight: 700;
   }
-  .topnav nav a .ext-arrow { font-size: 0.78em; color: #e6ebff; }
-  .topnav nav a:focus-visible, .nav-group-toggle:focus-visible {
+  .topnav > nav > a .ext-arrow { font-size: 0.78em; color: #e6ebff; }
+  .topnav > nav > a:focus-visible, .nav-group-toggle:focus-visible {
     outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.55); color: #fff;
   }
   .topnav .cta {
