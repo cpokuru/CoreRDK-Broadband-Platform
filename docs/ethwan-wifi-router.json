@@ -28,20 +28,32 @@
     "connectivity": {
       "wan": {
         "required": true,
-        "interfaces": ["EthernetWAN"],
+        "interfaces": [
+          "EthernetWAN"
+        ],
         "minPorts": 1,
         "notes": "1x GbE minimum. Primary WAN + WAN profile orchestration mandatory. Secondary/backup WAN, PPPoE, GRE, and IPv6 transition mechanisms (MAP-E/T, NAT64, DS-Lite, 464XLAT) are optional."
       },
       "lan": {
         "required": "optional",
-        "interfaces": ["Ethernet"],
+        "interfaces": [
+          "Ethernet"
+        ],
         "notes": "Port management, link up/down detection, and link speed management are marked Optional in the RDK-B Component List; include if the SKU offers LAN ports."
       },
       "wifi": {
         "required": true,
-        "requiredStandards": ["802.11n", "802.11ac (Wi-Fi 5)"],
-        "optionalStandards": ["802.11ax (Wi-Fi 6/6E)", "802.11be (Wi-Fi 7)"],
-        "requiredSecurity": ["WPA2"],
+        "requiredStandards": [
+          "802.11n",
+          "802.11ac (Wi-Fi 5)"
+        ],
+        "optionalStandards": [
+          "802.11ax (Wi-Fi 6/6E)",
+          "802.11be (Wi-Fi 7)"
+        ],
+        "requiredSecurity": [
+          "WPA2"
+        ],
         "notes": "NL80211 vendor HAL interface required."
       },
       "easyMesh": {
@@ -52,12 +64,24 @@
       },
       "bluetoothIot": {
         "required": "optional",
-        "protocols": ["Matter", "Zigbee", "Thread"],
+        "protocols": [
+          "Matter",
+          "Zigbee",
+          "Thread"
+        ],
         "notes": "Required only if Matter/Zigbee/Thread IoT support is enabled; BLE used for Matter commissioning."
+      },
+      "cellular": {
+        "required": "not-applicable",
+        "interfaces": [],
+        "notes": "Marked n/a for this profile in the RDK-B Component List 2026 (WAN Interface Features > Access Technology - Cellular: Qualcomm QMI, MBIM, USB RNDIS, GPS). Cellular access technology is Optional only for GW / GW OpenSync / GW EasyMesh profiles, which use it as one of several WAN access technologies; EthWAN WiFi Router uses Ethernet WAN exclusively."
       }
     },
     "storageInterface": {
-      "types": ["eMMC", "SPI-NAND"],
+      "types": [
+        "eMMC",
+        "SPI-NAND"
+      ],
       "filesystem": "UBI/UBIFS",
       "partitionLayout": "A/B",
       "notes": "A/B partition layout recommended to support OTA firmware upgrade HAL."

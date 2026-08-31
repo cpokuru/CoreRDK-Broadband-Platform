@@ -126,6 +126,7 @@ def render_profile_card(p: dict) -> str:
 
     blocks = [
         render_peripheral_block("WAN", conn.get("wan", {})),
+        render_peripheral_block("Cellular", conn.get("cellular", {})),
         render_peripheral_block("LAN", conn.get("lan", {})),
         render_peripheral_block("Wi-Fi", conn.get("wifi", {})),
         render_peripheral_block("EasyMesh", conn.get("easyMesh", {})),

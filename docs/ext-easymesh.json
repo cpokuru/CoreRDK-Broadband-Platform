@@ -34,14 +34,24 @@
       },
       "lan": {
         "required": "optional",
-        "interfaces": ["Ethernet"],
+        "interfaces": [
+          "Ethernet"
+        ],
         "notes": "Wi-Fi and Ethernet backhaul both supported; at least one Ethernet port recommended for wired backhaul option."
       },
       "wifi": {
         "required": true,
-        "requiredStandards": ["802.11n", "802.11ac (Wi-Fi 5)"],
-        "optionalStandards": ["802.11ax (Wi-Fi 6/6E)", "802.11be (Wi-Fi 7)"],
-        "requiredSecurity": ["WPA2"],
+        "requiredStandards": [
+          "802.11n",
+          "802.11ac (Wi-Fi 5)"
+        ],
+        "optionalStandards": [
+          "802.11ax (Wi-Fi 6/6E)",
+          "802.11be (Wi-Fi 7)"
+        ],
+        "requiredSecurity": [
+          "WPA2"
+        ],
         "notes": "Wi-Fi AP fronthaul mandatory for extender role."
       },
       "easyMesh": {
@@ -52,12 +62,24 @@
       },
       "bluetoothIot": {
         "required": "optional",
-        "protocols": ["Matter", "Zigbee", "Thread"],
+        "protocols": [
+          "Matter",
+          "Zigbee",
+          "Thread"
+        ],
         "notes": "Same IoT feature set as EthWAN WiFi Router applies if enabled on the extender."
+      },
+      "cellular": {
+        "required": "not-applicable",
+        "interfaces": [],
+        "notes": "Marked n/a for this profile in the RDK-B Component List 2026 (WAN Interface Features > Access Technology - Cellular). Cellular access technology is Optional only for GW / GW OpenSync / GW EasyMesh profiles; EXT EasyMesh has no WAN stack at all (extender role, Wi-Fi/Ethernet backhaul only)."
       }
     },
     "storageInterface": {
-      "types": ["eMMC", "SPI-NAND"],
+      "types": [
+        "eMMC",
+        "SPI-NAND"
+      ],
       "filesystem": "UBI/UBIFS",
       "partitionLayout": "A/B",
       "notes": "A/B partition layout recommended for OTA."
