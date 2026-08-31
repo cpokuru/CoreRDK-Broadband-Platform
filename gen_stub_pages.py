@@ -88,14 +88,6 @@ PAGES = [
             {"slug": "north-bound-specification", "kind": "sections"},
         ],
     },
-    {
-        "active_id": "hwcompat",
-        "slug": "hardware-compatibility",
-        "eyebrow": "Hardware Compatibility",
-        "title": "Hardware Compatibility Spec",
-        "lede": "Certified SoC platforms, chipset families, and the HAL interface "
-                "versions each one supports.",
-    },
 ]
 
 LOADER_SCRIPT_TEMPLATE = """
