@@ -102,21 +102,89 @@ def render_minimums_table(in_scope: list[dict]) -> str:
     )
 
 
-def render_connectivity_row(label: str, value) -> str:
+STATUS_COLORS = {
+    "required": {"bg": "#d1fae5", "fg": "#065f46"},
+    "applicable": {"bg": "#d1fae5", "fg": "#065f46"},
+    "optional": {"bg": "#fef3c7", "fg": "#92400e"},
+    "recommended": {"bg": "#dbeafe", "fg": "#1e40af"},
+    "not required": {"bg": "#e5e7eb", "fg": "#374151"},
+    "not applicable": {"bg": "#e5e7eb", "fg": "#374151"},
+}
+
+# Fields that represent a yes/no-ish status -> rendered as a small header
+# pill. STATUS_LABELS gives a short prefix for blocks with more than one
+# status field (diagnostics has two: Web UI and UART); single-status blocks
+# show the pill alone since the block title already gives it context.
+STATUS_KEYS = {"required", "applicable", "localWebUI", "uart"}
+STATUS_LABELS = {"localWebUI": "Web UI", "uart": "UART"}
+
+LIST_LABELS = {
+    "interfaces": "Interfaces",
+    "protocols": "Protocols",
+    "requiredStandards": "Standards",
+    "optionalStandards": "Also supports",
+    "requiredSecurity": "Security",
+    "types": "Types",
+}
+SCALAR_LABELS = {
+    "minPorts": "Min ports",
+    "role": "Role",
+    "transport": "Transport",
+    "filesystem": "Filesystem",
+    "partitionLayout": "Partition layout",
+}
+
+
+def mini_pill(text: str) -> str:
+    c = STATUS_COLORS.get(text.lower(), {"bg": "#e5e7eb", "fg": "#374151"})
+    return (
+        f'<span style="display:inline-block;background:{c["bg"]};color:{c["fg"]};border-radius:999px;'
+        f'font-size:0.72rem;font-weight:600;padding:2px 10px;white-space:nowrap;">{esc(text)}</span>'
+    )
+
+
+def status_text(key: str, value) -> str:
     if isinstance(value, bool):
-        text = "Required" if value else "Not required"
-    elif isinstance(value, list):
-        text = ", ".join(str(v) for v in value) if value else "\u2014"
-    else:
-        text = str(value) if value not in (None, "") else "\u2014"
-    return f'<tr><td class="mono" style="white-space:nowrap;">{esc(label)}</td><td>{esc(text)}</td></tr>'
+        if key == "applicable":
+            return "Applicable" if value else "Not applicable"
+        return "Required" if value else "Not required"
+    text = str(value).strip()
+    if not text or text.lower() == "n/a":
+        return "Not applicable"
+    return text.replace("-", " ").capitalize()
 
 
 def render_peripheral_block(title: str, fields: dict) -> str:
-    rows = "".join(render_connectivity_row(k, v) for k, v in fields.items())
+    pills = []
+    for key in fields:
+        if key not in STATUS_KEYS:
+            continue
+        pill = mini_pill(status_text(key, fields[key]))
+        label = STATUS_LABELS.get(key)
+        pills.append(f'<span style="font-size:0.74rem;color:var(--muted);">{esc(label)}:</span> {pill}' if label else pill)
+
+    meta_lines = []
+    for key, label in LIST_LABELS.items():
+        val = fields.get(key)
+        if not val:
+            continue
+        text = ", ".join(str(v) for v in val) if isinstance(val, list) else str(val)
+        if text and text.lower() != "n/a":
+            meta_lines.append(f'<div><strong>{esc(label)}:</strong> {esc(text)}</div>')
+    for key, label in SCALAR_LABELS.items():
+        val = fields.get(key)
+        if val not in (None, "", "none"):
+            meta_lines.append(f'<div><strong>{esc(label)}:</strong> {esc(val)}</div>')
+
+    notes = fields.get("notes")
+    notes_html = f'<p class="hwc-notes">{esc(notes)}</p>' if notes and notes != "n/a" else ""
+    meta_html = f'<div class="hwc-block-meta">{"".join(meta_lines)}</div>' if meta_lines else ""
+
     return (
-        '<div style="margin-bottom:14px;"><div style="font-weight:600; font-size:0.85rem; margin-bottom:4px;">'
-        + esc(title) + '</div><table class="def-table" style="font-size:0.85rem;"><tbody>' + rows + "</tbody></table></div>"
+        '<div class="hwc-block">'
+        f'<div class="hwc-block-head"><span class="hwc-block-title">{esc(title)}</span>{"".join(pills)}</div>'
+        f'{meta_html}{notes_html}'
+        '</div>'
     )
 
 
@@ -158,7 +226,7 @@ def render_profile_card(p: dict) -> str:
         f'<span><strong>Reference device:</strong> {ref_line}</span>'
         '</div>'
         '<div class="subhead" style="margin-top:18px;">Peripheral Requirements</div>'
-        '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px;">'
+        '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px;">'
         + "".join(blocks) +
         '</div></div>'
     )
@@ -181,6 +249,12 @@ EXTRA_CSS = """
 <style>
   .hwcompat-summary { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 0.85rem; color: var(--muted); }
   .hwcompat-summary strong { color: var(--ink); font-weight: 600; }
+  .hwc-block { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; background: #fff; }
+  .hwc-block-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .hwc-block-title { font-weight: 700; font-size: 0.85rem; color: var(--ink); margin-right: 2px; }
+  .hwc-block-meta { font-size: 0.8rem; color: var(--muted); line-height: 1.7; }
+  .hwc-block-meta strong { color: var(--ink); font-weight: 600; }
+  .hwc-notes { font-size: 0.78rem; color: #9aa1ad; line-height: 1.55; margin: 8px 0 0; }
 </style>
 """
 
