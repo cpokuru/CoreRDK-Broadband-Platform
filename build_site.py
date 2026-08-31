@@ -18,10 +18,6 @@ Order of operations (each step's output feeds the next):
                                                     fetch, so the file has to physically sit next to it)
   4. docs/*.xlsx  --(extract_components.py)-->  components/ethwan-router-components.json
                                                  (fetched at runtime by the static components/index.html)
-  5. docs/*.xlsx  --(extract_components.py)-->  components/ext-easymesh-components.json
-                                                 (and any other HWCOMPAT_EXTRA_PROFILES entries -- read
-                                                  at generation time by gen_hwcompat_page.py for the
-                                                  per-profile "Memory Footprint by Process" tables)
 
 Both source files (the spec PDF and the component xlsx) live together in
 docs/. components/ holds the generator scripts, the two static HTML
@@ -78,7 +74,7 @@ def step_sync_workbook_for_full_list() -> None:
 
 
 def step_xlsx_to_profile_json(profile: str) -> None:
-    print(f"\n[4/5] Component xlsx -> components/ethwan-router-components.json (profile: {profile!r})")
+    print(f"\n[4/4] Component xlsx -> components/ethwan-router-components.json (profile: {profile!r})")
     xlsx = find_one(DOCS, "*.xlsx")
     xlsx_rel_from_components = Path("..") / xlsx.relative_to(ROOT)
     run([
@@ -87,31 +83,6 @@ def step_xlsx_to_profile_json(profile: str) -> None:
         "--out", "ethwan-router-components.json",
         "--show-core",
     ], cwd=COMPONENTS)
-
-
-# Extra per-profile component lists that hardware-compatibility.html's
-# "Memory Footprint by Process" tables read (see PROFILE_COMPONENTS_FILE in
-# gen_hwcompat_page.py). Generated unconditionally here, independent of
-# --profile above, so this file doesn't need manual regeneration whenever
-# the source xlsx changes. Add a line here (and a matching one in
-# gen_hwcompat_page.py's PROFILE_COMPONENTS_FILE) if a third profile comes
-# into scope for the Hardware Compatibility spec.
-HWCOMPAT_EXTRA_PROFILES = [
-    ("EXT\nEasyMesh", "ext-easymesh-components.json"),
-]
-
-
-def step_xlsx_to_hwcompat_profiles() -> None:
-    xlsx = find_one(DOCS, "*.xlsx")
-    xlsx_rel_from_components = Path("..") / xlsx.relative_to(ROOT)
-    for profile, out_name in HWCOMPAT_EXTRA_PROFILES:
-        print(f"\n[5/5] Component xlsx -> components/{out_name} (profile: {profile!r})")
-        run([
-            "python3", "extract_components.py", "profile", profile,
-            "--xlsx", str(xlsx_rel_from_components),
-            "--out", out_name,
-            "--show-core",
-        ], cwd=COMPONENTS)
 
 
 def main() -> None:
@@ -133,9 +104,8 @@ def main() -> None:
     if not args.skip_xlsx:
         step_sync_workbook_for_full_list()
         step_xlsx_to_profile_json(args.profile)
-        step_xlsx_to_hwcompat_profiles()
     else:
-        print("\n[3/5], [4/5], and [5/5] Skipped (--skip-xlsx)")
+        print("\n[3/4] and [4/4] Skipped (--skip-xlsx)")
 
     print("\nDone. Generated:")
     print("  index.html")
@@ -143,8 +113,6 @@ def main() -> None:
     if not args.skip_xlsx:
         print("  components/RDK-B_Component_List_2026.xlsx  (synced copy, read by full-list.html)")
         print("  components/ethwan-router-components.json  (read by components/index.html)")
-        for _, out_name in HWCOMPAT_EXTRA_PROFILES:
-            print(f"  components/{out_name}  (read by hardware-compatibility.html)")
     print("\ncomponents/full-list.html is static — not touched by this script.")
     print("Regenerate it with plain 'python3 gen_html.py' (no --sync-only)")
     print("only if the page design itself changes, not the data.")
