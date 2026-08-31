@@ -1,14 +1,18 @@
 """Extract simple, single-table component lists from RDK-B_Component_List_2026.xlsx.
 
-Two modes, matching the two pages we publish today:
+Three modes:
 
-  core     -> components tagged CORE (common to every profile) plus components
-              that are Required in every profile they apply to. Tiers:
-              'common-core' vs 'required'.
+  core         -> components tagged CORE (common to every profile) plus components
+                  that are Required in every profile they apply to. Tiers:
+                  'common-core' vs 'required'.
 
-  profile  -> all components that apply (Required or Optional, i.e. not 'n/a')
-              to a single device profile column, e.g. "EthWAN WiFi Router".
-              Tiers: 'required' vs 'optional'.
+  profile      -> all components that apply (Required or Optional, i.e. not 'n/a')
+                  to a single device profile column, e.g. "EthWAN WiFi Router".
+                  Tiers: 'required' vs 'optional'.
+
+  all-profiles -> runs 'profile' for every column in PROFILE_COLUMNS in one go,
+                  writing one <profile>-components.json per profile into the
+                  current directory (see PROFILE_FILENAMES for exact names).
 
 Usage:
     python3 extract_components.py core \
@@ -16,6 +20,9 @@ Usage:
 
     python3 extract_components.py profile "EthWAN WiFi Router" \
         --xlsx RDK-B_Component_List_2026.xlsx --out ethwan-router-components.json
+
+    python3 extract_components.py all-profiles \
+        --xlsx RDK-B_Component_List_2026.xlsx --show-core
 """
 from __future__ import annotations
 
@@ -37,6 +44,20 @@ PROFILE_COLUMNS = [
     "EXT\nOpenSync",
     "EXT\nEasyMesh",
 ]
+
+# Output filename per profile column, for the "all-profiles" mode.
+# EthWAN WiFi Router keeps its existing name since components/index.html and
+# components/gen_components_page.py already depend on it by that exact
+# filename; every other profile follows <profile-id>-components.json.
+PROFILE_FILENAMES = {
+    "Modem\n/ONU": "modem-onu-components.json",
+    "EthWAN WiFi Router": "ethwan-router-components.json",
+    "GW": "gw-components.json",
+    "GW\nOpenSync": "gw-opensync-components.json",
+    "GW\nEasyMesh": "gw-easymesh-components.json",
+    "EXT\nOpenSync": "ext-opensync-components.json",
+    "EXT\nEasyMesh": "ext-easymesh-components.json",
+}
 
 TIERS = {
     "common-core": {"id": "common-core", "label": "Common Core", "color": "gold"},
@@ -133,6 +154,34 @@ def build_payload(components: list[dict], title: str, subtitle: str, tier_ids: l
     }
 
 
+def build_profile_payload(ws, profile: str, required_only: bool = False, show_core: bool = False) -> tuple[list[dict], dict]:
+    """Extract + build the payload for one profile column. Shared by the
+    'profile' and 'all-profiles' CLI modes so their output is identical."""
+    components = extract_profile(ws, profile, required_only=required_only, show_core=show_core)
+    if required_only:
+        tier_ids = ["required"]
+    elif show_core:
+        tier_ids = ["common-core", "required", "optional"]
+    else:
+        tier_ids = ["required", "optional"]
+    # Some profile column headers in the xlsx contain an embedded newline
+    # (e.g. "GW\nOpenSync", wrapped for column width) -- that's needed
+    # verbatim for the exact-match lookup in extract_profile(), but reads as
+    # a broken mid-sentence line break in a title/subtitle string, so
+    # normalize to a single space for display purposes only.
+    profile_display = " ".join(profile.split())
+    subtitle = f"Components required for the {profile_display} device profile." if required_only \
+        else f"Components for the {profile_display} device profile: Common Core, Required, and Optional." if show_core \
+        else f"Components that apply to the {profile_display} device profile."
+    payload = build_payload(
+        components,
+        title=f"RDK-B {profile_display} Components",
+        subtitle=subtitle,
+        tier_ids=tier_ids,
+    )
+    return components, payload
+
+
 def main() -> None:
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="mode", required=True)
@@ -148,6 +197,11 @@ def main() -> None:
     prof_p.add_argument("--required-only", action="store_true", help="Omit Optional components; show only Required.")
     prof_p.add_argument("--show-core", action="store_true", help="Tag CORE components as 'Common Core' instead of Required/Optional.")
 
+    all_p = sub.add_parser("all-profiles", help="Run 'profile' for every profile column, writing one file each into the current directory.")
+    all_p.add_argument("--xlsx", default="RDK-B_Component_List_2026.xlsx")
+    all_p.add_argument("--required-only", action="store_true", help="Omit Optional components; show only Required.")
+    all_p.add_argument("--show-core", action="store_true", help="Tag CORE components as 'Common Core' instead of Required/Optional.")
+
     args = p.parse_args()
     wb = openpyxl.load_workbook(Path(args.xlsx), data_only=True)
     ws = wb["Components"]
@@ -160,26 +214,21 @@ def main() -> None:
             subtitle="Components common to every RDK-B device profile, or required wherever they apply.",
             tier_ids=["common-core", "required"],
         )
-    else:
-        components = extract_profile(ws, args.profile, required_only=args.required_only, show_core=args.show_core)
-        if args.required_only:
-            tier_ids = ["required"]
-        elif args.show_core:
-            tier_ids = ["common-core", "required", "optional"]
-        else:
-            tier_ids = ["required", "optional"]
-        subtitle = f"Components required for the {args.profile} device profile." if args.required_only \
-            else f"Components for the {args.profile} device profile: Common Core, Required, and Optional." if args.show_core \
-            else f"Components that apply to the {args.profile} device profile."
-        payload = build_payload(
-            components,
-            title=f"RDK-B {args.profile} Components",
-            subtitle=subtitle,
-            tier_ids=tier_ids,
-        )
+        Path(args.out).write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        print(f"Wrote {args.out} ({len(components)} components)")
 
-    Path(args.out).write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"Wrote {args.out} ({len(components)} components)")
+    elif args.mode == "profile":
+        components, payload = build_profile_payload(ws, args.profile, required_only=args.required_only, show_core=args.show_core)
+        Path(args.out).write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        print(f"Wrote {args.out} ({len(components)} components)")
+
+    else:  # all-profiles
+        for profile in PROFILE_COLUMNS:
+            out_name = PROFILE_FILENAMES[profile]
+            components, payload = build_profile_payload(ws, profile, required_only=args.required_only, show_core=args.show_core)
+            Path(out_name).write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"  {out_name:35} {len(components):3} components  ({' '.join(profile.split())})")
+        print(f"Wrote {len(PROFILE_COLUMNS)} profile component files.")
 
 
 if __name__ == "__main__":

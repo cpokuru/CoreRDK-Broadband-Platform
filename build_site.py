@@ -16,8 +16,13 @@ Order of operations (each step's output feeds the next):
                                                    (a synced copy — full-list.html loads THIS xlsx
                                                     directly client-side via SheetJS, same-directory
                                                     fetch, so the file has to physically sit next to it)
-  4. docs/*.xlsx  --(extract_components.py)-->  components/ethwan-router-components.json
-                                                 (fetched at runtime by the static components/index.html)
+  4. docs/*.xlsx  --(extract_components.py)-->  components/<profile>-components.json
+                                                 one file per device profile column in the xlsx (see
+                                                 ALL_PROFILES below) -- ethwan-router-components.json
+                                                 is fetched at runtime by the static components/index.html;
+                                                 the rest feed gen_hwcompat_page.py's per-profile
+                                                 "Memory Footprint by Process" tables and anything else
+                                                 that wants a per-profile component list.
 
 Both source files (the spec PDF and the component xlsx) live together in
 docs/. components/ holds the generator scripts, the two static HTML
@@ -25,7 +30,6 @@ templates, and the synced xlsx + generated JSON — no hand-maintained data.
 
 Usage:
     python3 build_site.py
-    python3 build_site.py --profile "GW"          # regenerate the JSON for a different profile
     python3 build_site.py --skip-pdf               # reuse existing docs/spec-content.json
     python3 build_site.py --skip-xlsx               # reuse existing components/* data
 """
@@ -39,6 +43,27 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 DOCS = ROOT / "docs"
 COMPONENTS = ROOT / "components"
+
+# Every device-profile column in RDK-B_Component_List_2026.xlsx, and the
+# output filename each becomes under components/. Column names with an
+# embedded newline (xlsx header-wrap artifacts, e.g. "GW\nOpenSync") are
+# required verbatim here for the exact-match lookup in extract_components.py
+# -- that script normalizes them for display text on its own.
+#
+# ethwan-router-components.json keeps its existing name since
+# components/index.html and components/gen_components_page.py already
+# depend on it by that exact filename; every other profile follows the
+# <profile-id>-components.json pattern already used by
+# gen_hwcompat_page.py's PROFILE_COMPONENTS_FILE.
+ALL_PROFILES: list[tuple[str, str]] = [
+    ("Modem\n/ONU", "modem-onu-components.json"),
+    ("EthWAN WiFi Router", "ethwan-router-components.json"),
+    ("GW", "gw-components.json"),
+    ("GW\nOpenSync", "gw-opensync-components.json"),
+    ("GW\nEasyMesh", "gw-easymesh-components.json"),
+    ("EXT\nOpenSync", "ext-opensync-components.json"),
+    ("EXT\nEasyMesh", "ext-easymesh-components.json"),
+]
 
 
 def find_one(directory: Path, pattern: str) -> Path:
@@ -73,21 +98,21 @@ def step_sync_workbook_for_full_list() -> None:
     run(["python3", "gen_html.py", "--sync-only"], cwd=COMPONENTS)
 
 
-def step_xlsx_to_profile_json(profile: str) -> None:
-    print(f"\n[4/4] Component xlsx -> components/ethwan-router-components.json (profile: {profile!r})")
+def step_xlsx_to_all_profile_json() -> None:
     xlsx = find_one(DOCS, "*.xlsx")
     xlsx_rel_from_components = Path("..") / xlsx.relative_to(ROOT)
-    run([
-        "python3", "extract_components.py", "profile", profile,
-        "--xlsx", str(xlsx_rel_from_components),
-        "--out", "ethwan-router-components.json",
-        "--show-core",
-    ], cwd=COMPONENTS)
+    for profile, out_name in ALL_PROFILES:
+        print(f"\n[4/4] Component xlsx -> components/{out_name} (profile: {profile!r})")
+        run([
+            "python3", "extract_components.py", "profile", profile,
+            "--xlsx", str(xlsx_rel_from_components),
+            "--out", out_name,
+            "--show-core",
+        ], cwd=COMPONENTS)
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--profile", default="EthWAN WiFi Router", help="Device profile for components/index.html")
     ap.add_argument("--skip-pdf", action="store_true", help="Reuse existing docs/spec-content.json instead of re-parsing the PDF")
     ap.add_argument("--skip-xlsx", action="store_true", help="Skip both xlsx-driven steps")
     args = ap.parse_args()
@@ -103,7 +128,7 @@ def main() -> None:
 
     if not args.skip_xlsx:
         step_sync_workbook_for_full_list()
-        step_xlsx_to_profile_json(args.profile)
+        step_xlsx_to_all_profile_json()
     else:
         print("\n[3/4] and [4/4] Skipped (--skip-xlsx)")
 
@@ -112,7 +137,8 @@ def main() -> None:
     print("  docs/spec-content.json")
     if not args.skip_xlsx:
         print("  components/RDK-B_Component_List_2026.xlsx  (synced copy, read by full-list.html)")
-        print("  components/ethwan-router-components.json  (read by components/index.html)")
+        for _, out_name in ALL_PROFILES:
+            print(f"  components/{out_name}")
     print("\ncomponents/full-list.html is static — not touched by this script.")
     print("Regenerate it with plain 'python3 gen_html.py' (no --sync-only)")
     print("only if the page design itself changes, not the data.")

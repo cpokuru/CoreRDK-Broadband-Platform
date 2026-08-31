@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-08-31T23:26:36Z",
-  "title": "RDK-B EthWAN WiFi Router Components",
-  "subtitle": "Components for the EthWAN WiFi Router device profile: Common Core, Required, and Optional.",
+  "generatedAt": "2026-08-31T23:26:37Z",
+  "title": "RDK-B EXT OpenSync Components",
+  "subtitle": "Components for the EXT OpenSync device profile: Common Core, Required, and Optional.",
   "tiers": [
     {
       "id": "common-core",
@@ -82,6 +82,12 @@
       "url": "https://github.com/rdkcentral/rfc"
     },
     {
+      "name": "RDK OVS Agent",
+      "category": "Remote Device Management",
+      "tier": "required",
+      "url": "https://github.com/rdkcentral/open-virtual-switch-agent"
+    },
+    {
       "name": "Ethernet Agent (used for LAN)",
       "category": "LAN Interface Components",
       "tier": "optional",
@@ -94,46 +100,10 @@
       "url": "https://github.com/rdkcentral/OneWifi"
     },
     {
-      "name": "unified-wifi-mesh\n(EasyMesh)",
-      "category": "LAN Interface Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/unified-wifi-mesh"
-    },
-    {
-      "name": "ieee1905-rs",
-      "category": "LAN Interface Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/ieee1905-rs"
-    },
-    {
-      "name": "lan-manager-lite",
-      "category": "LAN Management Components",
-      "tier": "required",
-      "url": "https://github.com/rdkcentral/lan-manager-lite"
-    },
-    {
-      "name": "Ethernet Agent (used for WAN)",
-      "category": "WAN Interface Components",
-      "tier": "required",
-      "url": "https://github.com/rdkcentral/ethernet-agent"
-    },
-    {
-      "name": "dhcp-manager (recipe for DHCP client and Server)",
+      "name": "dhcp-manager (recipe for DHCP client only)",
       "category": "DHCP",
-      "tier": "required",
+      "tier": "optional",
       "url": "https://github.com/rdkcentral/dhcp-manager"
-    },
-    {
-      "name": "P&M",
-      "category": "Routing, parental control and WAN Management Components",
-      "tier": "required",
-      "url": "https://github.com/rdkcentral/provisioning-and-management"
-    },
-    {
-      "name": "WAN Manager",
-      "category": "Routing, parental control and WAN Management Components",
-      "tier": "required",
-      "url": "https://github.com/rdkcentral/wan-manager"
     },
     {
       "name": "core-net-library",
@@ -146,30 +116,6 @@
       "category": "Routing, parental control and WAN Management Components",
       "tier": "optional",
       "url": "https://github.com/rdkcentral/secure-upnp"
-    },
-    {
-      "name": "ccsp-xdns",
-      "category": "Routing, parental control and WAN Management Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/xdns"
-    },
-    {
-      "name": "advanced-security",
-      "category": "Routing, parental control and WAN Management Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/advanced-security"
-    },
-    {
-      "name": "Utopia",
-      "category": "System Start, Platform Management and misc utilities",
-      "tier": "required",
-      "url": "https://github.com/rdkcentral/utopia"
-    },
-    {
-      "name": "component-registry",
-      "category": "System Start, Platform Management and misc utilities",
-      "tier": "required",
-      "url": "https://github.com/rdkcentral/component-registry"
     },
     {
       "name": "miscellaneous-broadband",
@@ -214,18 +160,6 @@
       "url": "https://github.com/rdkcentral/common_utilities/"
     },
     {
-      "name": "telco-voice-manager",
-      "category": "Voice Related Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/telco-voice-manager"
-    },
-    {
-      "name": "hal-voice-asterisk",
-      "category": "Voice Related Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/hal-voice-asterisk"
-    },
-    {
       "name": "rdk_logger",
       "category": "Data Collection, Test and Diagnostic Components",
       "tier": "common-core",
@@ -260,12 +194,6 @@
       "category": "Data Collection, Test and Diagnostic Components",
       "tier": "optional",
       "url": "https://github.com/rdkcentral/test-and-diagnostic"
-    },
-    {
-      "name": "ipoe-health-check",
-      "category": "Data Collection, Test and Diagnostic Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/ipoe-health-check"
     },
     {
       "name": "cpuprocanalyzer",
@@ -316,12 +244,6 @@
       "url": "https://github.com/rdkcentral/data-model-cli"
     },
     {
-      "name": "notify-component",
-      "category": "InterProcess Communications Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/notify-component"
-    },
-    {
       "name": "PSM",
       "category": "Non-Vol Storage",
       "tier": "required",
@@ -350,24 +272,6 @@
       "category": "Matter / IoT Components",
       "tier": "optional",
       "url": "https://github.com/rdkcentral/home-security"
-    },
-    {
-      "name": "rdk-cert-config",
-      "category": "Code Security Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/rdk-cert-config"
-    },
-    {
-      "name": "rdk-cert-config",
-      "category": "Code Security Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/rdk-cert-config"
-    },
-    {
-      "name": "rdkssa",
-      "category": "Code Security Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/rdkssa"
     },
     {
       "name": "rdk-libunpriv",

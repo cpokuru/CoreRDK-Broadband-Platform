@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
   "generatedAt": "2026-08-31T23:26:36Z",
-  "title": "RDK-B EthWAN WiFi Router Components",
-  "subtitle": "Components for the EthWAN WiFi Router device profile: Common Core, Required, and Optional.",
+  "title": "RDK-B GW Components",
+  "subtitle": "Components for the GW device profile: Common Core, Required, and Optional.",
   "tiers": [
     {
       "id": "common-core",
@@ -94,16 +94,16 @@
       "url": "https://github.com/rdkcentral/OneWifi"
     },
     {
-      "name": "unified-wifi-mesh\n(EasyMesh)",
+      "name": "rdkb-halif-moca",
       "category": "LAN Interface Components",
       "tier": "optional",
-      "url": "https://github.com/rdkcentral/unified-wifi-mesh"
+      "url": "https://github.com/rdkcentral/rdkb-halif-moca"
     },
     {
-      "name": "ieee1905-rs",
+      "name": "moca-agent",
       "category": "LAN Interface Components",
       "tier": "optional",
-      "url": "https://github.com/rdkcentral/ieee1905-rs"
+      "url": "https://github.com/rdkcentral/moca-agent"
     },
     {
       "name": "lan-manager-lite",
@@ -114,8 +114,56 @@
     {
       "name": "Ethernet Agent (used for WAN)",
       "category": "WAN Interface Components",
-      "tier": "required",
+      "tier": "optional",
       "url": "https://github.com/rdkcentral/ethernet-agent"
+    },
+    {
+      "name": "cable-modem-agent",
+      "category": "WAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/cable-modem-agent"
+    },
+    {
+      "name": "xDSL Manager",
+      "category": "WAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/xdsl-manager"
+    },
+    {
+      "name": "EPON Agent",
+      "category": "WAN Interface Components",
+      "tier": "optional",
+      "url": "https://code.rdkcentral.com/r/plugins/gitiles/rdkb/components/opensource/ccsp/CcspEPONAgent"
+    },
+    {
+      "name": "gpon-manager",
+      "category": "WAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/gpon-manager"
+    },
+    {
+      "name": "PPP Manager",
+      "category": "WAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/ppp-manager"
+    },
+    {
+      "name": "cellular-manager",
+      "category": "WAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/cellular-manager"
+    },
+    {
+      "name": "Cellular Modem Mgr",
+      "category": "WAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/cellular-modem-manager"
+    },
+    {
+      "name": "hotspot",
+      "category": "WAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/hotspot"
     },
     {
       "name": "dhcp-manager (recipe for DHCP client and Server)",
@@ -212,6 +260,30 @@
       "category": "System Start, Platform Management and misc utilities",
       "tier": "common-core",
       "url": "https://github.com/rdkcentral/common_utilities/"
+    },
+    {
+      "name": "MTA Agent",
+      "category": "Voice Related Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/media-terminal-adapter-agent"
+    },
+    {
+      "name": "rdkb-halif-mta",
+      "category": "Voice Related Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/rdkb-halif-mta"
+    },
+    {
+      "name": "power manager",
+      "category": "Voice Related Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/power-manager"
+    },
+    {
+      "name": "rdk-halif-power_manager",
+      "category": "Voice Related Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/rdk-halif-power_manager"
     },
     {
       "name": "telco-voice-manager",

@@ -42,6 +42,16 @@ PROFILE_DEFINITIONS: dict[str, str] = {
     "ext-opensync": "Wi-Fi extender device based on OpenSync technology; supports Wi-Fi AP fronthaul and Wi-Fi/Ethernet backhaul.",
 }
 
+# Per-profile component list (from RDK-B_Component_List_2026.xlsx via
+# components/extract_components.py profile "<Profile Name>") used to build
+# the "Memory Footprint by Process" table below -- real RSS numbers aren't
+# measured yet, so every component is listed with an explicit TBD rather
+# than fabricated figures.
+PROFILE_COMPONENTS_FILE: dict[str, str] = {
+    "ethwan-wifi-router": "components/ethwan-router-components.json",
+    "ext-easymesh": "components/ext-easymesh-components.json",
+}
+
 STATUS_STYLE = {
     "validated": {"bg": "#d1fae5", "fg": "#065f46", "label": "Validated"},
     "partial": {"bg": "#fef3c7", "fg": "#92400e", "label": "Partial"},
@@ -188,7 +198,25 @@ def render_peripheral_block(title: str, fields: dict) -> str:
     )
 
 
-def render_profile_card(p: dict) -> str:
+def render_memory_footprint_table(profile_id: str, components_dir: Path) -> str:
+    rel = PROFILE_COMPONENTS_FILE.get(profile_id)
+    if not rel:
+        return ""
+    path = components_dir / rel
+    if not path.exists():
+        return ""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    components = sorted(data["components"], key=lambda c: (c["tier"] != "common-core", c["name"].lower()))
+    rows = "".join(
+        f'<tr><td>{esc(c["name"])}</td><td class="mono" style="color:var(--muted);">TBD</td></tr>'
+        for c in components
+    )
+    return f'''<div class="subhead" style="margin-top:18px;">Memory Footprint by Process</div>
+    <p style="font-size:0.82rem; color:var(--muted); margin:0 0 10px;">RSS not yet measured for this profile; every component from the RDK-B Component List 2026 is listed below pending profiling.</p>
+    <table class="def-table"><thead><tr><th>Process</th><th>RSS</th></tr></thead><tbody>{rows}</tbody></table>'''
+
+
+def render_profile_card(p: dict, components_dir: Path) -> str:
     cpu, mem, sto, ref, per = p["cpu"], p["memory"], p["storage"], p["referenceDevice"], p["peripherals"]
     conn = per.get("connectivity", {})
 
@@ -228,7 +256,9 @@ def render_profile_card(p: dict) -> str:
         '<div class="subhead" style="margin-top:18px;">Peripheral Requirements</div>'
         '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px;">'
         + "".join(blocks) +
-        '</div></div>'
+        '</div>'
+        + render_memory_footprint_table(p["profileId"], components_dir) +
+        '</div>'
     )
 
 
@@ -259,7 +289,7 @@ EXTRA_CSS = """
 """
 
 
-def build_page(profiles_dir: Path) -> str:
+def build_page(profiles_dir: Path, repo_root: Path) -> str:
     profiles = load_profiles(profiles_dir)
     in_scope = [p for p in profiles if p["validationStatus"] != "not-started"]
     not_covered = [p for p in profiles if p["validationStatus"] == "not-started"]
@@ -286,7 +316,7 @@ def build_page(profiles_dir: Path) -> str:
   <div class="section-head"><h2>Profile Details</h2>
     <p>Full CPU/memory/flash minimums and peripheral requirements for each in-scope profile.</p>
   </div>
-  {"".join(render_profile_card(p) for p in in_scope)}
+  {"".join(render_profile_card(p, repo_root) for p in in_scope)}
 </section>
 
 <section class="tight-top">
@@ -303,12 +333,13 @@ def build_page(profiles_dir: Path) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--profiles-dir", default="docs")
+    ap.add_argument("--repo-root", default=".", help="Root the components/*.json paths in PROFILE_COMPONENTS_FILE are relative to")
     ap.add_argument("--out-dir", default=".")
     args = ap.parse_args()
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / "hardware-compatibility.html"
-    path.write_text(build_page(Path(args.profiles_dir)), encoding="utf-8")
+    path.write_text(build_page(Path(args.profiles_dir), Path(args.repo_root)), encoding="utf-8")
     print(f"Wrote {path}")
 
 
