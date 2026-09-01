@@ -128,5 +128,10 @@
     "repo": "cellular-manager",
     "file": "cellcom_interface_v1.json",
     "branch": "develop"
+  },
+   "Mesh Agent (Integrates with OpenSync v2.4)": {
+    "repo": "mesh-agent",
+    "file": "mesh_interface_v1.json",
+    "branch": "develop"
   }
 }
