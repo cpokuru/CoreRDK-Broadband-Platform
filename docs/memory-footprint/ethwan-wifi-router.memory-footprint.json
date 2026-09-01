@@ -1,0 +1,28 @@
+{
+  "$schema": "https://cpokuru.github.io/CoreRDK-Broadband-Platform/schemas/memory-footprint.schema.json",
+  "specVersion": "1.0",
+  "profileId": "ethwan-wifi-router",
+  "measured": true,
+  "referenceDevice": "BPI-R4 (MediaTek MT7988, Filogic)",
+  "lastMeasured": "2026-08-25",
+  "totalRssMB": 247,
+  "processes": [
+    { "process": "OneWifi", "rssMB": 41.8 },
+    { "process": "CcspPandMSsp", "rssMB": 17.7 },
+    { "process": "parodus", "rssMB": 11.0 },
+    { "process": "CcspTr069PaSsp", "rssMB": 10.5 },
+    { "process": "UspPa", "rssMB": 9.8 },
+    { "process": "webconfig", "rssMB": 9.4 },
+    { "process": "PsmSsp", "rssMB": 9.3 },
+    { "process": "CcspTandDSsp", "rssMB": 8.9 },
+    { "process": "CcspXdnsSsp", "rssMB": 8.5 },
+    { "process": "CcspEthAgent", "rssMB": 8.0 },
+    { "process": "IGD", "rssMB": 7.7 },
+    { "process": "wanmanager", "rssMB": 7.6 },
+    { "process": "CcspLMLite", "rssMB": 7.5 },
+    { "process": "telemetry2_0", "rssMB": 7.3 },
+    { "process": "webpa", "rssMB": 7.1 }
+  ],
+  "othersRssMB": 25,
+  "notes": "Reference-platform measurement, Core RDK-B components only (see Hardware Compatibility Specification Section 3.3). The 15 named processes above sum to roughly 197 MB; 'othersRssMB' covers additional processes below the reporting threshold plus base OS/kernel overhead not attributed to a named process, accounting for the remaining balance toward the ~247 MB total. Vendor/OEM/operator layers are not represented here."
+}

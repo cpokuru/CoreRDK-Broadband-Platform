@@ -95,5 +95,6 @@
     }
   },
   "validationStatus": "partial",
-  "lastValidated": "2026-08-25"
+  "lastValidated": "2026-08-25",
+  "memoryFootprintRef": "ext-easymesh.memory-footprint.json"
 }

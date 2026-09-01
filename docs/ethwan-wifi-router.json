@@ -97,5 +97,6 @@
     }
   },
   "validationStatus": "partial",
-  "lastValidated": "2026-08-25"
+  "lastValidated": "2026-08-25",
+  "memoryFootprintRef": "ethwan-wifi-router.memory-footprint.json"
 }

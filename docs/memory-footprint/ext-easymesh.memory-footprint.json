@@ -1,0 +1,9 @@
+{
+  "$schema": "https://cpokuru.github.io/CoreRDK-Broadband-Platform/schemas/memory-footprint.schema.json",
+  "specVersion": "1.0",
+  "profileId": "ext-easymesh",
+  "measured": false,
+  "referenceDevice": "BPI-R4 (MediaTek MT7988, Filogic)",
+  "processes": [],
+  "notes": "RSS not yet measured for this profile. The reference measurement captured to date (see ethwan-wifi-router memory-footprint file) was taken on the EthWAN WiFi Router build, which is the profile currently passing the functional sanity suite per the Reference Device Validation Methodology; EXT EasyMesh has not yet been profiled independently."
+}
