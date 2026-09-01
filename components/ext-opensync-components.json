@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-09-01T00:34:01Z",
+  "generatedAt": "2026-09-01T01:17:59Z",
   "title": "RDK-B EXT OpenSync Components",
   "subtitle": "Components for the EXT OpenSync device profile: Common Core, Required, and Optional.",
   "tiers": [
@@ -54,7 +54,7 @@
     {
       "name": "WebConfig",
       "category": "Remote Device Management",
-      "tier": "optional",
+      "tier": "required",
       "url": "https://github.com/rdkcentral/webconfig"
     },
     {

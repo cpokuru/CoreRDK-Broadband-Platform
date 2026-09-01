@@ -9,19 +9,18 @@ one or two real repos). Grouping by exact string match against that sheet
 would split single components into multiple near-duplicate entries, so repo
 identity stays anchored to 'Components'.
 
-Required/Optional/n/a *classification* per profile is corrected against
-'All Profiles' though, since spot-checks (and a full cross-sheet diff)
-found confirmed-stale rows in 'Components' -- e.g. "Mesh Agent" marked n/a
-there while both 'All Profiles' and the 'Router' sheet agree it should be
-Optional/Required. For each (repo, profile) pair: if the repo's exact name
-also appears in 'All Profiles' and its aggregated classification there
-disagrees with 'Components' (Required/Optional vs n/a, in either
-direction), 'All Profiles' wins. A repo counts as Required/Optional in
-'All Profiles' if ANY of its several feature rows there says so. Repos
-whose name doesn't appear verbatim in 'All Profiles' (e.g. "dhcp-manager
-(recipe for DHCP client only)", a Components-only naming variant) are left
-as 'Components' originally had them, since there's nothing reliable to
-cross-check against.
+Required/Optional/n/a *classification* per profile comes from 'All Profiles'
+wherever the repo's exact name is found there, since spot-checks (and a
+full cross-sheet diff) found confirmed-stale/imprecise values in
+'Components' -- e.g. "Mesh Agent" marked n/a there while both 'All
+Profiles' and the 'Router' sheet agree it should be Optional/Required, and
+"WebConfig" marked Optional for GW OpenSync where 'All Profiles' says
+Required. A repo counts as Required/Optional/n/a in 'All Profiles' based on
+the best (most permissive: Required beats Optional beats n/a) status seen
+across its several feature rows there. Repos whose name doesn't appear
+verbatim in 'All Profiles' (e.g. "dhcp-manager (recipe for DHCP client
+only)", a Components-only naming variant) keep 'Components'' original
+classification, since there's nothing reliable to look up.
 
 Three modes:
 
@@ -121,22 +120,13 @@ def _all_profiles_classification(wb) -> dict[str, dict[str, str]]:
     return best
 
 
-def _bucket(v: str | None) -> str | None:
-    if v in ("Required", "Optional"):
-        return "IN"
-    if v == "n/a":
-        return "OUT"
-    return None
-
-
 def _rows(wb):
     """Yield one record per repo from the 'Components' sheet (clean, one row
     per repo -- see module docstring for why repo identity stays anchored
-    here rather than to 'All Profiles'). Required/Optional/n/a values are
-    corrected against 'All Profiles' wherever the two sheets disagree on
-    whether a repo applies to a given profile at all (IN vs OUT), using
-    exact repo-name matching; repos absent from 'All Profiles' by that exact
-    name keep their original 'Components' classification unchanged."""
+    here rather than to 'All Profiles'). Required/Optional/n/a values come
+    from 'All Profiles' wherever the repo's exact name is found there;
+    repos absent from 'All Profiles' by that exact name keep their original
+    'Components' classification unchanged."""
     ws = wb["Components"]
     corrections = _all_profiles_classification(wb)
 
@@ -175,10 +165,12 @@ def _rows(wb):
         for i, profile in enumerate(PROFILE_COLUMNS):
             orig = row[profile_idxs[i]]
             corrected = corrections.get(name, {}).get(profile)
-            if corrected is not None and _bucket(corrected) != _bucket(orig):
-                profile_values[profile] = corrected
-            else:
-                profile_values[profile] = orig
+            # All Profiles' classification wins outright whenever the repo
+            # name matches there, not only when it disagrees on inclusion
+            # (Required/Optional vs n/a) -- it also settles the finer-grained
+            # Required-vs-Optional question the same way, e.g. WebConfig
+            # (Components: Optional, All Profiles: Required for GW OpenSync).
+            profile_values[profile] = corrected if corrected is not None else orig
 
         yield {
             "subsystem": cur_subsys,
