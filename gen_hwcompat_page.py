@@ -79,13 +79,19 @@ def status_pill(status: str) -> str:
 
 
 def render_coverage_table(profiles: list[dict]) -> str:
+    # Every profile shows as not-covered here -- nothing is validated
+    # against an operationalized Core RDK Broadband build yet. Two
+    # profiles (EthWAN WiFi Router, EXT EasyMesh) do have RDK8-based
+    # target data, shown further down in "Minimum CPU, Memory, and Flash
+    # Storage (based on RDK8)" and "Profile Details (based on RDK8)" --
+    # but target data isn't the same as this-revision validation, so this
+    # table doesn't call them "in scope".
     rows = []
     for p in profiles:
-        in_scope = p["validationStatus"] != "not-started"
-        coverage = "In scope (this document)" if in_scope else "Defined \u2014 not covered in this revision"
         definition = PROFILE_DEFINITIONS.get(p["profileId"], "")
         rows.append(
-            "<tr><td>" + esc(p["profileName"]) + "</td><td>" + esc(coverage) + "</td><td>" + esc(definition) + "</td></tr>"
+            "<tr><td>" + esc(p["profileName"]) + "</td><td>Defined \u2014 not covered in this revision</td><td>"
+            + esc(definition) + "</td></tr>"
         )
     return (
         '<table class="def-table"><thead><tr><th>Device Profile</th><th>Coverage in this Spec</th>'
@@ -199,21 +205,14 @@ def render_peripheral_block(title: str, fields: dict) -> str:
 
 
 def render_memory_footprint_table(profile_id: str, components_dir: Path) -> str:
-    rel = PROFILE_COMPONENTS_FILE.get(profile_id)
-    if not rel:
-        return ""
-    path = components_dir / rel
-    if not path.exists():
-        return ""
-    data = json.loads(path.read_text(encoding="utf-8"))
-    components = sorted(data["components"], key=lambda c: (c["tier"] != "common-core", c["name"].lower()))
-    rows = "".join(
-        f'<tr><td>{esc(c["name"])}</td><td class="mono" style="color:var(--muted);">TBD</td></tr>'
-        for c in components
-    )
-    return f'''<div class="subhead" style="margin-top:18px;">Memory Footprint by Process</div>
-    <p style="font-size:0.82rem; color:var(--muted); margin:0 0 10px;">RSS not yet measured for this profile; every component from the RDK-B Component List 2026 is listed below pending profiling.</p>
-    <table class="def-table"><thead><tr><th>Process</th><th>RSS</th></tr></thead><tbody>{rows}</tbody></table>'''
+    # Intentionally empty for now -- this used to list every Required/
+    # Optional component from the RDK-B Component List with a TBD placeholder,
+    # but that's being replaced by real per-process RSS data (a separate
+    # per-profile JSON, sourced from actual RDK8 measurements) once it's
+    # available. Nothing to read from components_dir/PROFILE_COMPONENTS_FILE
+    # until that data exists.
+    return '''<div class="subhead" style="margin-top:18px;">Memory Footprint by Process</div>
+    <p style="font-size:0.82rem; color:var(--muted); margin:0;">Arriving soon &mdash; per-process RSS measurements from the RDK8 Broadband Release will be added here once available.</p>'''
 
 
 def render_profile_card(p: dict, components_dir: Path) -> str:
@@ -265,9 +264,15 @@ def render_profile_card(p: dict, components_dir: Path) -> str:
 def render_not_covered_list(profiles: list[dict]) -> str:
     rows = []
     for p in profiles:
+        if p.get("coverageNote"):
+            status = p["coverageNote"]
+        elif p["profileId"] in PROFILE_COMPONENTS_FILE:
+            status = "RDK8-based target values available \u2014 see Profile Details (based on RDK8) below."
+        else:
+            status = ""
         rows.append(
             "<tr><td>" + esc(p["profileName"]) + "</td><td>" + esc(PROFILE_DEFINITIONS.get(p["profileId"], ""))
-            + "</td><td>" + esc(p.get("coverageNote", "")) + "</td></tr>"
+            + "</td><td>" + esc(status) + "</td></tr>"
         )
     return (
         '<table class="def-table"><thead><tr><th>Device Profile</th><th>Definition</th>'
@@ -291,8 +296,10 @@ EXTRA_CSS = """
 
 def build_page(profiles_dir: Path, repo_root: Path) -> str:
     profiles = load_profiles(profiles_dir)
-    in_scope = [p for p in profiles if p["validationStatus"] != "not-started"]
-    not_covered = [p for p in profiles if p["validationStatus"] == "not-started"]
+    # rdk8_data: the 2 profiles with real (RDK8-based target) CPU/RAM/flash
+    # and peripheral data -- still shown in their own detail sections below,
+    # just not called "in scope" anymore (see render_coverage_table).
+    rdk8_data = [p for p in profiles if p["validationStatus"] != "not-started"]
 
     body = f'''
 {render_hero("Hardware Compatibility", "Hardware Compatibility Spec",
@@ -301,29 +308,44 @@ def build_page(profiles_dir: Path, repo_root: Path) -> str:
     compact=True, visual_key="hwcompat")}
 
 <section class="tight-top">
+  <div class="callout">
+    <strong>Values are current design targets</strong>
+    <p>CPU/RAM/flash minimums and peripheral requirements below reflect design intent and reference
+    the existing RDK8 Broadband Release. Memory Footprint by Process is intentionally TBD for every
+    component &mdash; per-process RSS can only be measured once Core RDK Broadband is operationalized
+    on the reference platform. Fine-tuned, measured values will replace these targets as that
+    validation completes.</p>
+  </div>
+</section>
+
+<section class="tight-top">
   <div class="section-head"><h2>Device Profile Coverage</h2>
-    <p>The RDK-B Component List 2026 defines seven device profiles; this revision of the spec covers two.</p>
+    <p>The RDK-B Component List 2026 defines seven device profiles. None are validated against an
+    operationalized Core RDK Broadband build in this revision; two have RDK8-based target values
+    available below.</p>
   </div>
   {render_coverage_table(profiles)}
 </section>
 
 <section class="tight-top">
-  <div class="section-head"><h2>Minimum CPU, Memory, and Flash Storage</h2></div>
-  {render_minimums_table(in_scope)}
+  <div class="section-head"><h2>Minimum CPU, Memory, and Flash Storage (based on RDK8)</h2></div>
+  {render_minimums_table(rdk8_data)}
 </section>
 
 <section class="tight-top">
-  <div class="section-head"><h2>Profile Details</h2>
-    <p>Full CPU/memory/flash minimums and peripheral requirements for each in-scope profile.</p>
+  <div class="section-head"><h2>Profile Details (based on RDK8)</h2>
+    <p>Full CPU/memory/flash minimums and peripheral requirements, from the RDK8 Broadband Release,
+    for the two profiles with target data available.</p>
   </div>
-  {"".join(render_profile_card(p, repo_root) for p in in_scope)}
+  {"".join(render_profile_card(p, repo_root) for p in rdk8_data)}
 </section>
 
 <section class="tight-top">
   <div class="section-head"><h2>Not Yet Covered</h2>
-    <p>Defined in the RDK-B Component List 2026 but out of scope for this revision.</p>
+    <p>Defined in the RDK-B Component List 2026; not yet validated against an operationalized
+    Core RDK Broadband build in this revision.</p>
   </div>
-  {render_not_covered_list(not_covered)}
+  {render_not_covered_list(profiles)}
 </section>
 '''
     head_extra = "<title>Hardware Compatibility Spec \u2014 RDK-B Core Broadband</title>\n" + EXTRA_CSS
