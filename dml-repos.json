@@ -44,6 +44,11 @@
     "file": "dhcpmgr_interface_v1.json",
     "branch": "develop"
   },
+   "dhcp-manager (recipe for DHCP client only)": {
+    "repo": "dhcp-manager",
+    "file": "dhcpmgr_interface_v1.json",
+    "branch": "develop"
+  },
   "Web PA\n\nincluding:\n- parodus\n- parodus2ccsp\n- start-parodus\n- wdmp-c": {
     "repo": "parodus2ccsp",
     "file": "parodus2ccsp_interface_v1.json",
