@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-09-01T01:17:58Z",
+  "generatedAt": "2026-09-01T01:33:36Z",
   "title": "RDK-B Modem /ONU Components",
   "subtitle": "Components for the Modem /ONU device profile: Common Core, Required, and Optional.",
   "tiers": [
@@ -21,18 +21,6 @@
     }
   ],
   "components": [
-    {
-      "name": "WebUI",
-      "category": "Local Web UI",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/webui"
-    },
-    {
-      "name": "WebUI BWG",
-      "category": "Local Web UI",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/webui-bwg"
-    },
     {
       "name": "USP PA",
       "category": "Remote Device Management",
@@ -112,12 +100,6 @@
       "url": "https://github.com/rdkcentral/gpon-manager"
     },
     {
-      "name": "PPP Manager",
-      "category": "WAN Interface Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/ppp-manager"
-    },
-    {
       "name": "cellular-manager",
       "category": "WAN Interface Components",
       "tier": "optional",
@@ -194,6 +176,12 @@
       "category": "Voice Related Components",
       "tier": "optional",
       "url": "https://github.com/rdkcentral/rdkb-halif-mta"
+    },
+    {
+      "name": "power manager",
+      "category": "Voice Related Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/power-manager"
     },
     {
       "name": "rdk-halif-power_manager",
@@ -278,12 +266,6 @@
       "category": "App Framework Components",
       "tier": "optional",
       "url": "https://github.com/rdkcentral/Dobby"
-    },
-    {
-      "name": "Barton Core, Barton Common",
-      "category": "Matter / IoT Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/BartonCore"
     },
     {
       "name": "rdk-cert-config",

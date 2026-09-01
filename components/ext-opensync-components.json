@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-09-01T01:17:59Z",
+  "generatedAt": "2026-09-01T01:33:37Z",
   "title": "RDK-B EXT OpenSync Components",
   "subtitle": "Components for the EXT OpenSync device profile: Common Core, Required, and Optional.",
   "tiers": [
@@ -21,18 +21,6 @@
     }
   ],
   "components": [
-    {
-      "name": "WebUI",
-      "category": "Local Web UI",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/webui"
-    },
-    {
-      "name": "WebUI BWG",
-      "category": "Local Web UI",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/webui-bwg"
-    },
     {
       "name": "USP PA",
       "category": "Remote Device Management",
@@ -122,6 +110,12 @@
       "category": "Routing, parental control and WAN Management Components",
       "tier": "required",
       "url": "https://github.com/rdkcentral/core-net-library"
+    },
+    {
+      "name": "Utopia",
+      "category": "System Start, Platform Management and misc utilities",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/utopia"
     },
     {
       "name": "miscellaneous-broadband",

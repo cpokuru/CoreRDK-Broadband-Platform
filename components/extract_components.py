@@ -10,17 +10,22 @@ would split single components into multiple near-duplicate entries, so repo
 identity stays anchored to 'Components'.
 
 Required/Optional/n/a *classification* per profile comes from 'All Profiles'
-wherever the repo's exact name is found there, since spot-checks (and a
-full cross-sheet diff) found confirmed-stale/imprecise values in
-'Components' -- e.g. "Mesh Agent" marked n/a there while both 'All
-Profiles' and the 'Router' sheet agree it should be Optional/Required, and
-"WebConfig" marked Optional for GW OpenSync where 'All Profiles' says
-Required. A repo counts as Required/Optional/n/a in 'All Profiles' based on
-the best (most permissive: Required beats Optional beats n/a) status seen
-across its several feature rows there. Repos whose name doesn't appear
-verbatim in 'All Profiles' (e.g. "dhcp-manager (recipe for DHCP client
-only)", a Components-only naming variant) keep 'Components'' original
-classification, since there's nothing reliable to look up.
+whenever the repo's name matches there, using a normalized comparison
+(lowercase, punctuation/spacing stripped -- e.g. "WebUI" matches "webui",
+"WAN Manager" matches "wan-manager") rather than a brittle exact-string
+match, since spot-checks (and a full cross-sheet diff) found both
+confirmed-stale values in 'Components' (e.g. "Mesh Agent" marked n/a there
+while both 'All Profiles' and 'Router' agree it should be
+Optional/Required) and real repos the old exact-match missed purely over
+case/punctuation (e.g. "WebUI" vs "webui" -- same repo, All Profiles says
+n/a, but exact matching silently failed to apply that). A repo counts as
+Required/Optional/n/a in 'All Profiles' based on the best (most permissive:
+Required beats Optional beats n/a) status seen across all rows there that
+normalize to the same key. Repos whose name has no normalized match at all
+in 'All Profiles' (e.g. "dhcp-manager (recipe for DHCP client only)", a
+Components-only naming variant with no counterpart of any spelling there)
+keep 'Components'' original classification, since there's nothing reliable
+to look up.
 
 Three modes:
 
@@ -50,6 +55,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -88,12 +94,27 @@ TIERS = {
 }
 
 
+def _norm_key(name: str) -> str:
+    """Lowercase, alphanumeric-only key for matching the same real repo
+    across the two sheets' inconsistent naming (case, spaces vs hyphens vs
+    underscores, punctuation -- e.g. "WebUI" / "webui", "WAN Manager" /
+    "wan-manager", "T2 Telemetry" / "T2 telemetry"). Verified against the
+    full repo list: zero collisions on the 'Components' side (the one that
+    matters for lookup safety here); the couple of collisions this creates
+    within 'All Profiles' itself (e.g. "dcm agent" / "dcm-agent") are
+    confirmed re-entries of the same real repo, not different repos, so
+    aggregating them together is correct."""
+    return re.sub(r"[^a-z0-9]", "", name.lower())
+
+
 def _all_profiles_classification(wb) -> dict[str, dict[str, str]]:
-    """Aggregate the 'All Profiles' sheet into {repo_name: {profile: status}},
-    one status per (repo, profile) -- the best (most permissive) status seen
-    across that repo's several detail-feature rows there. Used only to
-    correct 'Components'-sourced classifications where they disagree, not
-    as a source of repo identity (see module docstring)."""
+    """Aggregate the 'All Profiles' sheet into {normalized_repo_name:
+    {profile: status}}, one status per (repo, profile) -- the best (most
+    permissive) status seen across that repo's several detail-feature rows
+    there, AND across any other repo name in 'All Profiles' that normalizes
+    to the same key (see _norm_key). Used only to correct
+    'Components'-sourced classifications where they disagree, not as a
+    source of repo identity (see module docstring)."""
     ws = wb["All Profiles"]
     headers = [c.value for c in ws[1]]
     name_idx = headers.index("Component Repo")
@@ -109,7 +130,8 @@ def _all_profiles_classification(wb) -> dict[str, dict[str, str]]:
             name = name.strip()
         if not name:
             continue
-        per_profile = best.setdefault(name, {})
+        key = _norm_key(name)
+        per_profile = best.setdefault(key, {})
         for i, profile in enumerate(PROFILE_COLUMNS):
             v = row[profile_idxs[i]]
             if v not in RANK:
@@ -164,7 +186,7 @@ def _rows(wb):
         profile_values = {}
         for i, profile in enumerate(PROFILE_COLUMNS):
             orig = row[profile_idxs[i]]
-            corrected = corrections.get(name, {}).get(profile)
+            corrected = corrections.get(_norm_key(name), {}).get(profile)
             # All Profiles' classification wins outright whenever the repo
             # name matches there, not only when it disagrees on inclusion
             # (Required/Optional vs n/a) -- it also settles the finer-grained

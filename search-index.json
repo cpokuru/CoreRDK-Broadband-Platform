@@ -709,6 +709,12 @@
       "url": "components/"
     },
     {
+      "title": "PPP Manager",
+      "text": "WAN Interface Components · optional tier for the EthWAN WiFi Router profile.",
+      "category": "Components",
+      "url": "components/"
+    },
+    {
       "title": "hotspot",
       "text": "WAN Interface Components · optional tier for the EthWAN WiFi Router profile.",
       "category": "Components",
