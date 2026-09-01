@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
   "generatedAt": "2026-09-01T16:02:03Z",
-  "title": "RDK-B GW EasyMesh Components",
-  "subtitle": "Components for the GW EasyMesh device profile: Common Core, Required, and Optional.",
+  "title": "RDK-B Core Broadband Components",
+  "subtitle": "Every component relevant to RDK-B Core Broadband across all device profiles -- Common Core, Required, or Optional for at least one profile.",
   "tiers": [
     {
       "id": "common-core",
@@ -54,7 +54,7 @@
     {
       "name": "WebConfig",
       "category": "Remote Device Management",
-      "tier": "optional",
+      "tier": "required",
       "url": "https://github.com/rdkcentral/webconfig"
     },
     {
@@ -82,6 +82,12 @@
       "url": "https://github.com/rdkcentral/rfc"
     },
     {
+      "name": "RDK OVS Agent",
+      "category": "Remote Device Management",
+      "tier": "required",
+      "url": "https://github.com/rdkcentral/open-virtual-switch-agent"
+    },
+    {
       "name": "Ethernet Agent (used for LAN)",
       "category": "LAN Interface Components",
       "tier": "optional",
@@ -92,6 +98,12 @@
       "category": "LAN Interface Components",
       "tier": "required",
       "url": "https://github.com/rdkcentral/OneWifi"
+    },
+    {
+      "name": "Mesh Agent\n(Integrates with OpenSync v2.4)",
+      "category": "LAN Interface Components",
+      "tier": "required",
+      "url": "https://github.com/rdkcentral/mesh-agent"
     },
     {
       "name": "unified-wifi-mesh\n(EasyMesh)",
@@ -126,7 +138,7 @@
     {
       "name": "Ethernet Agent (used for WAN)",
       "category": "WAN Interface Components",
-      "tier": "optional",
+      "tier": "required",
       "url": "https://github.com/rdkcentral/ethernet-agent"
     },
     {

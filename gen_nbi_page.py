@@ -3,8 +3,10 @@
 Unlike the other stub pages (gen_stub_pages.py), this one isn't a generic
 "fetch one JSON/XML file" template — it's a two-level page:
 
-  1. A table of every component, built from components/ethwan-router-components.json
-     (the same data the Components profile page already uses).
+  1. A table of every component, built from components/all-components.json
+     (every RDK-B Core Broadband component relevant to any device profile --
+     the North Bound API surface isn't scoped to one profile, so this list
+     isn't either).
   2. Clicking a component with a known DML source fetches
      https://raw.githubusercontent.com/cpokuru/<repo>/<branch>/<file> and
      renders it. Which components have a DML source, which repo, which
@@ -35,7 +37,7 @@ from layout import render_hero, render_page
 
 SCRIPT = r"""
 <script>
-const COMPONENTS_JSON = 'components/ethwan-router-components.json';
+const COMPONENTS_JSON = 'components/all-components.json';
 const REPO_MAP_JSON = 'dml-repos.json';
 const RAW_BASE = 'https://raw.githubusercontent.com/cpokuru/';
 

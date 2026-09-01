@@ -41,6 +41,15 @@ Three modes:
                   writing one <profile>-components.json per profile into the
                   current directory (see PROFILE_FILENAMES for exact names).
 
+  all-components -> every component relevant to RDK-B Core Broadband across
+                  ANY profile -- Common Core, Required, or Optional for at
+                  least one profile. Not scoped to a single profile; fits
+                  profile-agnostic pages (e.g. north-bound-apis.html, since
+                  the North Bound API surface isn't tied to one device
+                  profile). Tiers: 'common-core' / 'required' / 'optional',
+                  a single collapsed summary per component -- no
+                  per-profile breakdown.
+
 Usage:
     python3 extract_components.py core \
         --xlsx RDK-B_Component_List_2026.xlsx --out core-b-components.json
@@ -228,6 +237,41 @@ def _rows(wb):
         }
 
 
+def extract_all(wb) -> list[dict]:
+    """Every component in 'Components' with any real classification anywhere
+    (Required, Optional, or CORE for at least one profile) -- the full
+    RDK-B component universe, not scoped to one device profile. Fits pages
+    like north-bound-apis.html where the subject (protocol/API surface) is
+    profile-agnostic by nature: a component can be n/a for one profile and
+    Optional for another, and this list doesn't care which -- it's in if
+    it's relevant to RDK-B Core Broadband anywhere.
+
+    tier is a single collapsed summary, most-significant first:
+    'common-core' (CORE-flagged) > 'required' (Required for at least one
+    profile) > 'optional' (Optional for at least one profile, never
+    Required or CORE). No per-profile breakdown -- see module/CLI docs if
+    that's ever needed instead.
+    """
+    out = []
+    for r in _rows(wb):
+        vals = [v for v in r["profile_values"].values() if v not in (None, "n/a")]
+        if r["is_core"]:
+            tier = "common-core"
+        elif "Required" in vals:
+            tier = "required"
+        elif "Optional" in vals:
+            tier = "optional"
+        else:
+            continue  # n/a everywhere -- not part of the RDK-B component universe
+        out.append({
+            "name": r["name"],
+            "category": r["subsystem"],
+            "tier": tier,
+            "url": r["url"],
+        })
+    return out
+
+
 def extract_core(wb) -> list[dict]:
     out = []
     for r in _rows(wb):
@@ -331,6 +375,10 @@ def main() -> None:
     all_p.add_argument("--required-only", action="store_true", help="Omit Optional components; show only Required.")
     all_p.add_argument("--show-core", action="store_true", help="Tag CORE components as 'Common Core' instead of Required/Optional.")
 
+    allc_p = sub.add_parser("all-components", help="Every component relevant to any profile -- the full RDK-B component universe, not scoped to one profile.")
+    allc_p.add_argument("--xlsx", default="RDK-B_Component_List_2026.xlsx")
+    allc_p.add_argument("--out", default="all-components.json")
+
     args = p.parse_args()
     wb = openpyxl.load_workbook(Path(args.xlsx), data_only=True)
 
@@ -341,6 +389,17 @@ def main() -> None:
             title="Core RDK-B Components",
             subtitle="Components common to every RDK-B device profile, or required wherever they apply.",
             tier_ids=["common-core", "required"],
+        )
+        Path(args.out).write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        print(f"Wrote {args.out} ({len(components)} components)")
+
+    elif args.mode == "all-components":
+        components = extract_all(wb)
+        payload = build_payload(
+            components,
+            title="RDK-B Core Broadband Components",
+            subtitle="Every component relevant to RDK-B Core Broadband across all device profiles -- Common Core, Required, or Optional for at least one profile.",
+            tier_ids=["common-core", "required", "optional"],
         )
         Path(args.out).write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
         print(f"Wrote {args.out} ({len(components)} components)")

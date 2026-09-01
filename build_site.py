@@ -102,13 +102,24 @@ def step_xlsx_to_all_profile_json() -> None:
     xlsx = find_one(DOCS, "*.xlsx")
     xlsx_rel_from_components = Path("..") / xlsx.relative_to(ROOT)
     for profile, out_name in ALL_PROFILES:
-        print(f"\n[4/4] Component xlsx -> components/{out_name} (profile: {profile!r})")
+        print(f"\n[4/5] Component xlsx -> components/{out_name} (profile: {profile!r})")
         run([
             "python3", "extract_components.py", "profile", profile,
             "--xlsx", str(xlsx_rel_from_components),
             "--out", out_name,
             "--show-core",
         ], cwd=COMPONENTS)
+
+
+def step_xlsx_to_all_components_json() -> None:
+    print("\n[5/5] Component xlsx -> components/all-components.json (every component, any profile -- feeds north-bound-apis.html)")
+    xlsx = find_one(DOCS, "*.xlsx")
+    xlsx_rel_from_components = Path("..") / xlsx.relative_to(ROOT)
+    run([
+        "python3", "extract_components.py", "all-components",
+        "--xlsx", str(xlsx_rel_from_components),
+        "--out", "all-components.json",
+    ], cwd=COMPONENTS)
 
 
 def main() -> None:
@@ -123,14 +134,15 @@ def main() -> None:
     if not args.skip_pdf:
         step_pdf_to_json()
     else:
-        print("\n[1/4] Skipped (--skip-pdf) — reusing docs/spec-content.json")
+        print("\n[1/5] Skipped (--skip-pdf) — reusing docs/spec-content.json")
     step_json_to_base_html()
 
     if not args.skip_xlsx:
         step_sync_workbook_for_full_list()
         step_xlsx_to_all_profile_json()
+        step_xlsx_to_all_components_json()
     else:
-        print("\n[3/4] and [4/4] Skipped (--skip-xlsx)")
+        print("\n[3/5], [4/5], and [5/5] Skipped (--skip-xlsx)")
 
     print("\nDone. Generated:")
     print("  index.html")
@@ -139,6 +151,7 @@ def main() -> None:
         print("  components/RDK-B_Component_List_2026.xlsx  (synced copy, read by full-list.html)")
         for _, out_name in ALL_PROFILES:
             print(f"  components/{out_name}")
+        print("  components/all-components.json  (read by north-bound-apis.html)")
     print("\ncomponents/full-list.html is static — not touched by this script.")
     print("Regenerate it with plain 'python3 gen_html.py' (no --sync-only)")
     print("only if the page design itself changes, not the data.")
