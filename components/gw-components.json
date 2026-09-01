@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-08-31T23:26:36Z",
+  "generatedAt": "2026-09-01T00:34:01Z",
   "title": "RDK-B GW Components",
   "subtitle": "Components for the GW device profile: Common Core, Required, and Optional.",
   "tiers": [
@@ -92,6 +92,18 @@
       "category": "LAN Interface Components",
       "tier": "required",
       "url": "https://github.com/rdkcentral/OneWifi"
+    },
+    {
+      "name": "Mesh Agent\n(Integrates with OpenSync v2.4)",
+      "category": "LAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/mesh-agent"
+    },
+    {
+      "name": "ieee1905-rs",
+      "category": "LAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/ieee1905-rs"
     },
     {
       "name": "rdkb-halif-moca",
@@ -430,12 +442,6 @@
       "url": "https://github.com/rdkcentral/rdk-cert-config"
     },
     {
-      "name": "rdk-cert-config",
-      "category": "Code Security Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/rdk-cert-config"
-    },
-    {
       "name": "rdkssa",
       "category": "Code Security Components",
       "tier": "optional",
@@ -458,6 +464,12 @@
       "category": "Code Security Components",
       "tier": "optional",
       "url": "https://github.com/rdkcentral/rdkb-apparmor-profiles"
+    },
+    {
+      "name": "rdkb-halif-test-moca",
+      "category": "Test Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/rdkb-halif-test-moca"
     }
   ]
 }

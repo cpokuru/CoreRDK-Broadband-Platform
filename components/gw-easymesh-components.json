@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-08-31T23:26:37Z",
+  "generatedAt": "2026-09-01T00:34:01Z",
   "title": "RDK-B GW EasyMesh Components",
   "subtitle": "Components for the GW EasyMesh device profile: Common Core, Required, and Optional.",
   "tiers": [
@@ -442,12 +442,6 @@
       "url": "https://github.com/rdkcentral/rdk-cert-config"
     },
     {
-      "name": "rdk-cert-config",
-      "category": "Code Security Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/rdk-cert-config"
-    },
-    {
       "name": "rdkssa",
       "category": "Code Security Components",
       "tier": "optional",
@@ -470,6 +464,12 @@
       "category": "Code Security Components",
       "tier": "optional",
       "url": "https://github.com/rdkcentral/rdkb-apparmor-profiles"
+    },
+    {
+      "name": "rdkb-halif-test-moca",
+      "category": "Test Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/rdkb-halif-test-moca"
     }
   ]
 }

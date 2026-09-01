@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-08-31T23:26:36Z",
+  "generatedAt": "2026-09-01T00:34:00Z",
   "title": "RDK-B Modem /ONU Components",
   "subtitle": "Components for the Modem /ONU device profile: Common Core, Required, and Optional.",
   "tiers": [
@@ -80,6 +80,12 @@
       "category": "Remote Device Management",
       "tier": "optional",
       "url": "https://github.com/rdkcentral/rfc"
+    },
+    {
+      "name": "Ethernet Agent (used for WAN)",
+      "category": "WAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/ethernet-agent"
     },
     {
       "name": "cable-modem-agent",
@@ -190,16 +196,10 @@
       "url": "https://github.com/rdkcentral/rdkb-halif-mta"
     },
     {
-      "name": "telco-voice-manager",
+      "name": "rdk-halif-power_manager",
       "category": "Voice Related Components",
       "tier": "optional",
-      "url": "https://github.com/rdkcentral/telco-voice-manager"
-    },
-    {
-      "name": "hal-voice-asterisk",
-      "category": "Voice Related Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/hal-voice-asterisk"
+      "url": "https://github.com/rdkcentral/rdk-halif-power_manager"
     },
     {
       "name": "rdk_logger",
@@ -232,10 +232,10 @@
       "url": "https://github.com/rdkcentral/telemetry"
     },
     {
-      "name": "Test & Diagnostics",
+      "name": "harvester",
       "category": "Data Collection, Test and Diagnostic Components",
       "tier": "optional",
-      "url": "https://github.com/rdkcentral/test-and-diagnostic"
+      "url": "https://github.com/rdkcentral/harvester"
     },
     {
       "name": "RBUS",
@@ -262,12 +262,6 @@
       "url": "https://github.com/rdkcentral/data-model-cli"
     },
     {
-      "name": "notify-component",
-      "category": "InterProcess Communications Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/notify-component"
-    },
-    {
       "name": "PSM",
       "category": "Non-Vol Storage",
       "tier": "required",
@@ -290,12 +284,6 @@
       "category": "Matter / IoT Components",
       "tier": "optional",
       "url": "https://github.com/rdkcentral/BartonCore"
-    },
-    {
-      "name": "rdk-cert-config",
-      "category": "Code Security Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/rdk-cert-config"
     },
     {
       "name": "rdk-cert-config",

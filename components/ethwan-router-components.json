@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-08-31T23:26:36Z",
+  "generatedAt": "2026-09-01T00:34:00Z",
   "title": "RDK-B EthWAN WiFi Router Components",
   "subtitle": "Components for the EthWAN WiFi Router device profile: Common Core, Required, and Optional.",
   "tiers": [
@@ -94,6 +94,12 @@
       "url": "https://github.com/rdkcentral/OneWifi"
     },
     {
+      "name": "Mesh Agent\n(Integrates with OpenSync v2.4)",
+      "category": "LAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/mesh-agent"
+    },
+    {
       "name": "unified-wifi-mesh\n(EasyMesh)",
       "category": "LAN Interface Components",
       "tier": "optional",
@@ -116,6 +122,12 @@
       "category": "WAN Interface Components",
       "tier": "required",
       "url": "https://github.com/rdkcentral/ethernet-agent"
+    },
+    {
+      "name": "hotspot",
+      "category": "WAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/hotspot"
     },
     {
       "name": "dhcp-manager (recipe for DHCP client and Server)",
@@ -350,12 +362,6 @@
       "category": "Matter / IoT Components",
       "tier": "optional",
       "url": "https://github.com/rdkcentral/home-security"
-    },
-    {
-      "name": "rdk-cert-config",
-      "category": "Code Security Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/rdk-cert-config"
     },
     {
       "name": "rdk-cert-config",

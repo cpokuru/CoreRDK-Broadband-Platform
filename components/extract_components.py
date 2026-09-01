@@ -1,5 +1,28 @@
 """Extract simple, single-table component lists from RDK-B_Component_List_2026.xlsx.
 
+Repo identity (name, category, URL, CORE flag) comes from the 'Components'
+sheet -- one clean row per repo, versus 'All Profiles'' much messier
+per-feature breakdown where the same real repo often appears under several
+different spelling variants (e.g. "Utopia" / "utopia" / "utopia/P&M" /
+"provisioning-and-management,Utopia" -- five variants for what looks like
+one or two real repos). Grouping by exact string match against that sheet
+would split single components into multiple near-duplicate entries, so repo
+identity stays anchored to 'Components'.
+
+Required/Optional/n/a *classification* per profile is corrected against
+'All Profiles' though, since spot-checks (and a full cross-sheet diff)
+found confirmed-stale rows in 'Components' -- e.g. "Mesh Agent" marked n/a
+there while both 'All Profiles' and the 'Router' sheet agree it should be
+Optional/Required. For each (repo, profile) pair: if the repo's exact name
+also appears in 'All Profiles' and its aggregated classification there
+disagrees with 'Components' (Required/Optional vs n/a, in either
+direction), 'All Profiles' wins. A repo counts as Required/Optional in
+'All Profiles' if ANY of its several feature rows there says so. Repos
+whose name doesn't appear verbatim in 'All Profiles' (e.g. "dhcp-manager
+(recipe for DHCP client only)", a Components-only naming variant) are left
+as 'Components' originally had them, since there's nothing reliable to
+cross-check against.
+
 Three modes:
 
   core         -> components tagged CORE (common to every profile) plus components
@@ -66,8 +89,57 @@ TIERS = {
 }
 
 
-def _rows(ws):
-    """Yield (subsystem, name, url, core_flag, profile_values) with subsystem forward-filled."""
+def _all_profiles_classification(wb) -> dict[str, dict[str, str]]:
+    """Aggregate the 'All Profiles' sheet into {repo_name: {profile: status}},
+    one status per (repo, profile) -- the best (most permissive) status seen
+    across that repo's several detail-feature rows there. Used only to
+    correct 'Components'-sourced classifications where they disagree, not
+    as a source of repo identity (see module docstring)."""
+    ws = wb["All Profiles"]
+    headers = [c.value for c in ws[1]]
+    name_idx = headers.index("Component Repo")
+    profile_idxs = [headers.index(c) for c in PROFILE_COLUMNS]
+    RANK = {"Required": 2, "Optional": 1, "n/a": 0}
+
+    best: dict[str, dict[str, str]] = {}
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        name = row[name_idx]
+        if name is None:
+            continue
+        if isinstance(name, str):
+            name = name.strip()
+        if not name:
+            continue
+        per_profile = best.setdefault(name, {})
+        for i, profile in enumerate(PROFILE_COLUMNS):
+            v = row[profile_idxs[i]]
+            if v not in RANK:
+                continue
+            cur = per_profile.get(profile)
+            if cur is None or RANK[v] > RANK[cur]:
+                per_profile[profile] = v
+    return best
+
+
+def _bucket(v: str | None) -> str | None:
+    if v in ("Required", "Optional"):
+        return "IN"
+    if v == "n/a":
+        return "OUT"
+    return None
+
+
+def _rows(wb):
+    """Yield one record per repo from the 'Components' sheet (clean, one row
+    per repo -- see module docstring for why repo identity stays anchored
+    here rather than to 'All Profiles'). Required/Optional/n/a values are
+    corrected against 'All Profiles' wherever the two sheets disagree on
+    whether a repo applies to a given profile at all (IN vs OUT), using
+    exact repo-name matching; repos absent from 'All Profiles' by that exact
+    name keep their original 'Components' classification unchanged."""
+    ws = wb["Components"]
+    corrections = _all_profiles_classification(wb)
+
     headers = [c.value for c in ws[1]]
     name_idx = headers.index("Component Repo")
     subsys_idx = headers.index("Subsystem")
@@ -76,6 +148,7 @@ def _rows(ws):
     profile_idxs = [headers.index(c) for c in PROFILE_COLUMNS]
 
     cur_subsys = None
+    seen_names = set()
     for row in ws.iter_rows(min_row=3, values_only=True):
         if row[name_idx] is None and row[subsys_idx] is None:
             continue
@@ -86,22 +159,39 @@ def _rows(ws):
             continue
         if isinstance(name, str):
             name = name.strip()
+        # A few repos are accidentally listed twice as separate rows in the
+        # source sheet (e.g. "rdk-cert-config" at rows 77 and 78, identical
+        # classification, one missing its Subsystem) -- keep the first
+        # occurrence only.
+        if name in seen_names:
+            continue
+        seen_names.add(name)
         url = row[url_idx]
         if isinstance(url, str):
             # A handful of rows list multiple links newline-separated; keep the first.
             url = url.strip().splitlines()[0].strip() or None
+
+        profile_values = {}
+        for i, profile in enumerate(PROFILE_COLUMNS):
+            orig = row[profile_idxs[i]]
+            corrected = corrections.get(name, {}).get(profile)
+            if corrected is not None and _bucket(corrected) != _bucket(orig):
+                profile_values[profile] = corrected
+            else:
+                profile_values[profile] = orig
+
         yield {
             "subsystem": cur_subsys,
             "name": name,
             "url": url,
             "is_core": row[core_idx] == "CORE",
-            "profile_values": {PROFILE_COLUMNS[i]: row[profile_idxs[i]] for i in range(len(PROFILE_COLUMNS))},
+            "profile_values": profile_values,
         }
 
 
-def extract_core(ws) -> list[dict]:
+def extract_core(wb) -> list[dict]:
     out = []
-    for r in _rows(ws):
+    for r in _rows(wb):
         vals = [v for v in r["profile_values"].values() if v not in (None, "n/a")]
         required_everywhere = bool(vals) and all(v == "Required" for v in vals)
         if r["is_core"] or required_everywhere:
@@ -114,7 +204,7 @@ def extract_core(ws) -> list[dict]:
     return out
 
 
-def extract_profile(ws, profile: str, required_only: bool = False, show_core: bool = False) -> list[dict]:
+def extract_profile(wb, profile: str, required_only: bool = False, show_core: bool = False) -> list[dict]:
     """All components that apply to a single device profile column.
 
     show_core=False (default): tiers are 'required' / 'optional' only, matching
@@ -129,7 +219,7 @@ def extract_profile(ws, profile: str, required_only: bool = False, show_core: bo
         raise SystemExit(f"Unknown profile {profile!r}. Choose from: {PROFILE_COLUMNS}")
     wanted = ("Required",) if required_only else ("Required", "Optional")
     out = []
-    for r in _rows(ws):
+    for r in _rows(wb):
         v = r["profile_values"][profile]
         if v not in wanted:
             continue
@@ -154,10 +244,10 @@ def build_payload(components: list[dict], title: str, subtitle: str, tier_ids: l
     }
 
 
-def build_profile_payload(ws, profile: str, required_only: bool = False, show_core: bool = False) -> tuple[list[dict], dict]:
+def build_profile_payload(wb, profile: str, required_only: bool = False, show_core: bool = False) -> tuple[list[dict], dict]:
     """Extract + build the payload for one profile column. Shared by the
     'profile' and 'all-profiles' CLI modes so their output is identical."""
-    components = extract_profile(ws, profile, required_only=required_only, show_core=show_core)
+    components = extract_profile(wb, profile, required_only=required_only, show_core=show_core)
     if required_only:
         tier_ids = ["required"]
     elif show_core:
@@ -204,10 +294,9 @@ def main() -> None:
 
     args = p.parse_args()
     wb = openpyxl.load_workbook(Path(args.xlsx), data_only=True)
-    ws = wb["Components"]
 
     if args.mode == "core":
-        components = extract_core(ws)
+        components = extract_core(wb)
         payload = build_payload(
             components,
             title="Core RDK-B Components",
@@ -218,14 +307,14 @@ def main() -> None:
         print(f"Wrote {args.out} ({len(components)} components)")
 
     elif args.mode == "profile":
-        components, payload = build_profile_payload(ws, args.profile, required_only=args.required_only, show_core=args.show_core)
+        components, payload = build_profile_payload(wb, args.profile, required_only=args.required_only, show_core=args.show_core)
         Path(args.out).write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
         print(f"Wrote {args.out} ({len(components)} components)")
 
     else:  # all-profiles
         for profile in PROFILE_COLUMNS:
             out_name = PROFILE_FILENAMES[profile]
-            components, payload = build_profile_payload(ws, profile, required_only=args.required_only, show_core=args.show_core)
+            components, payload = build_profile_payload(wb, profile, required_only=args.required_only, show_core=args.show_core)
             Path(out_name).write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
             print(f"  {out_name:35} {len(components):3} components  ({' '.join(profile.split())})")
         print(f"Wrote {len(PROFILE_COLUMNS)} profile component files.")

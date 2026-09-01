@@ -679,6 +679,12 @@
       "url": "components/"
     },
     {
+      "title": "Mesh Agent\n(Integrates with OpenSync v2.4)",
+      "text": "LAN Interface Components · optional tier for the EthWAN WiFi Router profile.",
+      "category": "Components",
+      "url": "components/"
+    },
+    {
       "title": "unified-wifi-mesh\n(EasyMesh)",
       "text": "LAN Interface Components · optional tier for the EthWAN WiFi Router profile.",
       "category": "Components",
@@ -699,6 +705,12 @@
     {
       "title": "Ethernet Agent (used for WAN)",
       "text": "WAN Interface Components · required tier for the EthWAN WiFi Router profile.",
+      "category": "Components",
+      "url": "components/"
+    },
+    {
+      "title": "hotspot",
+      "text": "WAN Interface Components · optional tier for the EthWAN WiFi Router profile.",
       "category": "Components",
       "url": "components/"
     },
@@ -933,12 +945,6 @@
     {
       "title": "home-security",
       "text": "Matter / IoT Components · optional tier for the EthWAN WiFi Router profile.",
-      "category": "Components",
-      "url": "components/"
-    },
-    {
-      "title": "rdk-cert-config",
-      "text": "Code Security Components · optional tier for the EthWAN WiFi Router profile.",
       "category": "Components",
       "url": "components/"
     },

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-08-31T23:26:37Z",
+  "generatedAt": "2026-09-01T00:34:01Z",
   "title": "RDK-B EXT EasyMesh Components",
   "subtitle": "Components for the EXT EasyMesh device profile: Common Core, Required, and Optional.",
   "tiers": [
@@ -46,24 +46,6 @@
       "url": "https://github.com/rdkcentral/start-parodus"
     },
     {
-      "name": "tr069-protocol-agent",
-      "category": "Remote Device Management",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/tr069-protocol-agent"
-    },
-    {
-      "name": "WebConfig",
-      "category": "Remote Device Management",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/webconfig"
-    },
-    {
-      "name": "snmp-protocol-agent",
-      "category": "Remote Device Management",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/snmp-protocol-agent"
-    },
-    {
       "name": "dcm agent",
       "category": "Remote Device Management",
       "tier": "optional",
@@ -100,6 +82,12 @@
       "url": "https://github.com/rdkcentral/ieee1905-rs"
     },
     {
+      "name": "hotspot",
+      "category": "WAN Interface Components",
+      "tier": "optional",
+      "url": "https://github.com/rdkcentral/hotspot"
+    },
+    {
       "name": "dhcp-manager (recipe for DHCP client only)",
       "category": "DHCP",
       "tier": "optional",
@@ -110,12 +98,6 @@
       "category": "Routing, parental control and WAN Management Components",
       "tier": "required",
       "url": "https://github.com/rdkcentral/core-net-library"
-    },
-    {
-      "name": "secure-upnp",
-      "category": "Routing, parental control and WAN Management Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/secure-upnp"
     },
     {
       "name": "miscellaneous-broadband",
@@ -214,12 +196,6 @@
       "url": "https://github.com/rdkcentral/sys_mon_tools"
     },
     {
-      "name": "harvester",
-      "category": "Data Collection, Test and Diagnostic Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/harvester"
-    },
-    {
       "name": "RBUS",
       "category": "InterProcess Communications Components",
       "tier": "common-core",
@@ -274,22 +250,10 @@
       "url": "https://github.com/rdkcentral/home-security"
     },
     {
-      "name": "rdk-libunpriv",
-      "category": "Code Security Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/rdk-libunpriv"
-    },
-    {
       "name": "libsyscallwrapper",
       "category": "Code Security Components",
       "tier": "common-core",
       "url": "https://github.com/rdkcentral/libSyscallWrapper"
-    },
-    {
-      "name": "rdkb-apparmor-profiles",
-      "category": "Code Security Components",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/rdkb-apparmor-profiles"
     }
   ]
 }
