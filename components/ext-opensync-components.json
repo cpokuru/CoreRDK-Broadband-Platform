@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-09-01T01:33:37Z",
+  "generatedAt": "2026-09-01T04:16:45Z",
   "title": "RDK-B EXT OpenSync Components",
   "subtitle": "Components for the EXT OpenSync device profile: Common Core, Required, and Optional.",
   "tiers": [
@@ -98,12 +98,6 @@
       "category": "WAN Interface Components",
       "tier": "optional",
       "url": "https://github.com/rdkcentral/hotspot"
-    },
-    {
-      "name": "dhcp-manager (recipe for DHCP client only)",
-      "category": "DHCP",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/dhcp-manager"
     },
     {
       "name": "core-net-library",

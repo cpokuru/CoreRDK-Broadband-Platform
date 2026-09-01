@@ -721,6 +721,12 @@
       "url": "components/"
     },
     {
+      "title": "dhcp-manager (recipe for DHCP client only)",
+      "text": "DHCP · required tier for the EthWAN WiFi Router profile.",
+      "category": "Components",
+      "url": "components/"
+    },
+    {
       "title": "dhcp-manager (recipe for DHCP client and Server)",
       "text": "DHCP · required tier for the EthWAN WiFi Router profile.",
       "category": "Components",

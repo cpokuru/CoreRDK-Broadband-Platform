@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-09-01T01:33:38Z",
+  "generatedAt": "2026-09-01T04:16:45Z",
   "title": "RDK-B EXT EasyMesh Components",
   "subtitle": "Components for the EXT EasyMesh device profile: Common Core, Required, and Optional.",
   "tiers": [
@@ -21,18 +21,6 @@
     }
   ],
   "components": [
-    {
-      "name": "USP PA",
-      "category": "Remote Device Management",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/usp-pa-vendor-rdk"
-    },
-    {
-      "name": "Web PA\n\nincluding:\n- parodus\n- parodus2ccsp\n- start-parodus\n- wdmp-c",
-      "category": "Remote Device Management",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/start-parodus"
-    },
     {
       "name": "dcm agent",
       "category": "Remote Device Management",
@@ -74,12 +62,6 @@
       "category": "WAN Interface Components",
       "tier": "optional",
       "url": "https://github.com/rdkcentral/hotspot"
-    },
-    {
-      "name": "dhcp-manager (recipe for DHCP client only)",
-      "category": "DHCP",
-      "tier": "optional",
-      "url": "https://github.com/rdkcentral/dhcp-manager"
     },
     {
       "name": "core-net-library",

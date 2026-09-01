@@ -107,6 +107,30 @@ def _norm_key(name: str) -> str:
     return re.sub(r"[^a-z0-9]", "", name.lower())
 
 
+# A handful of repos are confirmed to be the same real component across the
+# two sheets, but named too differently for _norm_key's punctuation/case
+# normalization to catch -- verified by matching each pair's Component
+# Description (Components sheet) against its Detailed Feature List text
+# (All Profiles sheet), not guessed from name similarity alone:
+#   - "USP PA" / "usp-pa-vendor-rdk": both describe USP (TR-369) device
+#     management.
+#   - "Web PA including: ..." / the parodus+start-parodus+xmidt-org bundle
+#     row: both describe WebPA cloud device management over WebSockets.
+#   - "Break pad" / "breakpad_wrapper": Components' own description is
+#     literally "A wrapper for breakpad features".
+#   - "dhcp-manager (recipe for DHCP client only)" / generic "dhcp-manager":
+#     Components' own Notes text ties this variant to the WAN/LAN client
+#     capability the generic All-Profiles rows cover.
+# Maps a Components-sheet repo name to the normalized key to look up in
+# 'All Profiles' instead of the repo's own (which has no match there).
+CURATED_ALIASES: dict[str, str] = {
+    "USP PA": _norm_key("usp-pa-vendor-rdk"),
+    "Web PA\n\nincluding:\n- parodus\n- parodus2ccsp\n- start-parodus\n- wdmp-c": _norm_key("parodus\nstart-parodus\nxmidt-org"),
+    "Break pad": _norm_key("breakpad_wrapper"),
+    "dhcp-manager (recipe for DHCP client only)": _norm_key("dhcp-manager"),
+}
+
+
 def _all_profiles_classification(wb) -> dict[str, dict[str, str]]:
     """Aggregate the 'All Profiles' sheet into {normalized_repo_name:
     {profile: status}}, one status per (repo, profile) -- the best (most
@@ -186,7 +210,8 @@ def _rows(wb):
         profile_values = {}
         for i, profile in enumerate(PROFILE_COLUMNS):
             orig = row[profile_idxs[i]]
-            corrected = corrections.get(_norm_key(name), {}).get(profile)
+            lookup_key = CURATED_ALIASES.get(name, _norm_key(name))
+            corrected = corrections.get(lookup_key, {}).get(profile)
             # All Profiles' classification wins outright whenever the repo
             # name matches there, not only when it disagrees on inclusion
             # (Required/Optional vs n/a) -- it also settles the finer-grained
