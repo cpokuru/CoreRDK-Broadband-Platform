@@ -123,5 +123,10 @@
     "repo": "cellular-modem-manager",
     "file": "cell_interface_v1.json",
     "branch": "develop"
+  },
+  "cellular-manager": {
+    "repo": "cellular-manager",
+    "file": "cellcom_interface_v1.json",
+    "branch": "develop"
   }
 }
