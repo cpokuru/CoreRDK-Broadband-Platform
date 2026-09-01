@@ -42,16 +42,6 @@ PROFILE_DEFINITIONS: dict[str, str] = {
     "ext-opensync": "Wi-Fi extender device based on OpenSync technology; supports Wi-Fi AP fronthaul and Wi-Fi/Ethernet backhaul.",
 }
 
-# Per-profile component list (from RDK-B_Component_List_2026.xlsx via
-# components/extract_components.py profile "<Profile Name>") used to build
-# the "Memory Footprint by Process" table below -- real RSS numbers aren't
-# measured yet, so every component is listed with an explicit TBD rather
-# than fabricated figures.
-PROFILE_COMPONENTS_FILE: dict[str, str] = {
-    "ethwan-wifi-router": "components/ethwan-router-components.json",
-    "ext-easymesh": "components/ext-easymesh-components.json",
-}
-
 STATUS_STYLE = {
     "validated": {"bg": "#d1fae5", "fg": "#065f46", "label": "Validated"},
     "partial": {"bg": "#fef3c7", "fg": "#92400e", "label": "Partial"},
@@ -204,18 +194,56 @@ def render_peripheral_block(title: str, fields: dict) -> str:
     )
 
 
-def render_memory_footprint_table(profile_id: str, components_dir: Path) -> str:
-    # Intentionally empty for now -- this used to list every Required/
-    # Optional component from the RDK-B Component List with a TBD placeholder,
-    # but that's being replaced by real per-process RSS data (a separate
-    # per-profile JSON, sourced from actual RDK8 measurements) once it's
-    # available. Nothing to read from components_dir/PROFILE_COMPONENTS_FILE
-    # until that data exists.
-    return '''<div class="subhead" style="margin-top:18px;">Memory Footprint by Process</div>
-    <p style="font-size:0.82rem; color:var(--muted); margin:0;">Arriving soon &mdash; per-process RSS measurements from the RDK8 Broadband Release will be added here once available.</p>'''
+def render_memory_footprint_table(p: dict, profiles_dir: Path) -> str:
+    ref = p.get("memoryFootprintRef")
+    header = '<div class="subhead" style="margin-top:18px;">Memory Footprint by Process</div>'
+    if not ref:
+        return header + '<p style="font-size:0.82rem; color:var(--muted); margin:0;">Arriving soon &mdash; per-process RSS measurements from the RDK8 Broadband Release will be added here once available.</p>'
+
+    path = profiles_dir / "memory-footprint" / ref
+    if not path.exists():
+        return header + '<p style="font-size:0.82rem; color:var(--muted); margin:0;">Arriving soon &mdash; per-process RSS measurements from the RDK8 Broadband Release will be added here once available.</p>'
+
+    data = json.loads(path.read_text(encoding="utf-8"))
+    notes = data.get("notes", "")
+
+    if not data.get("measured") or not data.get("processes"):
+        # e.g. EXT EasyMesh today: file exists, explains why it's pending
+        # (references the EthWAN measurement as context) via its own notes.
+        note_html = f'<p style="font-size:0.82rem; color:var(--muted); margin:0;">{esc(notes)}</p>' if notes else \
+            '<p style="font-size:0.82rem; color:var(--muted); margin:0;">Arriving soon &mdash; per-process RSS measurements from the RDK8 Broadband Release will be added here once available.</p>'
+        return header + note_html
+
+    processes = sorted(data["processes"], key=lambda pr: (isinstance(pr["rssMB"], str), -(pr["rssMB"] if isinstance(pr["rssMB"], (int, float)) else 0)))
+    row_parts = []
+    for pr in processes:
+        rss = pr["rssMB"]
+        rss_display = rss if isinstance(rss, str) else f"{rss:.1f} MB"
+        row_parts.append(f'<tr><td>{esc(pr["process"])}</td><td class="mono" style="color:var(--muted);">{esc(rss_display)}</td></tr>')
+    rows = "".join(row_parts)
+    others = data.get("othersRssMB")
+    if others is not None:
+        rows += f'<tr><td style="color:var(--muted);font-style:italic;">Others (below reporting threshold, base OS/kernel)</td><td class="mono" style="color:var(--muted);">{others:.1f} MB</td></tr>'
+
+    meta_bits = []
+    if data.get("referenceDevice"):
+        meta_bits.append(f'<strong>Reference device:</strong> {esc(data["referenceDevice"])}')
+    if data.get("lastMeasured"):
+        meta_bits.append(f'<strong>Last measured:</strong> {esc(data["lastMeasured"])}')
+    if data.get("totalRssMB") is not None:
+        meta_bits.append(f'<strong>Total RSS:</strong> {esc(data["totalRssMB"])} MB')
+    meta_html = f'<div class="hwcompat-summary" style="margin:0 0 10px;">{" ".join(f"<span>{b}</span>" for b in meta_bits)}</div>' if meta_bits else ""
+
+    note_html = f'<p class="hwc-notes" style="margin-top:10px;">{esc(notes)}</p>' if notes else ""
+
+    return (
+        header + meta_html +
+        '<table class="def-table"><thead><tr><th>Process</th><th>RSS</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+        note_html
+    )
 
 
-def render_profile_card(p: dict, components_dir: Path) -> str:
+def render_profile_card(p: dict, profiles_dir: Path) -> str:
     cpu, mem, sto, ref, per = p["cpu"], p["memory"], p["storage"], p["referenceDevice"], p["peripherals"]
     conn = per.get("connectivity", {})
 
@@ -256,7 +284,7 @@ def render_profile_card(p: dict, components_dir: Path) -> str:
         '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px;">'
         + "".join(blocks) +
         '</div>'
-        + render_memory_footprint_table(p["profileId"], components_dir) +
+        + render_memory_footprint_table(p, profiles_dir) +
         '</div>'
     )
 
@@ -266,7 +294,7 @@ def render_not_covered_list(profiles: list[dict]) -> str:
     for p in profiles:
         if p.get("coverageNote"):
             status = p["coverageNote"]
-        elif p["profileId"] in PROFILE_COMPONENTS_FILE:
+        elif p["validationStatus"] != "not-started":
             status = "RDK8-based target values available \u2014 see Profile Details (based on RDK8) below."
         else:
             status = ""
@@ -294,7 +322,7 @@ EXTRA_CSS = """
 """
 
 
-def build_page(profiles_dir: Path, repo_root: Path) -> str:
+def build_page(profiles_dir: Path, repo_root: Path = None) -> str:
     profiles = load_profiles(profiles_dir)
     # rdk8_data: the 2 profiles with real (RDK8-based target) CPU/RAM/flash
     # and peripheral data -- still shown in their own detail sections below,
@@ -337,7 +365,7 @@ def build_page(profiles_dir: Path, repo_root: Path) -> str:
     <p>Full CPU/memory/flash minimums and peripheral requirements, from the RDK8 Broadband Release,
     for the two profiles with target data available.</p>
   </div>
-  {"".join(render_profile_card(p, repo_root) for p in rdk8_data)}
+  {"".join(render_profile_card(p, profiles_dir) for p in rdk8_data)}
 </section>
 
 <section class="tight-top">
@@ -355,7 +383,7 @@ def build_page(profiles_dir: Path, repo_root: Path) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--profiles-dir", default="docs")
-    ap.add_argument("--repo-root", default=".", help="Root the components/*.json paths in PROFILE_COMPONENTS_FILE are relative to")
+    ap.add_argument("--repo-root", default=".", help="Unused (kept for backward compatibility with older invocations)")
     ap.add_argument("--out-dir", default=".")
     args = ap.parse_args()
     out_dir = Path(args.out_dir)
