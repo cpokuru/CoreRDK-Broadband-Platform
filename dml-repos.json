@@ -178,5 +178,10 @@
   "repo": "ppp-manager",
   "file": "ppp_interface_v1.json",
   "branch": "main"
+  },
+  "hotspot": {
+  "repo": "hotspot",
+  "file": "hotspot_interface_v1.json",
+  "branch": "develop"
   }
 }
