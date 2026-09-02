@@ -96,6 +96,10 @@
   },
   "validationStatus": "partial",
   "lastValidated": "2026-08-25",
-  "flashLayoutRef": "ext-easymesh.flash-layout.json",
-  "cpuUtilizationRef": "ext-easymesh.cpu-utilization.json"
+  "flashLayoutRef": "flash-layout/ext-easymesh.flash-layout.json",
+  "cpuUtilizationRef": "cpu-utilization/ext-easymesh.cpu-utilization.json",
+  "memoryFootprintRef": "memory-footprint/ext-easymesh.memory-footprint.json",
+  "regionalRefs": [
+    "regional/ext-easymesh.us.json"
+  ]
 }

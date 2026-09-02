@@ -98,6 +98,10 @@
   },
   "validationStatus": "partial",
   "lastValidated": "2026-08-25",
-  "flashLayoutRef": "ethwan-wifi-router.flash-layout.json",
-  "cpuUtilizationRef": "ethwan-wifi-router.cpu-utilization.json"
+  "flashLayoutRef": "flash-layout/ethwan-wifi-router.flash-layout.json",
+  "cpuUtilizationRef": "cpu-utilization/ethwan-wifi-router.cpu-utilization.json",
+  "memoryFootprintRef": "memory-footprint/ethwan-wifi-router.memory-footprint.json",
+  "regionalRefs": [
+    "regional/ethwan-wifi-router.us.json"
+  ]
 }

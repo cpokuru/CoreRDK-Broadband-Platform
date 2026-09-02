@@ -167,15 +167,20 @@
     },
     "memoryFootprintRef": {
       "type": "string",
-      "description": "Optional. Filename of this profile's separate memory-footprint file (see memory-footprint.schema.json), kept flat using the convention '<profileId>.memory-footprint.json', e.g. \"ethwan-wifi-router.memory-footprint.json\". Answers 'what consumes the RAM minimum'. Kept out-of-line so per-process RSS data can be updated as components are profiled without revising this file."
+      "description": "Optional. Relative path to this profile's separate memory-footprint file (see memory-footprint.schema.json), under the memory-footprint/ subfolder using the convention 'memory-footprint/<profileId>.memory-footprint.json', e.g. \"memory-footprint/ethwan-wifi-router.memory-footprint.json\". Answers 'what consumes the RAM minimum'. Kept out-of-line so per-process RSS data can be updated as components are profiled without revising this file."
     },
     "flashLayoutRef": {
       "type": "string",
-      "description": "Optional. Filename of this profile's separate flash-layout file (see flash-layout.schema.json), kept flat using the convention '<profileId>.flash-layout.json', e.g. \"ethwan-wifi-router.flash-layout.json\". Answers 'what is the flash layout / what consumes the flash minimum'. Kept out-of-line so partition sizing can be refined as real bring-up data comes in."
+      "description": "Optional. Relative path to this profile's separate flash-layout file (see flash-layout.schema.json), under the flash-layout/ subfolder using the convention 'flash-layout/<profileId>.flash-layout.json', e.g. \"flash-layout/ethwan-wifi-router.flash-layout.json\". Answers 'what is the flash layout / what consumes the flash minimum'. Kept out-of-line so partition sizing can be refined as real bring-up data comes in."
     },
     "cpuUtilizationRef": {
       "type": "string",
-      "description": "Optional. Filename of this profile's separate cpu-utilization file (see cpu-utilization.schema.json), kept flat using the convention '<profileId>.cpu-utilization.json', e.g. \"ethwan-wifi-router.cpu-utilization.json\". Answers 'what consumes the CPU minimum'. Kept out-of-line so per-process utilization data can be added as components are profiled."
+      "description": "Optional. Relative path to this profile's separate cpu-utilization file (see cpu-utilization.schema.json), under the cpu-utilization/ subfolder using the convention 'cpu-utilization/<profileId>.cpu-utilization.json', e.g. \"cpu-utilization/ethwan-wifi-router.cpu-utilization.json\". Answers 'what consumes the CPU minimum'. Kept out-of-line so per-process utilization data can be added as components are profiled."
+    },
+    "regionalRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Optional. Relative paths to this profile's separate per-region regional files (see regional.schema.json), under the regional/ subfolder using the convention 'regional/<profileId>.<regionId>.json', e.g. [\"regional/ethwan-wifi-router.us.json\"]. Answers 'can this hardware be deployed in a given region' (Hardware Compatibility Specification Section 9). One entry per region profiled; kept out-of-line since regional/certification status changes on its own timeline independent of this file."
     }
   }
 }
