@@ -168,5 +168,10 @@
   "repo": "epon-manager",
   "file": "epon_interface_v1.json",
   "branch": "main"
+  },
+  "EPON Agent": {
+  "repo": "CcspEPONAgent",
+  "file": "eponagent_interface_v1.json",
+  "branch": "main"
   }
 }
