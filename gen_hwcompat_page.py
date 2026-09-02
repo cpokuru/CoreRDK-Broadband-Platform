@@ -48,6 +48,25 @@ STATUS_STYLE = {
     "not-started": {"bg": "#e5e7eb", "fg": "#374151", "label": "Not started"},
 }
 
+# From Table 26 (Section 9.6) of Core-RDK-Broadband-Hardware-Compatibility-
+# Spec_v13.docx -- the full set of target markets for eventual regional
+# certification, all "Not started" as of v13 except wherever a detailed
+# regionalRefs file exists (currently just US, shown in full above this
+# summary table -- see render_regional_section). Applies generally across
+# in-scope profiles per Section 9.6, not itemized per profile in the source.
+TARGET_REGIONS: list[tuple[str, str]] = [
+    ("North America (US)", "FCC (Part 15, equipment authorization)"),
+    ("Canada", "ISED, ICES"),
+    ("European Union / EEA", "RED, CE marking, RoHS, REACH, WEEE"),
+    ("United Kingdom", "UK Radio Equipment Regulations, UKCA, PSTI"),
+    ("India", "TEC/MTCTE, WPC ETA, BIS"),
+    ("Japan", "Radio Law / TELEC, JATE, VCCI, PSE"),
+    ("South Korea", "KC certification"),
+    ("Australia / New Zealand", "RCM, ACMA"),
+    ("Brazil", "ANATEL"),
+    ("Other operator-selected markets", "Per operator requirement"),
+]
+
 
 def load_profiles(profiles_dir: Path) -> list[dict]:
     profiles = []
@@ -341,6 +360,7 @@ def render_regional_section(p: dict, profiles_dir: Path) -> str:
         return header + '<p style="font-size:0.82rem; color:var(--muted); margin:0;">Arriving soon &mdash; regional radio/power configuration and compliance status will be added here once available.</p>'
 
     blocks = []
+    detailed_region_names = set()
     for ref in refs:
         path = profiles_dir / ref
         if not path.exists():
@@ -391,8 +411,23 @@ def render_regional_section(p: dict, profiles_dir: Path) -> str:
             f'{radio_html}{compliance_html}{note_html}'
             f'</div>'
         )
+        detailed_region_names.add(region_label)
 
-    return header + "".join(blocks)
+    target_rows = []
+    for region, scheme in TARGET_REGIONS:
+        if region in detailed_region_names:
+            status_html = '<span style="display:inline-block;background:#dbeafe;color:#1e40af;border-radius:999px;font-size:0.72rem;font-weight:600;padding:2px 10px;">See detail above</span>'
+        else:
+            status_html = '<span style="display:inline-block;background:#e5e7eb;color:#374151;border-radius:999px;font-size:0.72rem;font-weight:600;padding:2px 10px;">Not started</span>'
+        target_rows.append(f'<tr><td>{esc(region)}</td><td style="color:var(--muted);">{esc(scheme)}</td><td>{status_html}</td></tr>')
+    target_table = (
+        '<div style="font-weight:600; font-size:0.85rem; margin:14px 0 6px;">Planned Regional Coverage</div>'
+        '<table class="def-table" style="font-size:0.85rem;">'
+        '<thead><tr><th>Region</th><th>Primary Regulatory Scheme(s)</th><th>Status</th></tr></thead>'
+        '<tbody>' + "".join(target_rows) + '</tbody></table>'
+    )
+
+    return header + "".join(blocks) + target_table
 
 
 def render_profile_card(p: dict, profiles_dir: Path) -> str:
