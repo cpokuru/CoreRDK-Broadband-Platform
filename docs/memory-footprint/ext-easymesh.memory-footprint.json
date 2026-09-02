@@ -5,12 +5,170 @@
   "measured": true,
   "referenceDevice": "Filogic tri-band Wi-Fi 7 EasyMesh extender (ARM64)",
   "lastMeasured": "2026-09-02",
-  "totalRssMB": 87.43,
+  "totalRssMB": 189.65,
   "processes": [
-    { "process": "OneWifi", "rssMB": 51.76 },
-    { "process": "onewifi_em_agent", "rssMB": 22.49, "componentRepo": "OneWifi (EasyMesh agent)" },
-    { "process": "meshAgent", "rssMB": 7.21 },
-    { "process": "ieee1905", "rssMB": 5.97, "componentRepo": "IEEE 1905 remote agent" }
+    {
+      "process": "OneWifi",
+      "rssMB": 48.12
+    },
+    {
+      "process": "onewifi_em_agent",
+      "rssMB": 20.24,
+      "componentRepo": "OneWifi (EasyMesh agent)"
+    },
+    {
+      "process": "snmpd",
+      "rssMB": 9.08
+    },
+    {
+      "process": "telemetry2_0",
+      "rssMB": 8.91
+    },
+    {
+      "process": "systemd",
+      "rssMB": 8.16
+    },
+    {
+      "process": "systemd-journal",
+      "rssMB": 7.73
+    },
+    {
+      "process": "meshAgent",
+      "rssMB": 7.21
+    },
+    {
+      "process": "gw_prov_utopia",
+      "rssMB": 6.97
+    },
+    {
+      "process": "CcspCrSsp",
+      "rssMB": 6.56
+    },
+    {
+      "process": "ieee1905",
+      "rssMB": 6.05,
+      "componentRepo": "IEEE 1905 remote agent"
+    },
+    {
+      "process": "systemd-udevd",
+      "rssMB": 4.83
+    },
+    {
+      "process": "rdkbLogMonitor.",
+      "rssMB": 3.11
+    },
+    {
+      "process": "syseventd",
+      "rssMB": 2.8
+    },
+    {
+      "process": "dbus-daemon",
+      "rssMB": 2.8
+    },
+    {
+      "process": "sh",
+      "rssMB": 2.66
+    },
+    {
+      "process": "rdkbLogMonitor.",
+      "rssMB": 2.65
+    },
+    {
+      "process": "ntp-data-collec",
+      "rssMB": 2.34
+    },
+    {
+      "process": "rtrouted",
+      "rssMB": 2.33
+    },
+    {
+      "process": "GwProvCheck.sh",
+      "rssMB": 2.32
+    },
+    {
+      "process": "sh",
+      "rssMB": 2.32
+    },
+    {
+      "process": "sh",
+      "rssMB": 2.31
+    },
+    {
+      "process": "syseventd_fork_",
+      "rssMB": 2.21
+    },
+    {
+      "process": "collect_extende",
+      "rssMB": 2.18
+    },
+    {
+      "process": "login",
+      "rssMB": 2.09
+    },
+    {
+      "process": "rbus_session_mg",
+      "rssMB": 2.02
+    },
+    {
+      "process": "ntpd",
+      "rssMB": 1.97
+    },
+    {
+      "process": "crond",
+      "rssMB": 1.87
+    },
+    {
+      "process": "klogd",
+      "rssMB": 1.68
+    },
+    {
+      "process": "syslogd",
+      "rssMB": 1.68
+    },
+    {
+      "process": "klogd",
+      "rssMB": 1.66
+    },
+    {
+      "process": "syslogd",
+      "rssMB": 1.64
+    },
+    {
+      "process": "dropbear",
+      "rssMB": 1.61
+    },
+    {
+      "process": "ubusd",
+      "rssMB": 1.4
+    },
+    {
+      "process": "rdisc",
+      "rssMB": 1.31
+    },
+    {
+      "process": "ninfod",
+      "rssMB": 1.22
+    },
+    {
+      "process": "sleep",
+      "rssMB": 1.13
+    },
+    {
+      "process": "sleep",
+      "rssMB": 1.13
+    },
+    {
+      "process": "sleep",
+      "rssMB": 1.12
+    },
+    {
+      "process": "sleep",
+      "rssMB": 1.12
+    },
+    {
+      "process": "sleep",
+      "rssMB": 1.11
+    }
   ],
-  "notes": "Covers only the Wi-Fi/EasyMesh process set (OneWifi, EasyMesh agent, meshAgent, ieee1905 remote agent), captured shortly after boot via /proc/<pid>/status VmRSS \u2014 not a full top-N system process list like the EthWAN WiFi Router companion file. totalRssMB (87.43) is the gross sum of these four processes and represents approximately 2.23% of the 3.83 GiB Linux-visible RAM observed on this device; it does not include the rest of the system's process set. System-level snapshot: 172 MiB used, 3.62 GiB MemAvailable. Wi-Fi 7 tri-band (2.4/5/6 GHz) with an active 5 GHz EHT mesh backhaul was confirmed operational during capture (\u221254 dBm, 540.3/432.3 Mb/s PHY). See Hardware Compatibility Specification Section 5.1.2 for the full evidence assessment."
+  "notes": "Full-process capture from the EasyMesh Extender Hardware Measurement Report (Appendix A), 40 processes with nonzero RSS out of 140 total captured via /proc at 22:42:54 UTC on 2 Sep 2026 (zero-RSS kernel threads excluded from this list). This supersedes the earlier 4-process, 87.43 MiB Wi-Fi/EasyMesh-only snapshot. totalRssMB (189.65) is the gross sum of individual process RSS values and is higher than the system-level 176 MiB 'used' figure from free/meminfo at capture time, because RSS double-counts shared library and file-backed pages across processes -- it is not a measure of unique physical memory. One process name (onewifi_em_agent) was corrected from a truncated column value using the exact spelling given elsewhere in the same report; other long process names may still appear truncated exactly as captured in the source table (e.g. fixed-width column cutoff), since the correct full spelling isn't independently confirmable elsewhere in the document."
 }
