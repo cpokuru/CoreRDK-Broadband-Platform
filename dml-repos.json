@@ -149,9 +149,14 @@
   "file": "mta_interface_v1.json",
   "branch": "develop"
   },
-   "cable-modem-agent": {
+  "cable-modem-agent": {
   "repo": "cable-modem-agent",
   "file": "cmagent_interface_v1.json",
   "branch": "develop"
+  },
+  "xDSL Manager": {
+  "repo": "xdsl-manager",
+  "file": "xdsl_interface_v1.json",
+  "branch": "main"
   }
 }
