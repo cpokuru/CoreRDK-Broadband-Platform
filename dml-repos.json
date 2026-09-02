@@ -163,5 +163,10 @@
   "repo": "gpon-manager",
   "file": "gpon_interface_v1.json",
   "branch": "main"
+  },
+  "epon-manager": {
+  "repo": "epon-manager",
+  "file": "epon_interface_v1.json",
+  "branch": "main"
   }
 }
