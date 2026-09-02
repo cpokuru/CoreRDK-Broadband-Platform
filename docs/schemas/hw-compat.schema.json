@@ -167,7 +167,15 @@
     },
     "memoryFootprintRef": {
       "type": "string",
-      "description": "Optional. Relative or absolute path/URL to this profile's separate memory-footprint file (see memory-footprint.schema.json), e.g. \"memory-footprint/ethwan-wifi-router.json\". Kept out-of-line so per-process RSS data can be updated as components are profiled without revising this file."
+      "description": "Optional. Filename of this profile's separate memory-footprint file (see memory-footprint.schema.json), kept flat using the convention '<profileId>.memory-footprint.json', e.g. \"ethwan-wifi-router.memory-footprint.json\". Answers 'what consumes the RAM minimum'. Kept out-of-line so per-process RSS data can be updated as components are profiled without revising this file."
+    },
+    "flashLayoutRef": {
+      "type": "string",
+      "description": "Optional. Filename of this profile's separate flash-layout file (see flash-layout.schema.json), kept flat using the convention '<profileId>.flash-layout.json', e.g. \"ethwan-wifi-router.flash-layout.json\". Answers 'what is the flash layout / what consumes the flash minimum'. Kept out-of-line so partition sizing can be refined as real bring-up data comes in."
+    },
+    "cpuUtilizationRef": {
+      "type": "string",
+      "description": "Optional. Filename of this profile's separate cpu-utilization file (see cpu-utilization.schema.json), kept flat using the convention '<profileId>.cpu-utilization.json', e.g. \"ethwan-wifi-router.cpu-utilization.json\". Answers 'what consumes the CPU minimum'. Kept out-of-line so per-process utilization data can be added as components are profiled."
     }
   }
 }

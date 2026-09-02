@@ -1,0 +1,18 @@
+{
+  "$schema": "https://cpokuru.github.io/CoreRDK-Broadband-Platform/schemas/flash-layout.schema.json",
+  "specVersion": "1.0",
+  "profileId": "ethwan-wifi-router",
+  "measured": false,
+  "referenceDevice": "BPI-R4 (MediaTek MT7988, Filogic)",
+  "totalFlashMB": 512,
+  "partitions": [
+    { "partition": "Bootloader", "purpose": "U-Boot or equivalent first/second-stage bootloader.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "vendor" },
+    { "partition": "Kernel (A)", "purpose": "Active kernel image.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "core-rdk-b" },
+    { "partition": "Kernel (B)", "purpose": "Standby kernel image for A/B OTA fallback.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "core-rdk-b" },
+    { "partition": "Rootfs (A)", "purpose": "Active root filesystem (UBI/UBIFS) containing Core RDK-B components.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "core-rdk-b" },
+    { "partition": "Rootfs (B)", "purpose": "Standby root filesystem for A/B OTA fallback.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "core-rdk-b" },
+    { "partition": "Persistent/Config", "purpose": "PSM/TR-181 persistent data store; survives OTA and factory reset boundary per policy.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "core-rdk-b" },
+    { "partition": "Calibration/Factory Data", "purpose": "Radio calibration data, MAC addresses, serial number; written at manufacturing.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "vendor" }
+  ],
+  "notes": "Partition classes reflect what Core RDK-B's firmware-upgrade HAL and A/B OTA model require to exist (see Hardware Compatibility Specification Section 4.3), not a specific vendor's partition table. Sizes are not yet measured against a built image; this profile currently has status 'partial' validation (see hw-compat.json), and flash-layout profiling has not been performed independently of the aggregate 512 MB minFlashMB floor. Exact byte offsets, bootloader partition sizing, and calibration data layout are OEM/SoC-vendor-specific and out of scope for Core RDK-B (see Section 3.3)."
+}

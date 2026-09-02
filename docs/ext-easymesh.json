@@ -96,5 +96,6 @@
   },
   "validationStatus": "partial",
   "lastValidated": "2026-08-25",
-  "memoryFootprintRef": "ext-easymesh.memory-footprint.json"
+  "flashLayoutRef": "ext-easymesh.flash-layout.json",
+  "cpuUtilizationRef": "ext-easymesh.cpu-utilization.json"
 }

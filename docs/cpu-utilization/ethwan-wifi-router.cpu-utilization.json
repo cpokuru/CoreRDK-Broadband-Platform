@@ -1,0 +1,9 @@
+{
+  "$schema": "https://cpokuru.github.io/CoreRDK-Broadband-Platform/schemas/cpu-utilization.schema.json",
+  "specVersion": "1.0",
+  "profileId": "ethwan-wifi-router",
+  "measured": false,
+  "referenceDevice": "BPI-R4 (MediaTek MT7988, Filogic)",
+  "processes": [],
+  "notes": "CPU utilization by process has not yet been profiled for this profile. The RSS-based memory footprint (see ethwan-wifi-router.memory-footprint.json) has been measured, but no corresponding per-process CPU utilization pass has been run. When profiled, results should record the measurement condition (idle vs. steady-state with active Wi-Fi clients and WAN throughput), since CPU utilization is workload-dependent in a way RSS is not."
+}
