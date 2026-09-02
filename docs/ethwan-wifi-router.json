@@ -5,10 +5,10 @@
   "profileName": "EthWAN WiFi Router",
   "cpu": {
     "architecture": "arm64",
-    "family": "Cortex-A73/A53",
+    "family": "Cortex-A73",
     "minClockGHz": 1.8,
     "minCores": 4,
-    "coreTopology": "dual-cluster"
+    "coreTopology": "single-cluster"
   },
   "memory": {
     "minRamMB": 1024
@@ -17,7 +17,7 @@
     "minFlashMB": 512,
     "type": "eMMC",
     "partitionLayout": "A/B",
-    "filesystem": "UBI/UBIFS"
+    "filesystem": "ext4"
   },
   "referenceDevice": {
     "name": "BPI-R4",

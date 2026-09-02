@@ -5,7 +5,7 @@
   "profileName": "EXT EasyMesh",
   "cpu": {
     "architecture": "arm64",
-    "family": "Cortex-A73/A53",
+    "family": "Cortex-A73",
     "minClockGHz": 1.4,
     "minCores": 4,
     "coreTopology": "single-cluster"
@@ -17,7 +17,7 @@
     "minFlashMB": 256,
     "type": "eMMC",
     "partitionLayout": "A/B",
-    "filesystem": "UBI/UBIFS"
+    "filesystem": "ext4"
   },
   "referenceDevice": {
     "name": "BPI-R4",
