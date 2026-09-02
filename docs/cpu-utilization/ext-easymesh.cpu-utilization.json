@@ -2,8 +2,11 @@
   "$schema": "https://cpokuru.github.io/CoreRDK-Broadband-Platform/schemas/cpu-utilization.schema.json",
   "specVersion": "1.0",
   "profileId": "ext-easymesh",
-  "measured": false,
-  "referenceDevice": "BPI-R4 (MediaTek MT7988, Filogic)",
+  "measured": true,
+  "referenceDevice": "Filogic tri-band Wi-Fi 7 EasyMesh extender (ARM64)",
+  "measurementCondition": "Valid 60-second aggregate /proc/stat sample (idle-delta method); all 4 cores online at 1800 MHz, governor=performance; idle/light-load shortly after boot, no active client traffic. Not a controlled multi-client or steering-load test.",
+  "lastMeasured": "2026-09-02",
+  "totalCpuPercent": 2.47,
   "processes": [],
-  "notes": "CPU utilization by process has not yet been profiled for this profile, and no reference measurement exists for EXT EasyMesh specifically (see ext-easymesh.memory-footprint.json for the same status on RAM)."
+  "notes": "Only aggregate CPU utilization was measured (2.47% averaged over a valid 60-second window, load average 0.35/0.47/0.26); no per-process CPU time or percentage breakdown was captured in this pass. This is an idle/light-load result and does not demonstrate sustained forwarding, steering, or multi-client performance. See Hardware Compatibility Specification Section 5.1.2; per-process CPU profiling and loaded-workload testing remain open items (Section 7)."
 }

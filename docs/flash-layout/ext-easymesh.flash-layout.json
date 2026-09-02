@@ -2,17 +2,16 @@
   "$schema": "https://cpokuru.github.io/CoreRDK-Broadband-Platform/schemas/flash-layout.schema.json",
   "specVersion": "1.0",
   "profileId": "ext-easymesh",
-  "measured": false,
-  "referenceDevice": "BPI-R4 (MediaTek MT7988, Filogic)",
-  "totalFlashMB": 256,
+  "measured": true,
+  "referenceDevice": "Filogic tri-band Wi-Fi 7 EasyMesh extender (ARM64)",
+  "lastMeasured": "2026-09-02",
+  "totalFlashMB": 120,
   "partitions": [
-    { "partition": "Bootloader", "purpose": "U-Boot or equivalent first/second-stage bootloader.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "vendor" },
-    { "partition": "Kernel (A)", "purpose": "Active kernel image.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "core-rdk-b" },
-    { "partition": "Kernel (B)", "purpose": "Standby kernel image for A/B OTA fallback.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "core-rdk-b" },
-    { "partition": "Rootfs (A)", "purpose": "Active root filesystem (UBI/UBIFS) containing Core RDK-B components; no WAN stack loaded for this profile.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "core-rdk-b" },
-    { "partition": "Rootfs (B)", "purpose": "Standby root filesystem for A/B OTA fallback.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "core-rdk-b" },
-    { "partition": "Persistent/Config", "purpose": "PSM/TR-181 persistent data store; survives OTA and factory reset boundary per policy.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "core-rdk-b" },
-    { "partition": "Calibration/Factory Data", "purpose": "Radio calibration data, MAC addresses, serial number; written at manufacturing.", "sizeMB": "TBD", "requiredForOTA": true, "owner": "vendor" }
+    { "partition": "BL2 (mtd0)", "purpose": "Early boot stage.", "sizeMB": 1, "requiredForOTA": true, "owner": "vendor" },
+    { "partition": "u-boot-env (mtd1)", "purpose": "Bootloader environment.", "sizeMB": 0.5, "requiredForOTA": true, "owner": "vendor" },
+    { "partition": "Factory (mtd2)", "purpose": "Factory/calibration data.", "sizeMB": 4, "requiredForOTA": true, "owner": "vendor" },
+    { "partition": "FIP (mtd3)", "purpose": "Firmware Image Package.", "sizeMB": 2, "requiredForOTA": true, "owner": "vendor" },
+    { "partition": "ubi (mtd4)", "purpose": "UBI-managed storage.", "sizeMB": 112.5, "requiredForOTA": true, "owner": "core-rdk-b" }
   ],
-  "notes": "Partition classes reflect what Core RDK-B's firmware-upgrade HAL and A/B OTA model require to exist (see Hardware Compatibility Specification Section 4.3), not a specific vendor's partition table. Sizes are not yet measured against a built image. Rootfs is expected to be smaller than EthWAN WiFi Router's since no WAN stack is loaded (see Section 3.1 sizing notes), but this has not been confirmed against an actual image. Exact byte offsets, bootloader partition sizing, and calibration data layout are OEM/SoC-vendor-specific and out of scope for Core RDK-B (see Section 3.3)."
+  "notes": "MEASURED from /proc/mtd on the reference device \u2014 same ~120 MiB onboard SPI-NAND layout as EthWAN WiFi Router. The reference build's actual root filesystem runs from a 32 GB reference card (mmcblk0p4, 14 GiB root partition, 1.7 GiB used) with a second 14 GiB slot (mmcblk0p8) likely reserved for A/B \u2014 not from this onboard flash. The measurement report explicitly states a 2 GB device is too tight for the observed 1.7 GiB root footprint plus A/B/recovery/persistent/log/growth needs, and recommends an 8 GB production baseline \u2014 far above the current 256 MB minFlashMB floor (Section 3, CRF-002). This reinforces, rather than resolves, the Section 3.7 flash-floor discrepancy. See Hardware Compatibility Specification Section 5.1.2 for the full evidence assessment."
 }

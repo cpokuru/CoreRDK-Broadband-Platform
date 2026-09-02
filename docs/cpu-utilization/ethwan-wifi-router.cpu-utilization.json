@@ -2,8 +2,11 @@
   "$schema": "https://cpokuru.github.io/CoreRDK-Broadband-Platform/schemas/cpu-utilization.schema.json",
   "specVersion": "1.0",
   "profileId": "ethwan-wifi-router",
-  "measured": false,
-  "referenceDevice": "BPI-R4 (MediaTek MT7988, Filogic)",
+  "measured": true,
+  "referenceDevice": "BPI-R4 (MediaTek MT7988A/Filogic 880), combined EthWAN + EasyMesh Controller/Agent build",
+  "measurementCondition": "10-second aggregate /proc/stat sample (idle-delta method); all 4 cores online at 1800 MHz, governor=performance; traffic condition and connected-client count not recorded. Not a controlled workload test.",
+  "lastMeasured": "2026-09-02",
+  "totalCpuPercent": 5.56,
   "processes": [],
-  "notes": "CPU utilization by process has not yet been profiled for this profile. The RSS-based memory footprint (see ethwan-wifi-router.memory-footprint.json) has been measured, but no corresponding per-process CPU utilization pass has been run. When profiled, results should record the measurement condition (idle vs. steady-state with active Wi-Fi clients and WAN throughput), since CPU utilization is workload-dependent in a way RSS is not."
+  "notes": "Only aggregate CPU utilization was measured (5.56% averaged over 10 seconds, load average 0.18/0.65/0.42); no per-process CPU time or percentage breakdown was captured in this pass \u2014 the memory-footprint companion file has real per-process data, this file does not yet. Aggregate 5.56% on 4 cores corresponds to roughly 22% of a single core if normalized, but this is an interpretation of the snapshot, not a per-process allocation. See Hardware Compatibility Specification Section 5.1.1; per-process CPU profiling remains an open item (Section 7)."
 }

@@ -2,8 +2,15 @@
   "$schema": "https://cpokuru.github.io/CoreRDK-Broadband-Platform/schemas/memory-footprint.schema.json",
   "specVersion": "1.0",
   "profileId": "ext-easymesh",
-  "measured": false,
-  "referenceDevice": "BPI-R4 (MediaTek MT7988, Filogic)",
-  "processes": [],
-  "notes": "RSS not yet measured for this profile. The reference measurement captured to date (see ethwan-wifi-router memory-footprint file) was taken on the EthWAN WiFi Router build, which is the profile currently passing the functional sanity suite per the Reference Device Validation Methodology; EXT EasyMesh has not yet been profiled independently."
+  "measured": true,
+  "referenceDevice": "Filogic tri-band Wi-Fi 7 EasyMesh extender (ARM64)",
+  "lastMeasured": "2026-09-02",
+  "totalRssMB": 87.43,
+  "processes": [
+    { "process": "OneWifi", "rssMB": 51.76 },
+    { "process": "onewifi_em_agent", "rssMB": 22.49, "componentRepo": "OneWifi (EasyMesh agent)" },
+    { "process": "meshAgent", "rssMB": 7.21 },
+    { "process": "ieee1905", "rssMB": 5.97, "componentRepo": "IEEE 1905 remote agent" }
+  ],
+  "notes": "Covers only the Wi-Fi/EasyMesh process set (OneWifi, EasyMesh agent, meshAgent, ieee1905 remote agent), captured shortly after boot via /proc/<pid>/status VmRSS \u2014 not a full top-N system process list like the EthWAN WiFi Router companion file. totalRssMB (87.43) is the gross sum of these four processes and represents approximately 2.23% of the 3.83 GiB Linux-visible RAM observed on this device; it does not include the rest of the system's process set. System-level snapshot: 172 MiB used, 3.62 GiB MemAvailable. Wi-Fi 7 tri-band (2.4/5/6 GHz) with an active 5 GHz EHT mesh backhaul was confirmed operational during capture (\u221254 dBm, 540.3/432.3 Mb/s PHY). See Hardware Compatibility Specification Section 5.1.2 for the full evidence assessment."
 }
