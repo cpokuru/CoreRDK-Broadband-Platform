@@ -148,5 +148,10 @@
   "repo": "media-terminal-adapter-agent",
   "file": "mta_interface_v1.json",
   "branch": "develop"
+  },
+   "cable-modem-agent": {
+  "repo": "cable-modem-agent",
+  "file": "cmagent_interface_v1.json",
+  "branch": "develop"
   }
 }
