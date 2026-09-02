@@ -138,5 +138,10 @@
   "repo": "mesh-agent",
   "file": "mesh_interface_v1.json",
   "branch": "develop"
+  },
+  "moca-agent": {
+  "repo": "moca-agent",
+  "file": "moca_interface_v1.json",
+  "branch": "develop"
   }
 }
