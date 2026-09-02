@@ -89,22 +89,61 @@ def render_coverage_table(profiles: list[dict]) -> str:
     )
 
 
-def render_minimums_table(in_scope: list[dict]) -> str:
+def _load_ref_json(p: dict, key: str, profiles_dir: Path) -> dict | None:
+    ref = p.get(key)
+    if not ref:
+        return None
+    path = profiles_dir / ref
+    if not path.exists():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def render_minimums_table(in_scope: list[dict], profiles_dir: Path) -> str:
     rows = []
+    partial_notes = []
     for p in in_scope:
         cpu, mem, sto, ref = p["cpu"], p["memory"], p["storage"], p["referenceDevice"]
         cpu_txt = f'{esc(cpu["family"])}, \u2265 {esc(cpu["minClockGHz"])} GHz'
         cores_txt = str(cpu["minCores"]) + (f' ({esc(cpu["coreTopology"])})' if cpu.get("coreTopology") else "")
         ref_txt = esc(ref["name"]) + (f', {esc(ref["soc"])}' if ref.get("soc") else "")
+
+        mem_data = _load_ref_json(p, "memoryFootprintRef", profiles_dir)
+        cpu_data = _load_ref_json(p, "cpuUtilizationRef", profiles_dir)
+
+        measured_ram = "\u2014"
+        if mem_data and mem_data.get("measured") and mem_data.get("totalRssMB") is not None:
+            n_proc = len(mem_data.get("processes", []))
+            # A handful of processes covering only part of the system (e.g.
+            # just the Wi-Fi/EasyMesh set) isn't a full-system total -- flag
+            # it rather than let the number imply more than it measures.
+            partial = n_proc > 0 and n_proc < 10
+            star = "*" if partial else ""
+            measured_ram = f'{esc(mem_data["totalRssMB"])} MB{star}'
+            if partial:
+                partial_notes.append(
+                    f'* {esc(p["profileName"])}: measured RSS covers only {n_proc} Wi-Fi/EasyMesh-specific '
+                    f'processes, not a full-system total \u2014 see Memory Footprint by Process below.'
+                )
+
+        measured_cpu = "\u2014"
+        if cpu_data and cpu_data.get("measured") and cpu_data.get("totalCpuPercent") is not None:
+            measured_cpu = f'{esc(cpu_data["totalCpuPercent"])}%'
+
         rows.append(
             "<tr><td>" + esc(p["profileName"]) + "</td><td class=\"mono\">" + cpu_txt + "</td><td>" + cores_txt +
             "</td><td>" + esc(mem["minRamMB"]) + " MB</td><td>" + esc(sto["minFlashMB"]) +
-            " MB</td><td>" + ref_txt + "</td></tr>"
+            " MB</td><td class=\"mono\">" + measured_ram + "</td><td class=\"mono\">" + measured_cpu +
+            "</td><td>" + ref_txt + "</td></tr>"
         )
+
+    footnote = f'<p style="font-size:0.78rem; color:var(--muted); margin:8px 0 0;">{"<br>".join(partial_notes)}</p>' if partial_notes else ""
+
     return (
         '<table class="def-table"><thead><tr><th>Profile</th><th>CPU (min.)</th><th>Cores</th>'
-        "<th>RAM (min.)</th><th>Flash (min.)</th><th>Reference Device</th></tr></thead><tbody>"
-        + "".join(rows) + "</tbody></table>"
+        "<th>RAM (min.)</th><th>Flash (min.)</th><th>Measured RSS</th><th>Measured CPU</th>"
+        "<th>Reference Device</th></tr></thead><tbody>"
+        + "".join(rows) + "</tbody></table>" + footnote
     )
 
 
@@ -472,7 +511,7 @@ def build_page(profiles_dir: Path, repo_root: Path = None) -> str:
 
 <section class="tight-top">
   <div class="section-head"><h2>Minimum CPU, Memory, and Flash Storage (based on RDK8)</h2></div>
-  {render_minimums_table(rdk8_data)}
+  {render_minimums_table(rdk8_data, profiles_dir)}
 </section>
 
 <section class="tight-top">
