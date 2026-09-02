@@ -98,8 +98,8 @@ def render_minimums_table(in_scope: list[dict]) -> str:
         ref_txt = esc(ref["name"]) + (f', {esc(ref["soc"])}' if ref.get("soc") else "")
         rows.append(
             "<tr><td>" + esc(p["profileName"]) + "</td><td class=\"mono\">" + cpu_txt + "</td><td>" + cores_txt +
-            "</td><td>" + esc(mem["minRamMB"]) + " MB</td><td>" + esc(sto["minFlashMB"]) + " MB (" + esc(sto["type"]) +
-            ")</td><td>" + ref_txt + "</td></tr>"
+            "</td><td>" + esc(mem["minRamMB"]) + " MB</td><td>" + esc(sto["minFlashMB"]) +
+            " MB</td><td>" + ref_txt + "</td></tr>"
         )
     return (
         '<table class="def-table"><thead><tr><th>Profile</th><th>CPU (min.)</th><th>Cores</th>'
@@ -130,13 +130,11 @@ LIST_LABELS = {
     "requiredStandards": "Standards",
     "optionalStandards": "Also supports",
     "requiredSecurity": "Security",
-    "types": "Types",
 }
 SCALAR_LABELS = {
     "minPorts": "Min ports",
     "role": "Role",
     "transport": "Transport",
-    "filesystem": "Filesystem",
     "partitionLayout": "Partition layout",
 }
 
@@ -200,7 +198,7 @@ def render_memory_footprint_table(p: dict, profiles_dir: Path) -> str:
     if not ref:
         return header + '<p style="font-size:0.82rem; color:var(--muted); margin:0;">Arriving soon &mdash; per-process RSS measurements from the RDK8 Broadband Release will be added here once available.</p>'
 
-    path = profiles_dir / "memory-footprint" / ref
+    path = profiles_dir / ref
     if not path.exists():
         return header + '<p style="font-size:0.82rem; color:var(--muted); margin:0;">Arriving soon &mdash; per-process RSS measurements from the RDK8 Broadband Release will be added here once available.</p>'
 
@@ -243,6 +241,121 @@ def render_memory_footprint_table(p: dict, profiles_dir: Path) -> str:
     )
 
 
+def render_cpu_utilization_table(p: dict, profiles_dir: Path) -> str:
+    ref = p.get("cpuUtilizationRef")
+    header = '<div class="subhead" style="margin-top:18px;">CPU Utilization by Process</div>'
+    fallback = header + '<p style="font-size:0.82rem; color:var(--muted); margin:0;">Arriving soon &mdash; per-process CPU utilization from the RDK8 Broadband Release will be added here once available.</p>'
+    if not ref:
+        return fallback
+
+    path = profiles_dir / ref
+    if not path.exists():
+        return fallback
+
+    data = json.loads(path.read_text(encoding="utf-8"))
+    notes = data.get("notes", "")
+
+    if not data.get("measured"):
+        note_html = f'<p style="font-size:0.82rem; color:var(--muted); margin:0;">{esc(notes)}</p>' if notes else fallback[len(header):]
+        return header + note_html
+
+    meta_bits = []
+    if data.get("referenceDevice"):
+        meta_bits.append(f'<strong>Reference device:</strong> {esc(data["referenceDevice"])}')
+    if data.get("measurementCondition"):
+        meta_bits.append(f'<strong>Condition:</strong> {esc(data["measurementCondition"])}')
+    if data.get("lastMeasured"):
+        meta_bits.append(f'<strong>Last measured:</strong> {esc(data["lastMeasured"])}')
+    if data.get("totalCpuPercent") is not None:
+        meta_bits.append(f'<strong>Total CPU:</strong> {esc(data["totalCpuPercent"])}%')
+    meta_html = f'<div class="hwcompat-summary" style="margin:0 0 10px;">{" ".join(f"<span>{b}</span>" for b in meta_bits)}</div>' if meta_bits else ""
+
+    note_html = f'<p class="hwc-notes" style="margin-top:10px;">{esc(notes)}</p>' if notes else ""
+
+    if not data.get("processes"):
+        # e.g. only an aggregate /proc/stat sample was captured, no
+        # per-process breakdown yet -- show the aggregate + notes, no table.
+        return header + meta_html + note_html
+
+    processes = sorted(data["processes"], key=lambda pr: (isinstance(pr["cpuPercent"], str), -(pr["cpuPercent"] if isinstance(pr["cpuPercent"], (int, float)) else 0)))
+    row_parts = []
+    for pr in processes:
+        cpu_val = pr["cpuPercent"]
+        cpu_display = cpu_val if isinstance(cpu_val, str) else f"{cpu_val:.1f}%"
+        row_parts.append(f'<tr><td>{esc(pr["process"])}</td><td class="mono" style="color:var(--muted);">{esc(cpu_display)}</td></tr>')
+    rows = "".join(row_parts)
+    others = data.get("othersCpuPercent")
+    if others is not None:
+        rows += f'<tr><td style="color:var(--muted);font-style:italic;">Others (below reporting threshold)</td><td class="mono" style="color:var(--muted);">{others:.1f}%</td></tr>'
+
+    return (
+        header + meta_html +
+        '<table class="def-table"><thead><tr><th>Process</th><th>CPU</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+        note_html
+    )
+
+
+def render_regional_section(p: dict, profiles_dir: Path) -> str:
+    refs = p.get("regionalRefs") or []
+    header = '<div class="subhead" style="margin-top:18px;">Regional Applicability</div>'
+    if not refs:
+        return header + '<p style="font-size:0.82rem; color:var(--muted); margin:0;">Arriving soon &mdash; regional radio/power configuration and compliance status will be added here once available.</p>'
+
+    blocks = []
+    for ref in refs:
+        path = profiles_dir / ref
+        if not path.exists():
+            continue
+        data = json.loads(path.read_text(encoding="utf-8"))
+        region_label = data.get("regionName") or data.get("regionId", "")
+
+        radio_lines = []
+        radios = data.get("radios", {})
+        for key, label in [("wifi24GHz", "2.4 GHz"), ("wifi5GHz", "5 GHz"), ("wifi6GHz", "6 GHz")]:
+            r = radios.get(key)
+            if not r:
+                continue
+            bits = ["Supported" if r.get("supported") else "Not supported"]
+            if r.get("dfsRequired"):
+                bits.append("DFS required")
+            if r.get("operatingModes"):
+                bits.append(", ".join(r["operatingModes"]))
+            if r.get("afcRequired"):
+                bits.append("AFC required")
+            radio_lines.append(f'<div><strong>{esc(label)}:</strong> {esc(", ".join(bits))}</div>')
+        radio_html = f'<div style="font-size:0.85rem; color:var(--muted); line-height:1.7; margin-bottom:8px;">{"".join(radio_lines)}</div>' if radio_lines else ""
+
+        compliance_rows = []
+        for c in data.get("compliance", []):
+            status = c["status"]
+            pill_colors = {"certified": ("#d1fae5", "#065f46"), "pre-compliance": ("#fef3c7", "#92400e"), "not-tested": ("#e5e7eb", "#374151")}
+            bg, fg = pill_colors.get(status, ("#e5e7eb", "#374151"))
+            status_label = status.replace("-", " ").capitalize()
+            pill = f'<span style="display:inline-block;background:{bg};color:{fg};border-radius:999px;font-size:0.72rem;font-weight:600;padding:2px 10px;">{esc(status_label)}</span>'
+            cert = esc(c["certificateId"]) if c.get("certificateId") else "\u2014"
+            compliance_rows.append(f'<tr><td>{esc(c["scheme"])}</td><td>{pill}</td><td class="mono" style="color:var(--muted);">{cert}</td></tr>')
+        compliance_html = ""
+        if compliance_rows:
+            compliance_html = (
+                '<table class="def-table" style="font-size:0.85rem; margin-bottom:8px;">'
+                '<thead><tr><th>Scheme</th><th>Status</th><th>Certificate</th></tr></thead><tbody>'
+                + "".join(compliance_rows) + '</tbody></table>'
+            )
+
+        notes = data.get("notes", "")
+        note_html = f'<p class="hwc-notes" style="margin:0;">{esc(notes)}</p>' if notes else ""
+
+        blocks.append(
+            f'<div class="hwc-block" style="margin-bottom:10px;">'
+            f'<div class="hwc-block-head"><span class="hwc-block-title">{esc(region_label)}</span>'
+            f'<span style="font-size:0.74rem; color:var(--muted);">{esc(data.get("regulatoryDomain", ""))}</span></div>'
+            f'{radio_html}{compliance_html}{note_html}'
+            f'</div>'
+        )
+
+    return header + "".join(blocks)
+
+
 def render_profile_card(p: dict, profiles_dir: Path) -> str:
     cpu, mem, sto, ref, per = p["cpu"], p["memory"], p["storage"], p["referenceDevice"], p["peripherals"]
     conn = per.get("connectivity", {})
@@ -277,7 +390,7 @@ def render_profile_card(p: dict, profiles_dir: Path) -> str:
         '<div class="hwcompat-summary">'
         f'<span><strong>CPU:</strong> {esc(cpu["family"])} ({esc(cpu["architecture"])}), \u2265 {esc(cpu["minClockGHz"])} GHz, {esc(cpu["minCores"])} cores</span>'
         f'<span><strong>RAM:</strong> {esc(mem["minRamMB"])} MB</span>'
-        f'<span><strong>Flash:</strong> {esc(sto["minFlashMB"])} MB ({esc(sto["type"])})</span>'
+        f'<span><strong>Flash:</strong> {esc(sto["minFlashMB"])} MB</span>'
         f'<span><strong>Reference device:</strong> {ref_line}</span>'
         '</div>'
         '<div class="subhead" style="margin-top:18px;">Peripheral Requirements</div>'
@@ -285,6 +398,8 @@ def render_profile_card(p: dict, profiles_dir: Path) -> str:
         + "".join(blocks) +
         '</div>'
         + render_memory_footprint_table(p, profiles_dir) +
+        render_cpu_utilization_table(p, profiles_dir) +
+        render_regional_section(p, profiles_dir) +
         '</div>'
     )
 

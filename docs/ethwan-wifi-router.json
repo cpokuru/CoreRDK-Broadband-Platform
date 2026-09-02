@@ -15,7 +15,7 @@
   },
   "storage": {
     "minFlashMB": 512,
-    "type": "eMMC",
+    "type": "SD card",
     "partitionLayout": "A/B",
     "filesystem": "ext4"
   },
