@@ -393,8 +393,38 @@
 </style>
 <title>Component Registry — RDK-B Core Broadband</title>
 
+<style>
+  .cr-toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+  .cr-search-input { flex: 1 1 260px; max-width: 340px; padding: 10px 14px; font-size: 0.92rem;
+    border: 1px solid var(--border); border-radius: 10px; background: var(--card-bg); color: var(--ink); }
+  .cr-count { font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+  .cr-legend { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .cr-chip { border: 1px solid var(--border); background: var(--card-bg); color: var(--ink);
+    border-radius: 999px; padding: 6px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: border-color 0.15s, background 0.15s; }
+  .cr-chip:hover { border-color: var(--middleware); }
+  .cr-chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .cr-chip-count { font-weight: 700; opacity: 0.65; font-size: 0.78rem; }
+  .cr-chip-gold::before, .cr-badge.cr-chip-gold::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #d97706; display: inline-block; }
+  .cr-chip-blue::before, .cr-badge.cr-chip-blue::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--middleware); display: inline-block; }
+  .cr-chip-gray::before, .cr-badge.cr-chip-gray::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #9ca3af; display: inline-block; }
+  .cr-chip-all::before { display: none; }
+  table.cr-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  table.cr-table thead th { text-align: left; background: var(--page-bg); color: var(--muted); font-weight: 600;
+    font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  table.cr-table tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  table.cr-table tbody tr:last-child td { border-bottom: none; }
+  table.cr-table tbody tr:hover { background: var(--page-bg); }
+  table.cr-table a { font-weight: 600; text-decoration: none; }
+  table.cr-table a:hover { text-decoration: underline; }
+  .cr-cat { color: var(--muted); }
+  .cr-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+    font-size: 0.78rem; font-weight: 600; border: 1px solid var(--border); }
+  .cr-empty { text-align: center; color: var(--muted); padding: 32px 16px !important; }
+</style>
+
 <script>
-const TABLES = [{"containerId": "data-content", "slug": "component-registry", "kind": "table"}];
+const DATA_URL = "components/all-components.json";
 
 function esc(s) {
   const d = document.createElement('div');
@@ -402,132 +432,76 @@ function esc(s) {
   return d.innerHTML;
 }
 
-// Very small generic XML -> plain-object walker. Repeated sibling tags
-// become an array; text-only leaves become strings. Good enough for a
-// simple "list of records" style XML file; deeply irregular XML falls
-// back to the raw-tree renderer further down.
-function xmlToObj(node) {
-  const children = Array.from(node.children);
-  if (children.length === 0) {
-    return (node.textContent || '').trim();
-  }
-  const out = {};
-  for (const child of children) {
-    const val = xmlToObj(child);
-    if (out[child.tagName] === undefined) {
-      out[child.tagName] = val;
-    } else if (Array.isArray(out[child.tagName])) {
-      out[child.tagName].push(val);
-    } else {
-      out[child.tagName] = [out[child.tagName], val];
-    }
-  }
-  return out;
+let ALL = [];
+let TIERS = [];
+let activeTier = null;
+
+function tierMeta(id) {
+  return TIERS.find(t => t.id === id) || { id, label: id, color: 'gray' };
 }
 
-function findRecordArray(value) {
-  // Walk a parsed JSON/XML object looking for the first array of
-  // same-shaped flat objects — that's almost certainly "the data".
-  if (Array.isArray(value)) return value;
-  if (value && typeof value === 'object') {
-    for (const v of Object.values(value)) {
-      const found = findRecordArray(v);
-      if (found) return found;
-    }
-  }
-  return null;
+function renderLegend() {
+  const el = document.getElementById('cr-legend');
+  el.innerHTML = TIERS.map(t => {
+    const count = ALL.filter(c => c.tier === t.id).length;
+    const active = activeTier === t.id ? ' active' : '';
+    return `<button class="cr-chip cr-chip-${esc(t.color)}${active}" data-tier="${esc(t.id)}">` +
+      `${esc(t.label)} <span class="cr-chip-count">${count}</span></button>`;
+  }).join('') +
+  `<button class="cr-chip cr-chip-all${activeTier === null ? ' active' : ''}" data-tier="">All <span class="cr-chip-count">${ALL.length}</span></button>`;
+  el.querySelectorAll('.cr-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeTier = btn.dataset.tier || null;
+      renderLegend();
+      renderTable();
+    });
+  });
 }
 
-function renderTable(rows) {
-  const isFlatObjectArray = rows.every(r => r && typeof r === 'object' && !Array.isArray(r));
-  if (!isFlatObjectArray) {
-    return '<ul class="def-table" style="list-style:none;padding:0;">' +
-      rows.map(r => `<li style="padding:9px 12px;border-bottom:1px solid var(--border);">${esc(String(r))}</li>`).join('') +
-      '</ul>';
-  }
-  const cols = Object.keys(rows[0]);
-  return `<table class="def-table"><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>` +
-    rows.map(r => `<tr>${cols.map(c => `<td>${esc(r[c])}</td>`).join('')}</tr>`).join('') +
-    '</tbody></table>';
-}
+function renderTable() {
+  const q = document.getElementById('cr-search').value.trim().toLowerCase();
+  const rows = ALL.filter(c => {
+    if (activeTier && c.tier !== activeTier) return false;
+    if (!q) return true;
+    return c.name.toLowerCase().includes(q) || c.category.toLowerCase().includes(q);
+  });
 
-function renderTree(value) {
-  return `<pre style="background:#0b1220;color:#cbd5e1;padding:20px;border-radius:10px;overflow-x:auto;font-size:0.85rem;">${esc(JSON.stringify(value, null, 2))}</pre>`;
-}
+  document.getElementById('cr-count').textContent =
+    rows.length === ALL.length ? `${ALL.length} components` : `${rows.length} of ${ALL.length} components`;
 
-function renderSections(sections) {
-  let html = '';
-  for (const s of sections) {
-    const level = s.level || 2;
-    const tag = level <= 2 ? 'h3' : (level === 3 ? 'h4' : 'h5');
-    html += `<div class="gov-section level-${level}">`;
-    html += `<${tag}><span class="gov-num">${esc(s.number)}</span><span>${esc(s.title)}</span></${tag}>`;
-    let listOpen = false;
-    for (const b of (s.blocks || [])) {
-      if (b.type === 'table') {
-        if (listOpen) { html += '</ul>'; listOpen = false; }
-        html += '<table class="def-table"><thead><tr>' + b.headers.map(h => `<th>${esc(h)}</th>`).join('') + '</tr></thead><tbody>' +
-          b.rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('') + '</tbody></table>';
-      } else if (b.type === 'pre') {
-        if (listOpen) { html += '</ul>'; listOpen = false; }
-        html += `<pre class="code-block">${esc(b.text)}</pre>`;
-      } else if (b.type === 'h') {
-        if (listOpen) { html += '</ul>'; listOpen = false; }
-        html += `<h5 class="gov-subhead">${esc(b.text)}</h5>`;
-      } else if (b.type === 'li') {
-        if (!listOpen) { html += '<ul>'; listOpen = true; }
-        html += `<li>${esc(b.text)}</li>`;
-      } else {
-        if (listOpen) { html += '</ul>'; listOpen = false; }
-        html += `<p>${esc(b.text)}</p>`;
-      }
-    }
-    if (listOpen) html += '</ul>';
-    html += '</div>';
-  }
-  return html;
-}
-
-function render(containerId, value, kind) {
-  const content = document.getElementById(containerId);
-  if (kind === 'sections') {
-    const sections = Array.isArray(value) ? value : (Array.isArray(value && value.docs) ? value.docs : findRecordArray(value));
-    content.innerHTML = sections ? renderSections(sections) : renderTree(value);
+  const body = document.getElementById('cr-tbody');
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="3" class="cr-empty">No components match "${esc(q)}".</td></tr>`;
     return;
   }
-  const records = findRecordArray(value);
-  content.innerHTML = records ? renderTable(records) : renderTree(value);
+  body.innerHTML = rows
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(c => {
+      const t = tierMeta(c.tier);
+      return `<tr>` +
+        `<td><a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.name)}</a></td>` +
+        `<td class="cr-cat">${esc(c.category)}</td>` +
+        `<td><span class="cr-badge cr-chip-${esc(t.color)}">${esc(t.label)}</span></td>` +
+        `</tr>`;
+    }).join('');
 }
 
-function showEmptyState(containerId, jsonFile, xmlFile) {
-  document.getElementById(containerId).innerHTML = `
-    <div class="empty-state">
-      <div class="icon">📄</div>
-      <h3>No data published yet</h3>
-      <p>This section renders automatically once a data file is added.<br>Drop either file next to this page:</p>
-      <p><code>${esc(jsonFile)}</code> &nbsp;or&nbsp; <code>${esc(xmlFile)}</code></p>
-    </div>`;
-}
-
-function loadTable(t) {
-  const jsonFile = t.slug + '.json';
-  const xmlFile = t.slug + '.xml';
-  fetch(jsonFile, { cache: 'no-store' })
-    .then(res => { if (!res.ok) throw new Error('no json'); return res.json(); })
-    .then(data => render(t.containerId, data, t.kind))
-    .catch(() => {
-      fetch(xmlFile, { cache: 'no-store' })
-        .then(res => { if (!res.ok) throw new Error('no xml'); return res.text(); })
-        .then(text => {
-          const xml = new DOMParser().parseFromString(text, 'application/xml');
-          if (xml.getElementsByTagName('parsererror').length > 0) throw new Error('bad xml');
-          render(t.containerId, xmlToObj(xml.documentElement), t.kind);
-        })
-        .catch(() => showEmptyState(t.containerId, jsonFile, xmlFile));
-    });
-}
-
-TABLES.forEach(loadTable);
+fetch(DATA_URL, { cache: 'no-store' })
+  .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+  .then(data => {
+    ALL = data.components || [];
+    TIERS = data.tiers || [];
+    document.getElementById('cr-loading').style.display = 'none';
+    document.getElementById('cr-content').style.display = '';
+    renderLegend();
+    renderTable();
+    document.getElementById('cr-search').addEventListener('input', renderTable);
+  })
+  .catch(err => {
+    document.getElementById('cr-loading').innerHTML =
+      `<div class="empty-state"><div class="icon">📄</div><h3>Could not load the catalog</h3>` +
+      `<p>${esc(err.message)} — expected data at <code>${esc(DATA_URL)}</code>.</p></div>`;
+  });
 </script>
 
 </head>
@@ -585,16 +559,26 @@ TABLES.forEach(loadTable);
     <div class="hero-inner">
       <span class="eyebrow">Component Registry</span>
       <h1 style="font-size:2rem;">Component Registry</h1>
-      <p class="lede">The authoritative record of every RDK-B component — owner, lifecycle state, HAL contract, TR-181 model, and dependencies, per §7.3.2 of the Core RDK Broadband Specification.</p>
-      
+      <p class="lede">Every RDK-B component in one place, independent of device profile -- name, category, classification tier, and source repository.</p>
+      <div class="badge-row"><span class="badge">Profile-independent catalog</span></div>
     </div>
     
   </div>
 </div>
 
 <section class="tight-top">
-  
-  <div id="data-content"><div class="empty-state"><p>Loading…</p></div></div>
+  <div id="cr-loading" class="empty-state"><p>Loading component catalog…</p></div>
+  <div id="cr-content" style="display:none;">
+    <div class="cr-toolbar">
+      <input id="cr-search" class="cr-search-input" type="text" placeholder="Search by name or category…" />
+      <span id="cr-count" class="cr-count"></span>
+    </div>
+    <div id="cr-legend" class="cr-legend"></div>
+    <table class="cr-table">
+      <thead><tr><th>Component</th><th>Category</th><th>Tier</th></tr></thead>
+      <tbody id="cr-tbody"></tbody>
+    </table>
+  </div>
 </section>
 
 </div>
