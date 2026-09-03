@@ -63,11 +63,41 @@ MAINTENANCE_RULES = [
     "RTAB owns registry accuracy and the registry must stay publicly accessible",
 ]
 
+NEW_COMPONENT_DEFINITION = (
+    "A new component is any new open source repo or group of repos adding new RDK-B features or "
+    "services. It must be organized as one logically self-contained, includable/excludable unit -- "
+    "not a grab-bag of unrelated functionality."
+)
+
+PROPOSAL_GROUPS = [
+    {"title": "Scope & ownership", "items": "Problem statement, functional scope, ownership, which profiles it applies to"},
+    {"title": "Interfaces & data", "items": "Data models provided and consumed, HAL APIs used, build/runtime dependencies"},
+    {"title": "Impact", "items": "Security, telemetry, logging, memory/CPU, boot-time, restart/recovery behavior"},
+    {"title": "Delivery", "items": "Test plan, platform portability, release target, rollback plan"},
+]
+
+REGISTRATION_FLOW = [
+    "Propose -- open an architecture proposal ticket and identify an owner",
+    "Define -- interfaces, dependencies, HAL/OSS usage, and every data model provided or consumed",
+    "Build -- implement, run unit tests, validate on the reference platform",
+    "Submit -- open a PR, pass CI, complete peer review (and RTAB review if required)",
+    "Merge -- attach test evidence; merge only after a sanity pass against run-time data model auto-discovery",
+    "Register -- entered into this registry at merge time; track through the next release",
+]
+
 
 def render_policy_panel() -> str:
     field_cards = "".join(
         f'<div class="cr-field-card"><h4>{esc(g["title"])}</h4><p>{esc(g["items"])}</p></div>'
         for g in FIELD_GROUPS
+    )
+    proposal_cards = "".join(
+        f'<div class="cr-field-card"><h4>{esc(g["title"])}</h4><p>{esc(g["items"])}</p></div>'
+        for g in PROPOSAL_GROUPS
+    )
+    flow_items = "".join(
+        f'<div class="tl-item"><div class="tl-year">Step {i}</div><p>{esc(step)}</p></div>'
+        for i, step in enumerate(REGISTRATION_FLOW, start=1)
     )
     lifecycle_strip = "".join(
         f'<div class="cr-lc-step"><span class="cr-lc-name">{esc(s["name"])}</span>'
@@ -97,6 +127,14 @@ def render_policy_panel() -> str:
       per entry.</p>
   </div>
 
+  <div class="subhead" style="margin-top:32px;">Registering a new component · §7.2.3.1 &amp; §7.2.4.1</div>
+  <p class="cr-catalog-note" style="margin-bottom:14px;">{esc(NEW_COMPONENT_DEFINITION)}</p>
+  <div class="cr-field-grid">{proposal_cards}</div>
+
+  <div class="subhead" style="margin-top:32px;">The flow · §7.2.8.1</div>
+  <div class="timeline" style="margin-top:14px;">{flow_items}</div>
+
+  <div class="subhead" style="margin-top:36px;">What the registry itself tracks · §7.3.2.1</div>
   <div class="cr-field-grid">{field_cards}</div>
 
   <div class="subhead" style="margin-top:32px;">Lifecycle states · §7.3.3</div>
@@ -253,6 +291,19 @@ fetch(DATA_URL, {{ cache: 'no-store' }})
       `<div class="empty-state"><div class="icon">📄</div><h3>Could not load the catalog</h3>` +
       `<p>${{esc(err.message)}} — expected data at <code>${{esc(DATA_URL)}}</code>.</p></div>`;
   }});
+
+function crOpenRegister() {{
+  const panel = document.getElementById('contact-panel');
+  const msgField = document.getElementById('contact-message');
+  if (!panel || !msgField) return;
+  panel.classList.add('open');
+  if (!msgField.value.trim()) {{
+    msgField.value = "I'd like to register a new component in the Component Registry.\n\n" +
+      "Component name:\nOwner:\nApplicable RDKB profile(s):\nRepository:\n";
+  }}
+  const nameField = document.getElementById('contact-name');
+  if (nameField) nameField.focus();
+}}
 </script>
 """
 
@@ -320,6 +371,10 @@ STYLE = """
     font-size: 0.78rem; font-weight: 600; border: 1px solid var(--border); }
   .cr-empty { text-align: center; color: var(--muted); padding: 32px 16px !important; }
   .cr-catalog-note { font-size: 0.86rem; color: var(--muted); margin: -6px 0 20px; max-width: 720px; }
+  .cr-register-btn { margin-top: 10px; background: var(--middleware); color: #fff; border: none;
+    padding: 10px 18px; border-radius: 999px; font-size: 0.86rem; font-weight: 600; cursor: pointer;
+    font-family: inherit; transition: filter 0.12s; }
+  .cr-register-btn:hover { filter: brightness(1.1); }
 </style>
 """
 
@@ -357,6 +412,14 @@ def build_page(data_rel_url: str) -> str:
       </tr></thead>
       <tbody id="cr-tbody"></tbody>
     </table>
+  </div>
+
+  <div class="callout" style="margin-top:32px;">
+    <strong>Don't see your component here?</strong>
+    <p>If you're proposing a new component, or an existing one is missing or wrong in this
+      registry, reach out and we'll get it registered -- have your component name, owner, and
+      which RDKB profiles it applies to ready (see the proposal checklist above).</p>
+    <button type="button" class="cr-register-btn" onclick="crOpenRegister()">Register a component</button>
   </div>
 </section>
 '''
