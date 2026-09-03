@@ -86,6 +86,17 @@ def render_policy_panel() -> str:
       <a href="technical-governance.html">Development Standards</a> for the complete wording.</p>
   </div>
 
+  <div class="callout">
+    <strong>Catalog schema &amp; controlled vocabulary</strong>
+    <p>The fields, identifiers, lifecycle states, classification rules, and profile-applicability
+      model below are the schema every entry must follow -- decided once, here, before components
+      are loaded, so a catalog that grows past today's 78 entries doesn't end up classified
+      inconsistently by whoever happens to be filling it in. Tier and category are the controlled
+      vocabulary: a fixed, pre-designated set of classification values -- profile applicability,
+      core/non-core status, category -- applied the same way to every component, not chosen freely
+      per entry.</p>
+  </div>
+
   <div class="cr-field-grid">{field_cards}</div>
 
   <div class="subhead" style="margin-top:32px;">Lifecycle states · §7.3.3</div>
