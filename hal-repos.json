@@ -104,5 +104,25 @@
     "repo": "rdkb-halif-xdsl",
     "file": "xdsl.json",
     "branch": "develop"
+  },
+   "Bluetooth": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
+  },
+  "Matter": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
+  },
+  "Thread": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
+  },
+  "Zigbee": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
   }
 }
