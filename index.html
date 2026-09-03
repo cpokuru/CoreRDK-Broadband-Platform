@@ -237,34 +237,62 @@
   .tl-item::before { content: ""; position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--middleware); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--middleware); }
   .tl-year { font-family: "JetBrains Mono", monospace; font-weight: 700; color: var(--middleware); font-size: 0.86rem; }
   .tl-item p { margin: 2px 0 0; font-size: 0.92rem; }
-  .tier-diagram { border-radius: 16px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-md); }
-  .tier { display: flex; align-items: stretch; border-bottom: 1px solid rgba(255,255,255,0.12); }
-  .tier:last-child { border-bottom: none; }
-  .tier .num { flex: 0 0 64px; display: flex; align-items: center; justify-content: center; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 1.15rem; }
-  .tier .body { flex: 1; padding: 19px 24px; }
-  .tier .body h4 { margin: 0 0 4px; font-size: 1.02rem; }
-  .tier .body p { margin: 0; font-size: 0.88rem; }
-  .tier .body-split { display: flex; padding: 0; }
-  .tier .body-split .split-col { flex: 1; padding: 19px 24px; }
-  .tier .body-split .split-col:first-child { border-right: 1px solid rgba(255,255,255,0.25); }
-  .tier .body-split h4 { margin: 0 0 4px; font-size: 1.02rem; }
-  .tier .body-split p { margin: 0; font-size: 0.88rem; }
-  .tier.t5 { background: #e5e7eb; color: #1f2937; }
-  .tier.t5 .num { background: #d1d5db; color: #1f2937; }
-  .tier.t4 { background: #cfe0fb; color: #10284d; }
-  .tier.t4 .num { background: #9dc0f2; color: #10284d; }
-  .tier.t3 { background: var(--middleware); color: #fff; }
-  .tier.t3 .num { background: #1a3fb5; color: #fff; }
-  .tier.t3 .body p, .tier.t3 .body-split p { color: #dce6ff; }
-  .tier.t3 .body h4, .tier.t3 .body-split h4 { color: #fff; }
-  .tier.t2 { background: var(--hal); color: #fff; }
-  .tier.t2 .num { background: #0e2144; color: #fff; }
-  .tier.t2 .body p { color: #c5d3e6; }
-  .tier.t2 .body h4 { color: #fff; }
-  .tier.t1 { background: var(--bedrock); color: #fff; }
-  .tier.t1 .num { background: #000308; color: #9fb2cf; }
-  .tier.t1 .body p { color: #9fb2cf; }
-  .tier.t1 .body h4 { color: #fff; }
+  .tier-diagram {
+    position: relative; display: flex; flex-direction: column; gap: 22px;
+    padding: 56px clamp(24px, 8vw, 96px);
+    background:
+      radial-gradient(ellipse 640px 360px at 50% 8%, rgba(42,92,240,0.12), transparent 65%),
+      radial-gradient(ellipse 520px 320px at 50% 96%, rgba(8,13,24,0.06), transparent 70%);
+  }
+  .tier-diagram::before {
+    content: ""; position: absolute; left: 50%; top: 30px; bottom: 30px; width: 1px; z-index: 0;
+    background: repeating-linear-gradient(to bottom, rgba(42,92,240,0.4) 0 5px, transparent 5px 11px);
+  }
+  .tier {
+    position: relative; z-index: 1; display: flex; align-items: stretch;
+    margin: 0 auto; width: 100%; max-width: 720px;
+    clip-path: polygon(28px 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 28px 100%, 0 50%);
+    background: linear-gradient(135deg, var(--tier-glass-hi, rgba(255,255,255,0.7)), var(--tier-glass-lo, rgba(255,255,255,0.25)));
+    backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid var(--tier-edge, rgba(42,92,240,0.35));
+    box-shadow: 0 10px 34px var(--tier-glow, rgba(42,92,240,0.16)), inset 0 1px 0 rgba(255,255,255,0.55);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .tier:hover { transform: translateY(-3px); box-shadow: 0 16px 40px var(--tier-glow, rgba(42,92,240,0.22)), inset 0 1px 0 rgba(255,255,255,0.6); }
+  .tier::after {
+    content: ""; position: absolute; left: 0; top: 50%; width: 10px; height: 10px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--tier-edge, var(--middleware));
+    transform: translate(-50%, -50%); box-shadow: 0 0 0 4px var(--tier-glow, rgba(42,92,240,0.18));
+  }
+  .tier .num {
+    flex: 0 0 52px; margin: 14px 0 14px 30px; align-self: center;
+    width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 0.95rem;
+    background: rgba(255,255,255,0.5); border: 1px solid var(--tier-edge, rgba(42,92,240,0.35));
+    color: var(--tier-text, var(--ink));
+  }
+  .tier .body { flex: 1; padding: 19px 28px 19px 6px; }
+  .tier .body h4 { margin: 0 0 4px; font-size: 1.02rem; color: var(--tier-text, var(--ink)); }
+  .tier .body p { margin: 0; font-size: 0.88rem; color: var(--tier-text-sub, var(--muted)); }
+  .tier .body-split { display: flex; padding: 0 24px 0 0; flex: 1; }
+  .tier .body-split .split-col { flex: 1; padding: 19px 16px; }
+  .tier .body-split .split-col:first-child { border-right: 1px solid var(--tier-edge, rgba(42,92,240,0.25)); }
+  .tier .body-split h4 { margin: 0 0 4px; font-size: 1.02rem; color: var(--tier-text, var(--ink)); }
+  .tier .body-split p { margin: 0; font-size: 0.88rem; color: var(--tier-text-sub, var(--muted)); }
+  .tier.t5 { --tier-glass-hi: rgba(238,241,255,0.75); --tier-glass-lo: rgba(238,241,255,0.3); --tier-edge: rgba(99,102,241,0.3); --tier-glow: rgba(99,102,241,0.14); --tier-text: #312e81; --tier-text-sub: #5b5fa8; }
+  .tier.t4 { --tier-glass-hi: rgba(207,224,251,0.8); --tier-glass-lo: rgba(207,224,251,0.32); --tier-edge: rgba(42,92,240,0.35); --tier-glow: rgba(42,92,240,0.16); --tier-text: #10284d; --tier-text-sub: #3a5487; }
+  .tier.t3 {
+    --tier-glass-hi: rgba(93,200,255,0.55); --tier-glass-lo: rgba(42,92,240,0.35);
+    --tier-edge: rgba(93,200,255,0.75); --tier-glow: rgba(56,189,248,0.4);
+    --tier-text: #ffffff; --tier-text-sub: #dceeff;
+    box-shadow: 0 0 0 1px rgba(93,200,255,0.4), 0 14px 44px rgba(56,189,248,0.38), inset 0 1px 0 rgba(255,255,255,0.5);
+  }
+  .tier.t3:hover { box-shadow: 0 0 0 1px rgba(93,200,255,0.55), 0 18px 52px rgba(56,189,248,0.5), inset 0 1px 0 rgba(255,255,255,0.55); }
+  .tier.t3 .num { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); color: #fff; }
+  .tier.t2 { --tier-glass-hi: rgba(22,48,90,0.65); --tier-glass-lo: rgba(22,48,90,0.32); --tier-edge: rgba(93,200,255,0.3); --tier-glow: rgba(22,48,90,0.3); --tier-text: #fff; --tier-text-sub: #c5d3e6; }
+  .tier.t2 .num { background: rgba(255,255,255,0.12); border-color: rgba(147,197,253,0.4); color: #fff; }
+  .tier.t1 { --tier-glass-hi: rgba(8,13,24,0.72); --tier-glass-lo: rgba(8,13,24,0.4); --tier-edge: rgba(148,163,184,0.25); --tier-glow: rgba(8,13,24,0.35); --tier-text: #fff; --tier-text-sub: #9fb2cf; }
+  .tier.t1 .num { background: rgba(255,255,255,0.08); border-color: rgba(148,163,184,0.3); color: #cbd5e1; }
   .tier-caption { text-align: center; font-size: 0.82rem; color: var(--muted); margin-top: 12px; }
   .layer-stack { display: flex; flex-direction: column; gap: 6px; }
   .layer-box { margin-bottom: 6px; border-radius: 9px; padding: 13px 16px; font-size: 0.86rem; font-weight: 600; text-align: center; }
@@ -375,7 +403,7 @@
     <a class="active" href="index.html">About Core RDK Broadband</a><a class="cta" href="components/">Core RDK Components ↗</a><div class="nav-group ">
       <button type="button" class="nav-group-toggle ">Standards <span class="caret">&#9662;</span></button>
       <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="" href="architecture-standards.html">Architecture Standards</a><a class="" href="industry-standards.html">Industry Conformance Standards</a><a class="" href="technical-governance.html">Development Standards</a></div></div>
-    </div><div class="nav-group ">
+    </div><a class="" href="component-registry.html">Component Registry</a><div class="nav-group ">
       <button type="button" class="nav-group-toggle ">North Bound APIs <span class="caret">&#9662;</span></button>
       <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="" href="north-bound-specification.html">North Bound Specification</a><a class="" href="north-bound-apis.html">List of North Bound APIs</a></div></div>
     </div><a class="" href="south-bound-apis.html">South Bound APIs</a><a class="" href="hardware-compatibility.html">Hardware Compatibility</a>

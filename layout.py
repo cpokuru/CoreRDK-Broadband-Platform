@@ -9,6 +9,7 @@ browser as Python.
 from __future__ import annotations
 
 import html
+import json
 
 COMPONENTS_URL = "components/"
 
@@ -25,6 +26,7 @@ NAV_LINKS = [
         ("link", "industry-standards", "Industry Conformance Standards", "industry-standards.html", False),
         ("link", "technical-governance", "Development Standards", "technical-governance.html", False),
     ]),
+    ("link", "component-registry", "Component Registry", "component-registry.html", False),
     ("group", "nbi-group", "North Bound APIs", [
         ("link", "nbi-spec", "North Bound Specification", "north-bound-specification.html", False),
         ("link", "nbi", "List of North Bound APIs", "north-bound-apis.html", False),
@@ -262,34 +264,62 @@ SHARED_CSS = """
   .tl-item::before { content: ""; position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--middleware); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--middleware); }
   .tl-year { font-family: "JetBrains Mono", monospace; font-weight: 700; color: var(--middleware); font-size: 0.86rem; }
   .tl-item p { margin: 2px 0 0; font-size: 0.92rem; }
-  .tier-diagram { border-radius: 16px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-md); }
-  .tier { display: flex; align-items: stretch; border-bottom: 1px solid rgba(255,255,255,0.12); }
-  .tier:last-child { border-bottom: none; }
-  .tier .num { flex: 0 0 64px; display: flex; align-items: center; justify-content: center; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 1.15rem; }
-  .tier .body { flex: 1; padding: 19px 24px; }
-  .tier .body h4 { margin: 0 0 4px; font-size: 1.02rem; }
-  .tier .body p { margin: 0; font-size: 0.88rem; }
-  .tier .body-split { display: flex; padding: 0; }
-  .tier .body-split .split-col { flex: 1; padding: 19px 24px; }
-  .tier .body-split .split-col:first-child { border-right: 1px solid rgba(255,255,255,0.25); }
-  .tier .body-split h4 { margin: 0 0 4px; font-size: 1.02rem; }
-  .tier .body-split p { margin: 0; font-size: 0.88rem; }
-  .tier.t5 { background: #e5e7eb; color: #1f2937; }
-  .tier.t5 .num { background: #d1d5db; color: #1f2937; }
-  .tier.t4 { background: #cfe0fb; color: #10284d; }
-  .tier.t4 .num { background: #9dc0f2; color: #10284d; }
-  .tier.t3 { background: var(--middleware); color: #fff; }
-  .tier.t3 .num { background: #1a3fb5; color: #fff; }
-  .tier.t3 .body p, .tier.t3 .body-split p { color: #dce6ff; }
-  .tier.t3 .body h4, .tier.t3 .body-split h4 { color: #fff; }
-  .tier.t2 { background: var(--hal); color: #fff; }
-  .tier.t2 .num { background: #0e2144; color: #fff; }
-  .tier.t2 .body p { color: #c5d3e6; }
-  .tier.t2 .body h4 { color: #fff; }
-  .tier.t1 { background: var(--bedrock); color: #fff; }
-  .tier.t1 .num { background: #000308; color: #9fb2cf; }
-  .tier.t1 .body p { color: #9fb2cf; }
-  .tier.t1 .body h4 { color: #fff; }
+  .tier-diagram {
+    position: relative; display: flex; flex-direction: column; gap: 22px;
+    padding: 56px clamp(24px, 8vw, 96px);
+    background:
+      radial-gradient(ellipse 640px 360px at 50% 8%, rgba(42,92,240,0.12), transparent 65%),
+      radial-gradient(ellipse 520px 320px at 50% 96%, rgba(8,13,24,0.06), transparent 70%);
+  }
+  .tier-diagram::before {
+    content: ""; position: absolute; left: 50%; top: 30px; bottom: 30px; width: 1px; z-index: 0;
+    background: repeating-linear-gradient(to bottom, rgba(42,92,240,0.4) 0 5px, transparent 5px 11px);
+  }
+  .tier {
+    position: relative; z-index: 1; display: flex; align-items: stretch;
+    margin: 0 auto; width: 100%; max-width: 720px;
+    clip-path: polygon(28px 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 28px 100%, 0 50%);
+    background: linear-gradient(135deg, var(--tier-glass-hi, rgba(255,255,255,0.7)), var(--tier-glass-lo, rgba(255,255,255,0.25)));
+    backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid var(--tier-edge, rgba(42,92,240,0.35));
+    box-shadow: 0 10px 34px var(--tier-glow, rgba(42,92,240,0.16)), inset 0 1px 0 rgba(255,255,255,0.55);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .tier:hover { transform: translateY(-3px); box-shadow: 0 16px 40px var(--tier-glow, rgba(42,92,240,0.22)), inset 0 1px 0 rgba(255,255,255,0.6); }
+  .tier::after {
+    content: ""; position: absolute; left: 0; top: 50%; width: 10px; height: 10px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--tier-edge, var(--middleware));
+    transform: translate(-50%, -50%); box-shadow: 0 0 0 4px var(--tier-glow, rgba(42,92,240,0.18));
+  }
+  .tier .num {
+    flex: 0 0 52px; margin: 14px 0 14px 30px; align-self: center;
+    width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 0.95rem;
+    background: rgba(255,255,255,0.5); border: 1px solid var(--tier-edge, rgba(42,92,240,0.35));
+    color: var(--tier-text, var(--ink));
+  }
+  .tier .body { flex: 1; padding: 19px 28px 19px 6px; }
+  .tier .body h4 { margin: 0 0 4px; font-size: 1.02rem; color: var(--tier-text, var(--ink)); }
+  .tier .body p { margin: 0; font-size: 0.88rem; color: var(--tier-text-sub, var(--muted)); }
+  .tier .body-split { display: flex; padding: 0 24px 0 0; flex: 1; }
+  .tier .body-split .split-col { flex: 1; padding: 19px 16px; }
+  .tier .body-split .split-col:first-child { border-right: 1px solid var(--tier-edge, rgba(42,92,240,0.25)); }
+  .tier .body-split h4 { margin: 0 0 4px; font-size: 1.02rem; color: var(--tier-text, var(--ink)); }
+  .tier .body-split p { margin: 0; font-size: 0.88rem; color: var(--tier-text-sub, var(--muted)); }
+  .tier.t5 { --tier-glass-hi: rgba(238,241,255,0.75); --tier-glass-lo: rgba(238,241,255,0.3); --tier-edge: rgba(99,102,241,0.3); --tier-glow: rgba(99,102,241,0.14); --tier-text: #312e81; --tier-text-sub: #5b5fa8; }
+  .tier.t4 { --tier-glass-hi: rgba(207,224,251,0.8); --tier-glass-lo: rgba(207,224,251,0.32); --tier-edge: rgba(42,92,240,0.35); --tier-glow: rgba(42,92,240,0.16); --tier-text: #10284d; --tier-text-sub: #3a5487; }
+  .tier.t3 {
+    --tier-glass-hi: rgba(93,200,255,0.55); --tier-glass-lo: rgba(42,92,240,0.35);
+    --tier-edge: rgba(93,200,255,0.75); --tier-glow: rgba(56,189,248,0.4);
+    --tier-text: #ffffff; --tier-text-sub: #dceeff;
+    box-shadow: 0 0 0 1px rgba(93,200,255,0.4), 0 14px 44px rgba(56,189,248,0.38), inset 0 1px 0 rgba(255,255,255,0.5);
+  }
+  .tier.t3:hover { box-shadow: 0 0 0 1px rgba(93,200,255,0.55), 0 18px 52px rgba(56,189,248,0.5), inset 0 1px 0 rgba(255,255,255,0.55); }
+  .tier.t3 .num { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); color: #fff; }
+  .tier.t2 { --tier-glass-hi: rgba(22,48,90,0.65); --tier-glass-lo: rgba(22,48,90,0.32); --tier-edge: rgba(93,200,255,0.3); --tier-glow: rgba(22,48,90,0.3); --tier-text: #fff; --tier-text-sub: #c5d3e6; }
+  .tier.t2 .num { background: rgba(255,255,255,0.12); border-color: rgba(147,197,253,0.4); color: #fff; }
+  .tier.t1 { --tier-glass-hi: rgba(8,13,24,0.72); --tier-glass-lo: rgba(8,13,24,0.4); --tier-edge: rgba(148,163,184,0.25); --tier-glow: rgba(8,13,24,0.35); --tier-text: #fff; --tier-text-sub: #9fb2cf; }
+  .tier.t1 .num { background: rgba(255,255,255,0.08); border-color: rgba(148,163,184,0.3); color: #cbd5e1; }
   .tier-caption { text-align: center; font-size: 0.82rem; color: var(--muted); margin-top: 12px; }
   .layer-stack { display: flex; flex-direction: column; gap: 6px; }
   .layer-box { margin-bottom: 6px; border-radius: 9px; padding: 13px 16px; font-size: 0.86rem; font-weight: 600; text-align: center; }
@@ -782,3 +812,185 @@ def render_page(active_id: str, head_extra: str, body_html: str, script: str = "
 </body>
 </html>
 '''
+
+
+# ---------- generic "stub" page renderer ----------
+#
+# Used by any page that just needs the shared shell + a client-side loader
+# for a JSON/XML data file that may not exist yet (renders a clean "no data
+# published yet" empty state until one shows up next to the page). One page
+# = one call to render_stub_page(); each generator script that wants this
+# (gen_stub_pages.py, gen_component_registry_page.py, etc.) owns its own
+# PAGE dict and writes its own file — this function only owns the shared
+# markup/JS so it isn't duplicated across those scripts.
+
+STUB_LOADER_SCRIPT_TEMPLATE = """
+<script>
+const TABLES = {tables_json};
+
+function esc(s) {{
+  const d = document.createElement('div');
+  d.textContent = s ?? '';
+  return d.innerHTML;
+}}
+
+// Very small generic XML -> plain-object walker. Repeated sibling tags
+// become an array; text-only leaves become strings. Good enough for a
+// simple "list of records" style XML file; deeply irregular XML falls
+// back to the raw-tree renderer further down.
+function xmlToObj(node) {{
+  const children = Array.from(node.children);
+  if (children.length === 0) {{
+    return (node.textContent || '').trim();
+  }}
+  const out = {{}};
+  for (const child of children) {{
+    const val = xmlToObj(child);
+    if (out[child.tagName] === undefined) {{
+      out[child.tagName] = val;
+    }} else if (Array.isArray(out[child.tagName])) {{
+      out[child.tagName].push(val);
+    }} else {{
+      out[child.tagName] = [out[child.tagName], val];
+    }}
+  }}
+  return out;
+}}
+
+function findRecordArray(value) {{
+  // Walk a parsed JSON/XML object looking for the first array of
+  // same-shaped flat objects — that's almost certainly "the data".
+  if (Array.isArray(value)) return value;
+  if (value && typeof value === 'object') {{
+    for (const v of Object.values(value)) {{
+      const found = findRecordArray(v);
+      if (found) return found;
+    }}
+  }}
+  return null;
+}}
+
+function renderTable(rows) {{
+  const isFlatObjectArray = rows.every(r => r && typeof r === 'object' && !Array.isArray(r));
+  if (!isFlatObjectArray) {{
+    return '<ul class="def-table" style="list-style:none;padding:0;">' +
+      rows.map(r => `<li style="padding:9px 12px;border-bottom:1px solid var(--border);">${{esc(String(r))}}</li>`).join('') +
+      '</ul>';
+  }}
+  const cols = Object.keys(rows[0]);
+  return `<table class="def-table"><thead><tr>${{cols.map(c => `<th>${{esc(c)}}</th>`).join('')}}</tr></thead><tbody>` +
+    rows.map(r => `<tr>${{cols.map(c => `<td>${{esc(r[c])}}</td>`).join('')}}</tr>`).join('') +
+    '</tbody></table>';
+}}
+
+function renderTree(value) {{
+  return `<pre style="background:#0b1220;color:#cbd5e1;padding:20px;border-radius:10px;overflow-x:auto;font-size:0.85rem;">${{esc(JSON.stringify(value, null, 2))}}</pre>`;
+}}
+
+function renderSections(sections) {{
+  let html = '';
+  for (const s of sections) {{
+    const level = s.level || 2;
+    const tag = level <= 2 ? 'h3' : (level === 3 ? 'h4' : 'h5');
+    html += `<div class="gov-section level-${{level}}">`;
+    html += `<${{tag}}><span class="gov-num">${{esc(s.number)}}</span><span>${{esc(s.title)}}</span></${{tag}}>`;
+    let listOpen = false;
+    for (const b of (s.blocks || [])) {{
+      if (b.type === 'table') {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += '<table class="def-table"><thead><tr>' + b.headers.map(h => `<th>${{esc(h)}}</th>`).join('') + '</tr></thead><tbody>' +
+          b.rows.map(r => `<tr>${{r.map(c => `<td>${{esc(c)}}</td>`).join('')}}</tr>`).join('') + '</tbody></table>';
+      }} else if (b.type === 'pre') {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += `<pre class="code-block">${{esc(b.text)}}</pre>`;
+      }} else if (b.type === 'h') {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += `<h5 class="gov-subhead">${{esc(b.text)}}</h5>`;
+      }} else if (b.type === 'li') {{
+        if (!listOpen) {{ html += '<ul>'; listOpen = true; }}
+        html += `<li>${{esc(b.text)}}</li>`;
+      }} else {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += `<p>${{esc(b.text)}}</p>`;
+      }}
+    }}
+    if (listOpen) html += '</ul>';
+    html += '</div>';
+  }}
+  return html;
+}}
+
+function render(containerId, value, kind) {{
+  const content = document.getElementById(containerId);
+  if (kind === 'sections') {{
+    const sections = Array.isArray(value) ? value : (Array.isArray(value && value.docs) ? value.docs : findRecordArray(value));
+    content.innerHTML = sections ? renderSections(sections) : renderTree(value);
+    return;
+  }}
+  const records = findRecordArray(value);
+  content.innerHTML = records ? renderTable(records) : renderTree(value);
+}}
+
+function showEmptyState(containerId, jsonFile, xmlFile) {{
+  document.getElementById(containerId).innerHTML = `
+    <div class="empty-state">
+      <div class="icon">📄</div>
+      <h3>No data published yet</h3>
+      <p>This section renders automatically once a data file is added.<br>Drop either file next to this page:</p>
+      <p><code>${{esc(jsonFile)}}</code> &nbsp;or&nbsp; <code>${{esc(xmlFile)}}</code></p>
+    </div>`;
+}}
+
+function loadTable(t) {{
+  const jsonFile = t.slug + '.json';
+  const xmlFile = t.slug + '.xml';
+  fetch(jsonFile, {{ cache: 'no-store' }})
+    .then(res => {{ if (!res.ok) throw new Error('no json'); return res.json(); }})
+    .then(data => render(t.containerId, data, t.kind))
+    .catch(() => {{
+      fetch(xmlFile, {{ cache: 'no-store' }})
+        .then(res => {{ if (!res.ok) throw new Error('no xml'); return res.text(); }})
+        .then(text => {{
+          const xml = new DOMParser().parseFromString(text, 'application/xml');
+          if (xml.getElementsByTagName('parsererror').length > 0) throw new Error('bad xml');
+          render(t.containerId, xmlToObj(xml.documentElement), t.kind);
+        }})
+        .catch(() => showEmptyState(t.containerId, jsonFile, xmlFile));
+    }});
+}}
+
+TABLES.forEach(loadTable);
+</script>
+"""
+
+
+def render_stub_page(page: dict) -> str:
+    """Render one stub page from a page dict:
+      {active_id, slug, eyebrow, title, lede, tables?: [{slug, kind?, heading?, blurb?}]}
+    'tables' defaults to a single table keyed on the page's own slug. Each
+    table gets a client-side loader that tries <slug>.json then <slug>.xml
+    next to the page and renders whatever it finds, or a "no data yet"
+    empty state if neither exists.
+    """
+    tables = page.get("tables") or [{"slug": page["slug"]}]
+    sections = []
+    tables_js = []
+    for i, t in enumerate(tables):
+        container_id = "data-content" if i == 0 else f"data-content-{i + 1}"
+        tables_js.append({"containerId": container_id, "slug": t["slug"], "kind": t.get("kind", "table")})
+        heading_html = ""
+        if t.get("heading"):
+            blurb = f'<p>{t["blurb"]}</p>' if t.get("blurb") else ""
+            heading_html = f'<div class="section-head"><h2>{t["heading"]}</h2>{blurb}</div>'
+        sections.append(f'''
+<section class="tight-top">
+  {heading_html}
+  <div id="{container_id}"><div class="empty-state"><p>Loading…</p></div></div>
+</section>
+''')
+
+    body = render_hero(page["eyebrow"], page["title"], page["lede"], compact=True, visual_key=page["active_id"]) \
+        + "".join(sections)
+    head_extra = f"<title>{page['title']} — RDK-B Core Broadband</title>\n" + \
+        STUB_LOADER_SCRIPT_TEMPLATE.format(tables_json=json.dumps(tables_js))
+    return render_page(page["active_id"], head_extra, body)
