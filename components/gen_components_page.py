@@ -77,7 +77,14 @@ def build_body(data: dict) -> str:
         tier_style = TIER_COLORS[tier["color"]]
         cat_style = category_color(c["category"] or "Uncategorized")
         url = c.get("url")
-        url_cell = f'<a href="{esc(url)}" target="_blank" rel="noopener">{esc(url)}</a>' if url else '<span class="muted">—</span>'
+        repos = [u for u in [url, *c.get("supportingUrls", [])] if u]
+        if repos:
+            url_cell = '<div style="display:flex;flex-direction:column;gap:4px;">' + "".join(
+                f'<a href="{esc(u)}" target="_blank" rel="noopener" style="font-size:0.86rem;">{esc(u)}</a>'
+                for u in repos
+            ) + '</div>'
+        else:
+            url_cell = '<span class="muted">—</span>'
         rows_html.append(f'''<tr>
           <td>{esc(c["name"])}</td>
           <td><span class="pill" style="background:{cat_style["bg"]};color:{cat_style["fg"]};border-radius:8px;line-height:1.5;">{esc(c["category"] or "Uncategorized")}</span></td>
@@ -95,7 +102,7 @@ def build_body(data: dict) -> str:
   </p>
   <div style="margin-bottom:18px;">{legend_html}</div>
   <table class="def-table">
-    <thead><tr><th>Name</th><th>Category</th><th>Tier</th><th>URL</th></tr></thead>
+    <thead><tr><th>Name</th><th>Category</th><th>Tier</th><th>Repositories</th></tr></thead>
     <tbody>{"".join(rows_html)}</tbody>
   </table>
   <p style="margin-top:18px; font-size:0.86rem;">
