@@ -1,24 +1,28 @@
 """One-purpose generator for component-registry.html.
 
-Renders a single, profile-agnostic component catalog -- every component
-across every RDK-B device profile, one row each, no per-profile split.
-Source of truth is components/all-components.json (already deduplicated
-across profiles by extract_components.py's all-profiles/merge step); all
-parsing and rendering happens client-side in the generated page, since
-all-components.json's shape ({schemaVersion, tiers, components}) doesn't
-fit the generic "flat array of records" loader in layout.render_stub_page
--- the tiers legend array would get picked up as "the data" instead of the
-78-entry components array.
+Two parts, in order:
 
-This intentionally carries a narrower field set than the full section 7.3.2
-Component Registry (name/category/tier/repo only, from the existing
-extraction pipeline) -- it's the profile-agnostic catalog view, not the
-governance registry with owner/lifecycle/HAL contract/dependencies. Those
-richer fields still need their own data source before they can render here
-or anywhere else.
+1. The registry rules themselves -- section 7.3.2 (Component Registry),
+   7.3.2.1 (Mandatory Registry Fields), 7.3.2.2 (Registry Maintenance
+   Rules), 7.3.3 (Component Lifecycle States), and 7.3.3.1 (State
+   Transition Rules) of the Core RDK Broadband Specification. This content
+   already exists in component-governance.json (it also backs the
+   "Component Governance Process" block on technical-governance.html) --
+   this page fetches that same file client-side and renders only the
+   7.3.2/7.3.3 subsection numbers, using the same .gov-section/.def-table
+   CSS classes technical-governance.html uses, so the two pages read as
+   one consistent design language.
+
+2. The catalog itself -- every component across every device profile, one
+   row each, from components/all-components.json. This is intentionally
+   a narrower field set than the full 7.3.2.1 mandatory field list (only
+   name/category/tier/repo, from the existing extraction pipeline) --
+   owner, lifecycle state, HAL contract, TR-181 model, and dependencies
+   still need their own data source before they can render here.
 
 Usage:
-    python3 gen_component_registry_page.py --data components/all-components.json --out-dir .
+    python3 gen_component_registry_page.py --data components/all-components.json \\
+        --governance component-governance.json --out-dir .
 """
 from __future__ import annotations
 
@@ -32,13 +36,17 @@ PAGE = {
     "active_id": "component-registry",
     "eyebrow": "Component Registry",
     "title": "Component Registry",
-    "lede": "Every RDK-B component in one place, independent of device profile -- name, "
-            "category, classification tier, and source repository.",
+    "lede": "The authoritative record of every RDK-B component -- registration, lifecycle "
+            "state, and ownership, per §7.3.2 of the Core RDK Broadband Specification.",
 }
+
+GOV_SECTION_NUMBERS = ["7.3.2", "7.3.2.1", "7.3.2.2", "7.3.3", "7.3.3.1"]
 
 SCRIPT_TEMPLATE = """
 <script>
 const DATA_URL = {data_url_json};
+const GOV_URL = {gov_url_json};
+const GOV_NUMBERS = {gov_numbers_json};
 
 function esc(s) {{
   const d = document.createElement('div');
@@ -46,6 +54,47 @@ function esc(s) {{
   return d.innerHTML;
 }}
 
+// ---- governance rules (section 7.3.2 / 7.3.3), same renderer shape as
+// technical-governance.html so both pages look like one document ----
+function renderGovSections(sections) {{
+  let html = '';
+  for (const s of sections) {{
+    const level = s.level || 2;
+    const tag = level <= 2 ? 'h3' : (level === 3 ? 'h4' : 'h5');
+    html += `<div class="gov-section level-${{level}}">`;
+    html += `<${{tag}}><span class="gov-num">${{esc(s.number)}}</span><span>${{esc(s.title)}}</span></${{tag}}>`;
+    let listOpen = false;
+    for (const b of (s.blocks || [])) {{
+      if (b.type === 'table') {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += '<table class="def-table"><thead><tr>' + b.headers.map(h => `<th>${{esc(h)}}</th>`).join('') + '</tr></thead><tbody>' +
+          b.rows.map(r => `<tr>${{r.map(c => `<td>${{esc(c)}}</td>`).join('')}}</tr>`).join('') + '</tbody></table>';
+      }} else if (b.type === 'li') {{
+        if (!listOpen) {{ html += '<ul>'; listOpen = true; }}
+        html += `<li>${{esc(b.text)}}</li>`;
+      }} else {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += `<p>${{esc(b.text)}}</p>`;
+      }}
+    }}
+    if (listOpen) html += '</ul>';
+    html += '</div>';
+  }}
+  return html;
+}}
+
+fetch(GOV_URL, {{ cache: 'no-store' }})
+  .then(res => {{ if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); }})
+  .then(data => {{
+    const sections = (data.docs || []).filter(s => GOV_NUMBERS.includes(s.number));
+    document.getElementById('cr-gov').innerHTML = renderGovSections(sections);
+  }})
+  .catch(() => {{
+    document.getElementById('cr-gov').innerHTML =
+      '<p style="color:var(--muted);">Registry policy text (§7.3.2–§7.3.3) could not be loaded from ' + esc(GOV_URL) + '.</p>';
+  }});
+
+// ---- catalog table (components/all-components.json) ----
 let ALL = [];
 let TIERS = [];
 let activeTier = null;
@@ -81,7 +130,7 @@ function renderTable() {{
   }});
 
   document.getElementById('cr-count').textContent =
-    rows.length === ALL.length ? `${{ALL.length}} components` : `${{rows.length}} of ${{ALL.length}} components`;
+    rows.length === ALL.length ? `${{ALL.length}} registered components` : `${{rows.length}} of ${{ALL.length}} registered components`;
 
   const body = document.getElementById('cr-tbody');
   if (!rows.length) {{
@@ -148,15 +197,29 @@ STYLE = """
   .cr-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
     font-size: 0.78rem; font-weight: 600; border: 1px solid var(--border); }
   .cr-empty { text-align: center; color: var(--muted); padding: 32px 16px !important; }
+  .cr-catalog-note { font-size: 0.86rem; color: var(--muted); margin: -6px 0 20px; max-width: 720px; }
 </style>
 """
 
 
-def build_page(data_rel_url: str) -> str:
-    hero_badges = '<span class="badge">Profile-independent catalog</span>'
+def build_page(data_rel_url: str, gov_rel_url: str) -> str:
+    hero_badges = '<span class="badge">§7.3.2 Component Registry</span><span class="badge">§7.3.3 Lifecycle States</span>'
     body = render_hero(PAGE["eyebrow"], PAGE["title"], PAGE["lede"], hero_badges,
                         compact=True, visual_key=PAGE["active_id"]) + f'''
 <section class="tight-top">
+  <div id="cr-gov"><div class="empty-state"><p>Loading registry policy…</p></div></div>
+</section>
+
+<section class="tight-top">
+  <div class="section-head">
+    <span class="eyebrow-lt">Registry data</span>
+    <h2>Registered Components</h2>
+  </div>
+  <p class="cr-catalog-note">
+    Currently populated fields: component name, category, source repository, and per-profile
+    classification tier. Owner, lifecycle state, HAL contract reference, TR-181 model, and
+    dependency fields from §7.3.2.1 are not yet tracked in the pipeline that feeds this table.
+  </p>
   <div id="cr-loading" class="empty-state"><p>Loading component catalog…</p></div>
   <div id="cr-content" style="display:none;">
     <div class="cr-toolbar">
@@ -172,7 +235,11 @@ def build_page(data_rel_url: str) -> str:
 </section>
 '''
     head_extra = f"<title>{PAGE['title']} — RDK-B Core Broadband</title>\n" + STYLE + \
-        SCRIPT_TEMPLATE.format(data_url_json=json.dumps(data_rel_url))
+        SCRIPT_TEMPLATE.format(
+            data_url_json=json.dumps(data_rel_url),
+            gov_url_json=json.dumps(gov_rel_url),
+            gov_numbers_json=json.dumps(GOV_SECTION_NUMBERS),
+        )
     return render_page(PAGE["active_id"], head_extra, body)
 
 
@@ -180,13 +247,15 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", default="components/all-components.json",
                      help="Path (relative to the built site root) to the component catalog JSON.")
+    ap.add_argument("--governance", default="component-governance.json",
+                     help="Path (relative to the built site root) to the governance sections JSON.")
     ap.add_argument("--out-dir", default=".")
     args = ap.parse_args()
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     path = out_dir / "component-registry.html"
-    path.write_text(build_page(args.data), encoding="utf-8")
+    path.write_text(build_page(args.data, args.governance), encoding="utf-8")
     print(f"Wrote {path}")
 
 

@@ -56,6 +56,7 @@
     display: flex; align-items: center; gap: 5px; cursor: pointer;
     background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); border: none;
     font-family: inherit; color: #fff; text-decoration: none; font-size: 0.82rem; font-weight: 500;
+    line-height: 1.6; box-sizing: border-box; appearance: none; -webkit-appearance: none;
     padding: 7px 13px; border-radius: 999px; white-space: nowrap; transition: all 0.12s; outline: none;
   }
   .topnav > nav > a:hover, .nav-group-toggle:hover { filter: brightness(1.12); }
@@ -421,10 +422,13 @@
   .cr-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
     font-size: 0.78rem; font-weight: 600; border: 1px solid var(--border); }
   .cr-empty { text-align: center; color: var(--muted); padding: 32px 16px !important; }
+  .cr-catalog-note { font-size: 0.86rem; color: var(--muted); margin: -6px 0 20px; max-width: 720px; }
 </style>
 
 <script>
 const DATA_URL = "components/all-components.json";
+const GOV_URL = "component-governance.json";
+const GOV_NUMBERS = ["7.3.2", "7.3.2.1", "7.3.2.2", "7.3.3", "7.3.3.1"];
 
 function esc(s) {
   const d = document.createElement('div');
@@ -432,6 +436,47 @@ function esc(s) {
   return d.innerHTML;
 }
 
+// ---- governance rules (section 7.3.2 / 7.3.3), same renderer shape as
+// technical-governance.html so both pages look like one document ----
+function renderGovSections(sections) {
+  let html = '';
+  for (const s of sections) {
+    const level = s.level || 2;
+    const tag = level <= 2 ? 'h3' : (level === 3 ? 'h4' : 'h5');
+    html += `<div class="gov-section level-${level}">`;
+    html += `<${tag}><span class="gov-num">${esc(s.number)}</span><span>${esc(s.title)}</span></${tag}>`;
+    let listOpen = false;
+    for (const b of (s.blocks || [])) {
+      if (b.type === 'table') {
+        if (listOpen) { html += '</ul>'; listOpen = false; }
+        html += '<table class="def-table"><thead><tr>' + b.headers.map(h => `<th>${esc(h)}</th>`).join('') + '</tr></thead><tbody>' +
+          b.rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('') + '</tbody></table>';
+      } else if (b.type === 'li') {
+        if (!listOpen) { html += '<ul>'; listOpen = true; }
+        html += `<li>${esc(b.text)}</li>`;
+      } else {
+        if (listOpen) { html += '</ul>'; listOpen = false; }
+        html += `<p>${esc(b.text)}</p>`;
+      }
+    }
+    if (listOpen) html += '</ul>';
+    html += '</div>';
+  }
+  return html;
+}
+
+fetch(GOV_URL, { cache: 'no-store' })
+  .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+  .then(data => {
+    const sections = (data.docs || []).filter(s => GOV_NUMBERS.includes(s.number));
+    document.getElementById('cr-gov').innerHTML = renderGovSections(sections);
+  })
+  .catch(() => {
+    document.getElementById('cr-gov').innerHTML =
+      '<p style="color:var(--muted);">Registry policy text (§7.3.2–§7.3.3) could not be loaded from ' + esc(GOV_URL) + '.</p>';
+  });
+
+// ---- catalog table (components/all-components.json) ----
 let ALL = [];
 let TIERS = [];
 let activeTier = null;
@@ -467,7 +512,7 @@ function renderTable() {
   });
 
   document.getElementById('cr-count').textContent =
-    rows.length === ALL.length ? `${ALL.length} components` : `${rows.length} of ${ALL.length} components`;
+    rows.length === ALL.length ? `${ALL.length} registered components` : `${rows.length} of ${ALL.length} registered components`;
 
   const body = document.getElementById('cr-tbody');
   if (!rows.length) {
@@ -559,14 +604,27 @@ fetch(DATA_URL, { cache: 'no-store' })
     <div class="hero-inner">
       <span class="eyebrow">Component Registry</span>
       <h1 style="font-size:2rem;">Component Registry</h1>
-      <p class="lede">Every RDK-B component in one place, independent of device profile -- name, category, classification tier, and source repository.</p>
-      <div class="badge-row"><span class="badge">Profile-independent catalog</span></div>
+      <p class="lede">The authoritative record of every RDK-B component -- registration, lifecycle state, and ownership, per §7.3.2 of the Core RDK Broadband Specification.</p>
+      <div class="badge-row"><span class="badge">§7.3.2 Component Registry</span><span class="badge">§7.3.3 Lifecycle States</span></div>
     </div>
     
   </div>
 </div>
 
 <section class="tight-top">
+  <div id="cr-gov"><div class="empty-state"><p>Loading registry policy…</p></div></div>
+</section>
+
+<section class="tight-top">
+  <div class="section-head">
+    <span class="eyebrow-lt">Registry data</span>
+    <h2>Registered Components</h2>
+  </div>
+  <p class="cr-catalog-note">
+    Currently populated fields: component name, category, source repository, and per-profile
+    classification tier. Owner, lifecycle state, HAL contract reference, TR-181 model, and
+    dependency fields from §7.3.2.1 are not yet tracked in the pipeline that feeds this table.
+  </p>
   <div id="cr-loading" class="empty-state"><p>Loading component catalog…</p></div>
   <div id="cr-content" style="display:none;">
     <div class="cr-toolbar">

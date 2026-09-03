@@ -83,6 +83,7 @@ SHARED_CSS = """
     display: flex; align-items: center; gap: 5px; cursor: pointer;
     background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); border: none;
     font-family: inherit; color: #fff; text-decoration: none; font-size: 0.82rem; font-weight: 500;
+    line-height: 1.6; box-sizing: border-box; appearance: none; -webkit-appearance: none;
     padding: 7px 13px; border-radius: 999px; white-space: nowrap; transition: all 0.12s; outline: none;
   }
   .topnav > nav > a:hover, .nav-group-toggle:hover { filter: brightness(1.12); }
