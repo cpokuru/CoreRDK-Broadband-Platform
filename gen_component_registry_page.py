@@ -203,22 +203,25 @@ function renderTable() {{
 
   const body = document.getElementById('cr-tbody');
   if (!rows.length) {{
-    body.innerHTML = `<tr><td colspan="3" class="cr-empty">No components match the current filters.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="4" class="cr-empty">No components match the current filters.</td></tr>`;
     updateSortIndicators();
     return;
   }}
   body.innerHTML = rows.map(c => {{
     const t = tierMeta(c.tier);
-    const supporting = c.supportingUrls || [];
-    const suppHtml = supporting.length
-      ? `<span class="cr-supp" title="${{supporting.length}} supporting ${{supporting.length === 1 ? 'repository' : 'repositories'}}">` +
-        supporting.map(u => `<a href="${{esc(u)}}" target="_blank" rel="noopener" title="${{esc(repoLabel(u))}}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a>`).join('') +
-        `</span>`
-      : '';
+    const repos = [c.url, ...(c.supportingUrls || [])].filter(Boolean);
+    const repoHtml = repos.length
+      ? `<div class="cr-repo-list">` +
+        repos.map((u, i) => `<a class="cr-repo-chip" href="${{esc(u)}}" target="_blank" rel="noopener" title="${{esc(u)}}">` +
+          `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>` +
+          `${{esc(repoLabel(u))}}</a>`).join('') +
+        `</div>`
+      : '<span class="cr-empty-cell">—</span>';
     return `<tr>` +
-      `<td><a href="${{esc(c.url)}}" target="_blank" rel="noopener">${{esc(c.name)}}<svg class="cr-ext" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a>${{suppHtml}}</td>` +
+      `<td>${{esc(c.name)}}</td>` +
       `<td class="cr-cat">${{esc(c.category)}}</td>` +
       `<td><span class="cr-badge cr-chip-${{esc(t.color)}}">${{esc(t.label)}}</span></td>` +
+      `<td>${{repoHtml}}</td>` +
       `</tr>`;
   }}).join('');
   updateSortIndicators();
@@ -307,11 +310,11 @@ STYLE = """
   table.cr-table tbody tr:hover { background: var(--page-bg); }
   table.cr-table a { font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
   table.cr-table a:hover { text-decoration: underline; }
-  .cr-ext { flex: 0 0 auto; opacity: 0.55; }
-  .cr-supp { display: inline-flex; align-items: center; gap: 3px; margin-left: 8px; padding: 2px 6px;
-    border-radius: 999px; background: var(--page-bg); border: 1px solid var(--border); vertical-align: middle; }
-  .cr-supp a { color: var(--muted); opacity: 0.75; }
-  .cr-supp a:hover { color: var(--middleware); opacity: 1; }
+  .cr-repo-list { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+  .cr-repo-chip { font-weight: 500 !important; font-size: 0.82rem; color: var(--middleware) !important;
+    display: inline-flex; align-items: center; gap: 5px; }
+  .cr-repo-chip svg { flex: 0 0 auto; opacity: 0.6; }
+  .cr-empty-cell { color: var(--muted); }
   .cr-cat { color: var(--muted); }
   .cr-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
     font-size: 0.78rem; font-weight: 600; border: 1px solid var(--border); }
@@ -350,6 +353,7 @@ def build_page(data_rel_url: str) -> str:
         <th data-sort="name">Component <span class="cr-sort-arrow"></span></th>
         <th data-sort="category">Category <span class="cr-sort-arrow"></span></th>
         <th data-sort="tier">Tier <span class="cr-sort-arrow"></span></th>
+        <th>Repositories</th>
       </tr></thead>
       <tbody id="cr-tbody"></tbody>
     </table>
