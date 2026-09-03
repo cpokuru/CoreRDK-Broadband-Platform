@@ -175,6 +175,19 @@ def _all_profiles_classification(wb) -> dict[str, dict[str, str]]:
     return best
 
 
+def _split_urls(cell) -> list[str]:
+    """Split a Github Link cell into one or more URLs. Most cells hold a
+    single URL; a handful list several -- one per line, sometimes comma-
+    or semicolon-separated on one line (see module docstring). Any
+    resulting fragment that doesn't look like a URL is dropped rather than
+    surfaced as a broken link -- some of these cells mix in plain-text
+    notes alongside the real links."""
+    if not isinstance(cell, str):
+        return []
+    parts = re.split(r"[\n,;]+", cell)
+    return [p.strip() for p in parts if p.strip().lower().startswith("http")]
+
+
 def _rows(wb):
     """Yield one record per repo from the 'Components' sheet (clean, one row
     per repo -- see module docstring for why repo identity stays anchored
@@ -211,10 +224,9 @@ def _rows(wb):
         if name in seen_names:
             continue
         seen_names.add(name)
-        url = row[url_idx]
-        if isinstance(url, str):
-            # A handful of rows list multiple links newline-separated; keep the first.
-            url = url.strip().splitlines()[0].strip() or None
+        urls = _split_urls(row[url_idx])
+        url = urls[0] if urls else None
+        supporting_urls = urls[1:]
 
         profile_values = {}
         for i, profile in enumerate(PROFILE_COLUMNS):
@@ -232,6 +244,7 @@ def _rows(wb):
             "subsystem": cur_subsys,
             "name": name,
             "url": url,
+            "supporting_urls": supporting_urls,
             "is_core": row[core_idx] == "CORE",
             "profile_values": profile_values,
         }
@@ -268,6 +281,7 @@ def extract_all(wb) -> list[dict]:
             "category": r["subsystem"],
             "tier": tier,
             "url": r["url"],
+            "supportingUrls": r["supporting_urls"],
         })
     return out
 
@@ -283,6 +297,7 @@ def extract_core(wb) -> list[dict]:
                 "category": r["subsystem"],
                 "tier": "common-core" if r["is_core"] else "required",
                 "url": r["url"],
+                "supportingUrls": r["supporting_urls"],
             })
     return out
 
@@ -312,6 +327,7 @@ def extract_profile(wb, profile: str, required_only: bool = False, show_core: bo
             "category": r["subsystem"],
             "tier": tier,
             "url": r["url"],
+            "supportingUrls": r["supporting_urls"],
         })
     return out
 

@@ -448,6 +448,10 @@
   table.cr-table a { font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
   table.cr-table a:hover { text-decoration: underline; }
   .cr-ext { flex: 0 0 auto; opacity: 0.55; }
+  .cr-supp { display: inline-flex; align-items: center; gap: 3px; margin-left: 8px; padding: 2px 6px;
+    border-radius: 999px; background: var(--page-bg); border: 1px solid var(--border); vertical-align: middle; }
+  .cr-supp a { color: var(--muted); opacity: 0.75; }
+  .cr-supp a:hover { color: var(--middleware); opacity: 1; }
   .cr-cat { color: var(--muted); }
   .cr-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
     font-size: 0.78rem; font-weight: 600; border: 1px solid var(--border); }
@@ -518,6 +522,11 @@ function updateSortIndicators() {
   });
 }
 
+function repoLabel(url) {
+  const parts = url.replace(/\/+$/, '').split('/');
+  return parts[parts.length - 1] || url;
+}
+
 function renderTable() {
   const q = document.getElementById('cr-search').value.trim().toLowerCase();
   let rows = ALL.filter(c => {
@@ -544,8 +553,14 @@ function renderTable() {
   }
   body.innerHTML = rows.map(c => {
     const t = tierMeta(c.tier);
+    const supporting = c.supportingUrls || [];
+    const suppHtml = supporting.length
+      ? `<span class="cr-supp" title="${supporting.length} supporting ${supporting.length === 1 ? 'repository' : 'repositories'}">` +
+        supporting.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener" title="${esc(repoLabel(u))}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a>`).join('') +
+        `</span>`
+      : '';
     return `<tr>` +
-      `<td><a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.name)}<svg class="cr-ext" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></td>` +
+      `<td><a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.name)}<svg class="cr-ext" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a>${suppHtml}</td>` +
       `<td class="cr-cat">${esc(c.category)}</td>` +
       `<td><span class="cr-badge cr-chip-${esc(t.color)}">${esc(t.label)}</span></td>` +
       `</tr>`;
@@ -682,9 +697,9 @@ fetch(DATA_URL, { cache: 'no-store' })
     <h2>Registered Components</h2>
   </div>
   <p class="cr-catalog-note">
-    Currently populated fields: name, category, source repository, and per-profile classification
-    tier. Owner, lifecycle state, HAL contract reference, TR-181 model, and dependency fields from
-    §7.3.2.1 are not yet tracked in the pipeline that feeds this table.
+    Currently populated fields: name, category, primary and supporting repositories, and
+    per-profile classification tier. Owner, lifecycle state, HAL contract reference, TR-181 model,
+    and dependency fields from §7.3.2.1 are not yet tracked in the pipeline that feeds this table.
   </p>
   <div id="cr-loading" class="empty-state"><p>Loading component catalog…</p></div>
   <div id="cr-content" style="display:none;">
