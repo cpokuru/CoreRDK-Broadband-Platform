@@ -149,5 +149,20 @@
     "repo": "TBD",
     "file": "TBD",
     "branch": "TBD"
+  },
+ "udhcpc": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
+  },
+ "dibbler-client": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
+  },
+  "dibbler-server": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
   }
 }
