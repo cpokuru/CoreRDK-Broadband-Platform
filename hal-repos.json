@@ -199,5 +199,40 @@
     "repo": "TBD",
     "file": "TBD",
     "branch": "TBD"
+  },
+  "ivictl": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
+  },
+  "mocactl": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
+  },
+  "mocacfg": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
+  },
+  "zebra": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
+  },
+  "wlancfg": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
+  },
+  "wlancfg_tr": {
+     "repo": "TBD",
+     "file": "TBD",
+     "branch": "TBD"
+  },
+  "ti_udhcpc": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
   }
 }
