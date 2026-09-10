@@ -130,7 +130,7 @@
     "file": "TBD",
     "branch": "TBD"
   },
-  "Firewall": {
+  "Firewall-Iptabes": {
     "repo": "TBD",
     "file": "TBD",
     "branch": "TBD"
@@ -186,6 +186,11 @@
     "branch": "TBD"
   },
   "bridge-utils": {
+    "repo": "TBD",
+    "file": "TBD",
+    "branch": "TBD"
+  },
+  "libnetfilter_conntrack": {
     "repo": "TBD",
     "file": "TBD",
     "branch": "TBD"
