@@ -1,0 +1,257 @@
+From 16d69ec205959d6702fccf3bcfda36acb964bef8 Mon Sep 17 00:00:00 2001
+From: chandrakanth pokuru <chandrakanth_pokuru2@comcast.com>
+Date: Thu, 3 Sep 2026 15:32:39 -0400
+Subject: [PATCH 07/17] comp reg 55
+
+---
+ component-registry.html                  | 30 ++++++++++++++----------
+ components/all-components.json           |  2 +-
+ components/ethwan-router-components.json |  2 +-
+ components/ext-easymesh-components.json  |  2 +-
+ components/ext-opensync-components.json  |  2 +-
+ components/gw-components.json            |  2 +-
+ components/gw-easymesh-components.json   |  2 +-
+ components/gw-opensync-components.json   |  2 +-
+ components/index.html                    |  2 +-
+ components/modem-onu-components.json     |  2 +-
+ gen_component_registry_page.py           | 30 ++++++++++++++----------
+ 11 files changed, 43 insertions(+), 35 deletions(-)
+
+diff --git a/component-registry.html b/component-registry.html
+index 31310d5..8a12b2b 100644
+--- a/component-registry.html
++++ b/component-registry.html
+@@ -447,11 +447,11 @@
+   table.cr-table tbody tr:hover { background: var(--page-bg); }
+   table.cr-table a { font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+   table.cr-table a:hover { text-decoration: underline; }
+-  .cr-ext { flex: 0 0 auto; opacity: 0.55; }
+-  .cr-supp { display: inline-flex; align-items: center; gap: 3px; margin-left: 8px; padding: 2px 6px;
+-    border-radius: 999px; background: var(--page-bg); border: 1px solid var(--border); vertical-align: middle; }
+-  .cr-supp a { color: var(--muted); opacity: 0.75; }
+-  .cr-supp a:hover { color: var(--middleware); opacity: 1; }
++  .cr-repo-list { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
++  .cr-repo-chip { font-weight: 500 !important; font-size: 0.82rem; color: var(--middleware) !important;
++    display: inline-flex; align-items: center; gap: 5px; }
++  .cr-repo-chip svg { flex: 0 0 auto; opacity: 0.6; }
++  .cr-empty-cell { color: var(--muted); }
+   .cr-cat { color: var(--muted); }
+   .cr-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+     font-size: 0.78rem; font-weight: 600; border: 1px solid var(--border); }
+@@ -547,22 +547,25 @@ function renderTable() {
+ 
+   const body = document.getElementById('cr-tbody');
+   if (!rows.length) {
+-    body.innerHTML = `<tr><td colspan="3" class="cr-empty">No components match the current filters.</td></tr>`;
++    body.innerHTML = `<tr><td colspan="4" class="cr-empty">No components match the current filters.</td></tr>`;
+     updateSortIndicators();
+     return;
+   }
+   body.innerHTML = rows.map(c => {
+     const t = tierMeta(c.tier);
+-    const supporting = c.supportingUrls || [];
+-    const suppHtml = supporting.length
+-      ? `<span class="cr-supp" title="${supporting.length} supporting ${supporting.length === 1 ? 'repository' : 'repositories'}">` +
+-        supporting.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener" title="${esc(repoLabel(u))}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a>`).join('') +
+-        `</span>`
+-      : '';
++    const repos = [c.url, ...(c.supportingUrls || [])].filter(Boolean);
++    const repoHtml = repos.length
++      ? `<div class="cr-repo-list">` +
++        repos.map((u, i) => `<a class="cr-repo-chip" href="${esc(u)}" target="_blank" rel="noopener" title="${esc(u)}">` +
++          `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>` +
++          `${esc(repoLabel(u))}</a>`).join('') +
++        `</div>`
++      : '<span class="cr-empty-cell">—</span>';
+     return `<tr>` +
+-      `<td><a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.name)}<svg class="cr-ext" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a>${suppHtml}</td>` +
++      `<td>${esc(c.name)}</td>` +
+       `<td class="cr-cat">${esc(c.category)}</td>` +
+       `<td><span class="cr-badge cr-chip-${esc(t.color)}">${esc(t.label)}</span></td>` +
++      `<td>${repoHtml}</td>` +
+       `</tr>`;
+   }).join('');
+   updateSortIndicators();
+@@ -715,6 +718,7 @@ fetch(DATA_URL, { cache: 'no-store' })
+         <th data-sort="name">Component <span class="cr-sort-arrow"></span></th>
+         <th data-sort="category">Category <span class="cr-sort-arrow"></span></th>
+         <th data-sort="tier">Tier <span class="cr-sort-arrow"></span></th>
++        <th>Repositories</th>
+       </tr></thead>
+       <tbody id="cr-tbody"></tbody>
+     </table>
+diff --git a/components/all-components.json b/components/all-components.json
+index dfe13c0..3626c3d 100644
+--- a/components/all-components.json
++++ b/components/all-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:26:06Z",
++  "generatedAt": "2026-09-03T19:32:26Z",
+   "title": "RDK-B Core Broadband Components",
+   "subtitle": "Every component relevant to RDK-B Core Broadband across all device profiles -- Common Core, Required, or Optional for at least one profile.",
+   "tiers": [
+diff --git a/components/ethwan-router-components.json b/components/ethwan-router-components.json
+index e64b097..cd11834 100644
+--- a/components/ethwan-router-components.json
++++ b/components/ethwan-router-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:26:05Z",
++  "generatedAt": "2026-09-03T19:32:24Z",
+   "title": "RDK-B EthWAN WiFi Router Components",
+   "subtitle": "Components for the EthWAN WiFi Router device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/ext-easymesh-components.json b/components/ext-easymesh-components.json
+index 884a28c..c3de952 100644
+--- a/components/ext-easymesh-components.json
++++ b/components/ext-easymesh-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:26:06Z",
++  "generatedAt": "2026-09-03T19:32:26Z",
+   "title": "RDK-B EXT EasyMesh Components",
+   "subtitle": "Components for the EXT EasyMesh device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/ext-opensync-components.json b/components/ext-opensync-components.json
+index e4a6937..9b606a1 100644
+--- a/components/ext-opensync-components.json
++++ b/components/ext-opensync-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:26:06Z",
++  "generatedAt": "2026-09-03T19:32:25Z",
+   "title": "RDK-B EXT OpenSync Components",
+   "subtitle": "Components for the EXT OpenSync device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-components.json b/components/gw-components.json
+index 94dc55c..0a64bd3 100644
+--- a/components/gw-components.json
++++ b/components/gw-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:26:05Z",
++  "generatedAt": "2026-09-03T19:32:25Z",
+   "title": "RDK-B GW Components",
+   "subtitle": "Components for the GW device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-easymesh-components.json b/components/gw-easymesh-components.json
+index 2d5f65c..9aeef0b 100644
+--- a/components/gw-easymesh-components.json
++++ b/components/gw-easymesh-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:26:05Z",
++  "generatedAt": "2026-09-03T19:32:25Z",
+   "title": "RDK-B GW EasyMesh Components",
+   "subtitle": "Components for the GW EasyMesh device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-opensync-components.json b/components/gw-opensync-components.json
+index c352633..44ac63f 100644
+--- a/components/gw-opensync-components.json
++++ b/components/gw-opensync-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:26:05Z",
++  "generatedAt": "2026-09-03T19:32:25Z",
+   "title": "RDK-B GW OpenSync Components",
+   "subtitle": "Components for the GW OpenSync device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/index.html b/components/index.html
+index 68bfd64..915e335 100644
+--- a/components/index.html
++++ b/components/index.html
+@@ -459,7 +459,7 @@
+ 
+ <section class="tight-top">
+   <p style="color:var(--muted); font-size:0.85rem; margin:0 0 14px;">
+-    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-03T19:26:05Z
++    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-03T19:32:24Z
+   </p>
+   <div style="margin-bottom:18px;"><span class="pill" style="background:#fef3c7;color:#92400e">Common Core</span><span class="pill" style="background:#dbeafe;color:#1e40af">Required</span><span class="pill" style="background:#f3f4f6;color:#374151">Optional</span></div>
+   <table class="def-table">
+diff --git a/components/modem-onu-components.json b/components/modem-onu-components.json
+index b819532..493eec5 100644
+--- a/components/modem-onu-components.json
++++ b/components/modem-onu-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:26:04Z",
++  "generatedAt": "2026-09-03T19:32:24Z",
+   "title": "RDK-B Modem /ONU Components",
+   "subtitle": "Components for the Modem /ONU device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/gen_component_registry_page.py b/gen_component_registry_page.py
+index c36ba44..a92abd7 100644
+--- a/gen_component_registry_page.py
++++ b/gen_component_registry_page.py
+@@ -203,22 +203,25 @@ function renderTable() {{
+ 
+   const body = document.getElementById('cr-tbody');
+   if (!rows.length) {{
+-    body.innerHTML = `<tr><td colspan="3" class="cr-empty">No components match the current filters.</td></tr>`;
++    body.innerHTML = `<tr><td colspan="4" class="cr-empty">No components match the current filters.</td></tr>`;
+     updateSortIndicators();
+     return;
+   }}
+   body.innerHTML = rows.map(c => {{
+     const t = tierMeta(c.tier);
+-    const supporting = c.supportingUrls || [];
+-    const suppHtml = supporting.length
+-      ? `<span class="cr-supp" title="${{supporting.length}} supporting ${{supporting.length === 1 ? 'repository' : 'repositories'}}">` +
+-        supporting.map(u => `<a href="${{esc(u)}}" target="_blank" rel="noopener" title="${{esc(repoLabel(u))}}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a>`).join('') +
+-        `</span>`
+-      : '';
++    const repos = [c.url, ...(c.supportingUrls || [])].filter(Boolean);
++    const repoHtml = repos.length
++      ? `<div class="cr-repo-list">` +
++        repos.map((u, i) => `<a class="cr-repo-chip" href="${{esc(u)}}" target="_blank" rel="noopener" title="${{esc(u)}}">` +
++          `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>` +
++          `${{esc(repoLabel(u))}}</a>`).join('') +
++        `</div>`
++      : '<span class="cr-empty-cell">—</span>';
+     return `<tr>` +
+-      `<td><a href="${{esc(c.url)}}" target="_blank" rel="noopener">${{esc(c.name)}}<svg class="cr-ext" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a>${{suppHtml}}</td>` +
++      `<td>${{esc(c.name)}}</td>` +
+       `<td class="cr-cat">${{esc(c.category)}}</td>` +
+       `<td><span class="cr-badge cr-chip-${{esc(t.color)}}">${{esc(t.label)}}</span></td>` +
++      `<td>${{repoHtml}}</td>` +
+       `</tr>`;
+   }}).join('');
+   updateSortIndicators();
+@@ -307,11 +310,11 @@ STYLE = """
+   table.cr-table tbody tr:hover { background: var(--page-bg); }
+   table.cr-table a { font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+   table.cr-table a:hover { text-decoration: underline; }
+-  .cr-ext { flex: 0 0 auto; opacity: 0.55; }
+-  .cr-supp { display: inline-flex; align-items: center; gap: 3px; margin-left: 8px; padding: 2px 6px;
+-    border-radius: 999px; background: var(--page-bg); border: 1px solid var(--border); vertical-align: middle; }
+-  .cr-supp a { color: var(--muted); opacity: 0.75; }
+-  .cr-supp a:hover { color: var(--middleware); opacity: 1; }
++  .cr-repo-list { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
++  .cr-repo-chip { font-weight: 500 !important; font-size: 0.82rem; color: var(--middleware) !important;
++    display: inline-flex; align-items: center; gap: 5px; }
++  .cr-repo-chip svg { flex: 0 0 auto; opacity: 0.6; }
++  .cr-empty-cell { color: var(--muted); }
+   .cr-cat { color: var(--muted); }
+   .cr-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+     font-size: 0.78rem; font-weight: 600; border: 1px solid var(--border); }
+@@ -350,6 +353,7 @@ def build_page(data_rel_url: str) -> str:
+         <th data-sort="name">Component <span class="cr-sort-arrow"></span></th>
+         <th data-sort="category">Category <span class="cr-sort-arrow"></span></th>
+         <th data-sort="tier">Tier <span class="cr-sort-arrow"></span></th>
++        <th>Repositories</th>
+       </tr></thead>
+       <tbody id="cr-tbody"></tbody>
+     </table>
+-- 
+2.51.2
+

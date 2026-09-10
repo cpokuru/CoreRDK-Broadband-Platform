@@ -1,0 +1,155 @@
+From 7ac882c9467f3c9ec03841ed69ac28ae58964338 Mon Sep 17 00:00:00 2001
+From: chandrakanth pokuru <chandrakanth_pokuru2@comcast.com>
+Date: Thu, 3 Sep 2026 17:30:40 -0400
+Subject: [PATCH 16/17] sb ph2 dhcpmgers
+
+---
+ components/all-components.json           |  2 +-
+ components/ethwan-router-components.json |  2 +-
+ components/ext-easymesh-components.json  |  2 +-
+ components/ext-opensync-components.json  |  2 +-
+ components/gw-components.json            |  2 +-
+ components/gw-easymesh-components.json   |  2 +-
+ components/gw-opensync-components.json   |  2 +-
+ components/index.html                    |  2 +-
+ components/modem-onu-components.json     |  2 +-
+ hal-repos.json                           | 15 +++++++++++++++
+ 10 files changed, 24 insertions(+), 9 deletions(-)
+
+diff --git a/components/all-components.json b/components/all-components.json
+index 0b40f0f..41dcb35 100644
+--- a/components/all-components.json
++++ b/components/all-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:55:44Z",
++  "generatedAt": "2026-09-03T21:30:23Z",
+   "title": "RDK-B Core Broadband Components",
+   "subtitle": "Every component relevant to RDK-B Core Broadband across all device profiles -- Common Core, Required, or Optional for at least one profile.",
+   "tiers": [
+diff --git a/components/ethwan-router-components.json b/components/ethwan-router-components.json
+index ecd7972..dd9982f 100644
+--- a/components/ethwan-router-components.json
++++ b/components/ethwan-router-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:55:43Z",
++  "generatedAt": "2026-09-03T21:30:22Z",
+   "title": "RDK-B EthWAN WiFi Router Components",
+   "subtitle": "Components for the EthWAN WiFi Router device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/ext-easymesh-components.json b/components/ext-easymesh-components.json
+index a9b8f21..ede61fb 100644
+--- a/components/ext-easymesh-components.json
++++ b/components/ext-easymesh-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:55:44Z",
++  "generatedAt": "2026-09-03T21:30:23Z",
+   "title": "RDK-B EXT EasyMesh Components",
+   "subtitle": "Components for the EXT EasyMesh device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/ext-opensync-components.json b/components/ext-opensync-components.json
+index 7f0470e..96dd7f0 100644
+--- a/components/ext-opensync-components.json
++++ b/components/ext-opensync-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:55:44Z",
++  "generatedAt": "2026-09-03T21:30:23Z",
+   "title": "RDK-B EXT OpenSync Components",
+   "subtitle": "Components for the EXT OpenSync device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-components.json b/components/gw-components.json
+index 8e0aece..5b94812 100644
+--- a/components/gw-components.json
++++ b/components/gw-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:55:43Z",
++  "generatedAt": "2026-09-03T21:30:22Z",
+   "title": "RDK-B GW Components",
+   "subtitle": "Components for the GW device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-easymesh-components.json b/components/gw-easymesh-components.json
+index 668f03d..3991b23 100644
+--- a/components/gw-easymesh-components.json
++++ b/components/gw-easymesh-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:55:44Z",
++  "generatedAt": "2026-09-03T21:30:23Z",
+   "title": "RDK-B GW EasyMesh Components",
+   "subtitle": "Components for the GW EasyMesh device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-opensync-components.json b/components/gw-opensync-components.json
+index 943b622..8c926ea 100644
+--- a/components/gw-opensync-components.json
++++ b/components/gw-opensync-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:55:43Z",
++  "generatedAt": "2026-09-03T21:30:22Z",
+   "title": "RDK-B GW OpenSync Components",
+   "subtitle": "Components for the GW OpenSync device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/index.html b/components/index.html
+index 5af0e8e..f7ef049 100644
+--- a/components/index.html
++++ b/components/index.html
+@@ -459,7 +459,7 @@
+ 
+ <section class="tight-top">
+   <p style="color:var(--muted); font-size:0.85rem; margin:0 0 14px;">
+-    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-03T20:55:43Z
++    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-03T21:30:22Z
+   </p>
+   <div style="margin-bottom:18px;"><span class="pill" style="background:#fef3c7;color:#92400e">Common Core</span><span class="pill" style="background:#dbeafe;color:#1e40af">Required</span><span class="pill" style="background:#f3f4f6;color:#374151">Optional</span></div>
+   <table class="def-table">
+diff --git a/components/modem-onu-components.json b/components/modem-onu-components.json
+index 89a5670..525826d 100644
+--- a/components/modem-onu-components.json
++++ b/components/modem-onu-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:55:43Z",
++  "generatedAt": "2026-09-03T21:30:22Z",
+   "title": "RDK-B Modem /ONU Components",
+   "subtitle": "Components for the Modem /ONU device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/hal-repos.json b/hal-repos.json
+index 7bf10a1..6f805ec 100644
+--- a/hal-repos.json
++++ b/hal-repos.json
+@@ -149,5 +149,20 @@
+     "repo": "TBD",
+     "file": "TBD",
+     "branch": "TBD"
++  },
++ "udhcpc": {
++    "repo": "TBD",
++    "file": "TBD",
++    "branch": "TBD"
++  },
++ "dibbler-client": {
++    "repo": "TBD",
++    "file": "TBD",
++    "branch": "TBD"
++  },
++  "dibbler-server": {
++    "repo": "TBD",
++    "file": "TBD",
++    "branch": "TBD"
+   }
+ }
+-- 
+2.51.2
+

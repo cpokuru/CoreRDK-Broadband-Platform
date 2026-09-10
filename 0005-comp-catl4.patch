@@ -1,0 +1,175 @@
+From a0401e32de943f2cc49283bb6c3bec5342ff78fd Mon Sep 17 00:00:00 2001
+From: chandrakanth pokuru <chandrakanth_pokuru2@comcast.com>
+Date: Thu, 3 Sep 2026 15:06:50 -0400
+Subject: [PATCH 05/17] comp catl4
+
+---
+ component-registry.html                  | 11 +++++++++++
+ components/all-components.json           |  2 +-
+ components/ethwan-router-components.json |  2 +-
+ components/ext-easymesh-components.json  |  2 +-
+ components/ext-opensync-components.json  |  2 +-
+ components/gw-components.json            |  2 +-
+ components/gw-easymesh-components.json   |  2 +-
+ components/gw-opensync-components.json   |  2 +-
+ components/index.html                    |  2 +-
+ components/modem-onu-components.json     |  2 +-
+ gen_component_registry_page.py           | 11 +++++++++++
+ 11 files changed, 31 insertions(+), 9 deletions(-)
+
+diff --git a/component-registry.html b/component-registry.html
+index e5fd482..e1e857c 100644
+--- a/component-registry.html
++++ b/component-registry.html
+@@ -652,6 +652,17 @@ fetch(DATA_URL, { cache: 'no-store' })
+       <a href="technical-governance.html">Development Standards</a> for the complete wording.</p>
+   </div>
+ 
++  <div class="callout">
++    <strong>Catalog schema &amp; controlled vocabulary</strong>
++    <p>The fields, identifiers, lifecycle states, classification rules, and profile-applicability
++      model below are the schema every entry must follow -- decided once, here, before components
++      are loaded, so a catalog that grows past today's 78 entries doesn't end up classified
++      inconsistently by whoever happens to be filling it in. Tier and category are the controlled
++      vocabulary: a fixed, pre-designated set of classification values -- profile applicability,
++      core/non-core status, category -- applied the same way to every component, not chosen freely
++      per entry.</p>
++  </div>
++
+   <div class="cr-field-grid"><div class="cr-field-card"><h4>Identity</h4><p>Name, repositories, per-profile classification (CORE / Required / Optional)</p></div><div class="cr-field-card"><h4>Ownership</h4><p>Primary and secondary owner, name and organization</p></div><div class="cr-field-card"><h4>Interfaces</h4><p>RBUS / HAL, HAL contract reference, TR-181 data model</p></div><div class="cr-field-card"><h4>Dependencies</h4><p>Dependent RDKB components and non-RDKB open source components</p></div><div class="cr-field-card"><h4>Health</h4><p>Last validated release, open critical issues, distro flags</p></div></div>
+ 
+   <div class="subhead" style="margin-top:32px;">Lifecycle states · §7.3.3</div>
+diff --git a/components/all-components.json b/components/all-components.json
+index 604caf6..7288925 100644
+--- a/components/all-components.json
++++ b/components/all-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T18:59:52Z",
++  "generatedAt": "2026-09-03T19:06:31Z",
+   "title": "RDK-B Core Broadband Components",
+   "subtitle": "Every component relevant to RDK-B Core Broadband across all device profiles -- Common Core, Required, or Optional for at least one profile.",
+   "tiers": [
+diff --git a/components/ethwan-router-components.json b/components/ethwan-router-components.json
+index 0bb2bcc..be0775f 100644
+--- a/components/ethwan-router-components.json
++++ b/components/ethwan-router-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T18:59:51Z",
++  "generatedAt": "2026-09-03T19:06:29Z",
+   "title": "RDK-B EthWAN WiFi Router Components",
+   "subtitle": "Components for the EthWAN WiFi Router device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/ext-easymesh-components.json b/components/ext-easymesh-components.json
+index e697dcb..4388e8e 100644
+--- a/components/ext-easymesh-components.json
++++ b/components/ext-easymesh-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T18:59:52Z",
++  "generatedAt": "2026-09-03T19:06:30Z",
+   "title": "RDK-B EXT EasyMesh Components",
+   "subtitle": "Components for the EXT EasyMesh device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/ext-opensync-components.json b/components/ext-opensync-components.json
+index eb695fe..8efda0d 100644
+--- a/components/ext-opensync-components.json
++++ b/components/ext-opensync-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T18:59:52Z",
++  "generatedAt": "2026-09-03T19:06:30Z",
+   "title": "RDK-B EXT OpenSync Components",
+   "subtitle": "Components for the EXT OpenSync device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-components.json b/components/gw-components.json
+index 4c3a757..bd008f4 100644
+--- a/components/gw-components.json
++++ b/components/gw-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T18:59:51Z",
++  "generatedAt": "2026-09-03T19:06:30Z",
+   "title": "RDK-B GW Components",
+   "subtitle": "Components for the GW device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-easymesh-components.json b/components/gw-easymesh-components.json
+index 71cee22..0b9a92f 100644
+--- a/components/gw-easymesh-components.json
++++ b/components/gw-easymesh-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T18:59:51Z",
++  "generatedAt": "2026-09-03T19:06:30Z",
+   "title": "RDK-B GW EasyMesh Components",
+   "subtitle": "Components for the GW EasyMesh device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-opensync-components.json b/components/gw-opensync-components.json
+index ecf0332..bfb723f 100644
+--- a/components/gw-opensync-components.json
++++ b/components/gw-opensync-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T18:59:51Z",
++  "generatedAt": "2026-09-03T19:06:30Z",
+   "title": "RDK-B GW OpenSync Components",
+   "subtitle": "Components for the GW OpenSync device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/index.html b/components/index.html
+index e2ad5d6..f37bed0 100644
+--- a/components/index.html
++++ b/components/index.html
+@@ -459,7 +459,7 @@
+ 
+ <section class="tight-top">
+   <p style="color:var(--muted); font-size:0.85rem; margin:0 0 14px;">
+-    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-03T18:59:51Z
++    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-03T19:06:29Z
+   </p>
+   <div style="margin-bottom:18px;"><span class="pill" style="background:#fef3c7;color:#92400e">Common Core</span><span class="pill" style="background:#dbeafe;color:#1e40af">Required</span><span class="pill" style="background:#f3f4f6;color:#374151">Optional</span></div>
+   <table class="def-table">
+diff --git a/components/modem-onu-components.json b/components/modem-onu-components.json
+index 5dc2f26..4350f96 100644
+--- a/components/modem-onu-components.json
++++ b/components/modem-onu-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T18:59:50Z",
++  "generatedAt": "2026-09-03T19:06:29Z",
+   "title": "RDK-B Modem /ONU Components",
+   "subtitle": "Components for the Modem /ONU device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/gen_component_registry_page.py b/gen_component_registry_page.py
+index e234910..950f52c 100644
+--- a/gen_component_registry_page.py
++++ b/gen_component_registry_page.py
+@@ -86,6 +86,17 @@ def render_policy_panel() -> str:
+       <a href="technical-governance.html">Development Standards</a> for the complete wording.</p>
+   </div>
+ 
++  <div class="callout">
++    <strong>Catalog schema &amp; controlled vocabulary</strong>
++    <p>The fields, identifiers, lifecycle states, classification rules, and profile-applicability
++      model below are the schema every entry must follow -- decided once, here, before components
++      are loaded, so a catalog that grows past today's 78 entries doesn't end up classified
++      inconsistently by whoever happens to be filling it in. Tier and category are the controlled
++      vocabulary: a fixed, pre-designated set of classification values -- profile applicability,
++      core/non-core status, category -- applied the same way to every component, not chosen freely
++      per entry.</p>
++  </div>
++
+   <div class="cr-field-grid">{field_cards}</div>
+ 
+   <div class="subhead" style="margin-top:32px;">Lifecycle states · §7.3.3</div>
+-- 
+2.51.2
+

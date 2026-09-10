@@ -1,0 +1,148 @@
+From 341fcda66494b13470d26bc33de658ca0bd4efb3 Mon Sep 17 00:00:00 2001
+From: chandrakanth pokuru <chandrakanth_pokuru2@comcast.com>
+Date: Thu, 3 Sep 2026 16:27:59 -0400
+Subject: [PATCH 12/17] sb ph2 firewall
+
+---
+ components/all-components.json           | 2 +-
+ components/ethwan-router-components.json | 2 +-
+ components/ext-easymesh-components.json  | 2 +-
+ components/ext-opensync-components.json  | 2 +-
+ components/gw-components.json            | 2 +-
+ components/gw-easymesh-components.json   | 2 +-
+ components/gw-opensync-components.json   | 2 +-
+ components/index.html                    | 2 +-
+ components/modem-onu-components.json     | 2 +-
+ hal-repos.json                           | 7 ++++++-
+ 10 files changed, 15 insertions(+), 10 deletions(-)
+
+diff --git a/components/all-components.json b/components/all-components.json
+index 51b145c..aebd4c8 100644
+--- a/components/all-components.json
++++ b/components/all-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:22:33Z",
++  "generatedAt": "2026-09-03T20:27:45Z",
+   "title": "RDK-B Core Broadband Components",
+   "subtitle": "Every component relevant to RDK-B Core Broadband across all device profiles -- Common Core, Required, or Optional for at least one profile.",
+   "tiers": [
+diff --git a/components/ethwan-router-components.json b/components/ethwan-router-components.json
+index 50fde67..c3f0d90 100644
+--- a/components/ethwan-router-components.json
++++ b/components/ethwan-router-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:22:31Z",
++  "generatedAt": "2026-09-03T20:27:44Z",
+   "title": "RDK-B EthWAN WiFi Router Components",
+   "subtitle": "Components for the EthWAN WiFi Router device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/ext-easymesh-components.json b/components/ext-easymesh-components.json
+index 804d2cd..3bee5d5 100644
+--- a/components/ext-easymesh-components.json
++++ b/components/ext-easymesh-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:22:32Z",
++  "generatedAt": "2026-09-03T20:27:45Z",
+   "title": "RDK-B EXT EasyMesh Components",
+   "subtitle": "Components for the EXT EasyMesh device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/ext-opensync-components.json b/components/ext-opensync-components.json
+index c17981e..877d6a6 100644
+--- a/components/ext-opensync-components.json
++++ b/components/ext-opensync-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:22:32Z",
++  "generatedAt": "2026-09-03T20:27:45Z",
+   "title": "RDK-B EXT OpenSync Components",
+   "subtitle": "Components for the EXT OpenSync device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-components.json b/components/gw-components.json
+index b4ae5fc..ef2e0ac 100644
+--- a/components/gw-components.json
++++ b/components/gw-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:22:32Z",
++  "generatedAt": "2026-09-03T20:27:44Z",
+   "title": "RDK-B GW Components",
+   "subtitle": "Components for the GW device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-easymesh-components.json b/components/gw-easymesh-components.json
+index 7c760ff..43b2db5 100644
+--- a/components/gw-easymesh-components.json
++++ b/components/gw-easymesh-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:22:32Z",
++  "generatedAt": "2026-09-03T20:27:44Z",
+   "title": "RDK-B GW EasyMesh Components",
+   "subtitle": "Components for the GW EasyMesh device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-opensync-components.json b/components/gw-opensync-components.json
+index 4d3bfc3..1b82d1f 100644
+--- a/components/gw-opensync-components.json
++++ b/components/gw-opensync-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:22:32Z",
++  "generatedAt": "2026-09-03T20:27:44Z",
+   "title": "RDK-B GW OpenSync Components",
+   "subtitle": "Components for the GW OpenSync device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/index.html b/components/index.html
+index 56e11d3..582f0ec 100644
+--- a/components/index.html
++++ b/components/index.html
+@@ -459,7 +459,7 @@
+ 
+ <section class="tight-top">
+   <p style="color:var(--muted); font-size:0.85rem; margin:0 0 14px;">
+-    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-03T20:22:31Z
++    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-03T20:27:44Z
+   </p>
+   <div style="margin-bottom:18px;"><span class="pill" style="background:#fef3c7;color:#92400e">Common Core</span><span class="pill" style="background:#dbeafe;color:#1e40af">Required</span><span class="pill" style="background:#f3f4f6;color:#374151">Optional</span></div>
+   <table class="def-table">
+diff --git a/components/modem-onu-components.json b/components/modem-onu-components.json
+index 7e8693a..37e50a2 100644
+--- a/components/modem-onu-components.json
++++ b/components/modem-onu-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T20:22:31Z",
++  "generatedAt": "2026-09-03T20:27:43Z",
+   "title": "RDK-B Modem /ONU Components",
+   "subtitle": "Components for the Modem /ONU device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/hal-repos.json b/hal-repos.json
+index 86712a5..6118aa5 100644
+--- a/hal-repos.json
++++ b/hal-repos.json
+@@ -125,7 +125,12 @@
+     "file": "TBD",
+     "branch": "TBD"
+   },
+-  "crun": {
++  "Container": {
++    "repo": "TBD",
++    "file": "TBD",
++    "branch": "TBD"
++  },
++  "Firewall": {
+     "repo": "TBD",
+     "file": "TBD",
+     "branch": "TBD"
+-- 
+2.51.2
+
