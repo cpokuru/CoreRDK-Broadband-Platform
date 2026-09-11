@@ -364,10 +364,10 @@
   .contact-status.err { color: #b91c1c; }
   .contact-mailto { display: block; text-align: center; font-size: 0.76rem; color: var(--muted); margin-top: 10px; }
 </style>
-<title>Industry Conformance Standards — RDK-B Core Broadband</title>
+<title>South Bound Specification — RDK-B Core Broadband</title>
 
 <script>
-const TABLES = [{"containerId": "data-content", "slug": "architecture-standards-industry", "kind": "table"}];
+const TABLES = [{"containerId": "data-content", "slug": "south-bound-specification", "kind": "sections"}];
 
 function esc(s) {
   const d = document.createElement('div');
@@ -511,15 +511,15 @@ TABLES.forEach(loadTable);
     <img src="RDK-logo.png" alt="RDK-B Core Broadband logo" onerror="this.style.display='none'">
   </div>
   <nav>
-    <a class="" href="index.html">About Core RDK Broadband</a><a class="cta" href="components/">Core RDK Components ↗</a><div class="nav-group open">
-      <button type="button" class="nav-group-toggle active">Standards <span class="caret">&#9662;</span></button>
-      <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="" href="architecture-standards.html">Architecture Standards</a><a class="active" href="industry-standards.html">Industry Conformance Standards</a><a class="" href="technical-governance.html">Development Standards</a></div></div>
+    <a class="" href="index.html">About Core RDK Broadband</a><a class="cta" href="components/">Core RDK Components ↗</a><div class="nav-group ">
+      <button type="button" class="nav-group-toggle ">Standards <span class="caret">&#9662;</span></button>
+      <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="" href="architecture-standards.html">Architecture Standards</a><a class="" href="industry-standards.html">Industry Conformance Standards</a><a class="" href="technical-governance.html">Development Standards</a></div></div>
     </div><a class="" href="component-registry.html">Component Registry</a><div class="nav-group ">
       <button type="button" class="nav-group-toggle ">North Bound APIs <span class="caret">&#9662;</span></button>
       <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="" href="north-bound-specification.html">North Bound Specification</a><a class="" href="north-bound-apis.html">List of North Bound APIs</a></div></div>
-    </div><div class="nav-group ">
-      <button type="button" class="nav-group-toggle ">South Bound APIs <span class="caret">&#9662;</span></button>
-      <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="" href="south-bound-specification.html">South Bound Specification</a><a class="" href="south-bound-apis.html">List of South Bound APIs</a></div></div>
+    </div><div class="nav-group open">
+      <button type="button" class="nav-group-toggle active">South Bound APIs <span class="caret">&#9662;</span></button>
+      <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="active" href="south-bound-specification.html">South Bound Specification</a><a class="" href="south-bound-apis.html">List of South Bound APIs</a></div></div>
     </div><a class="" href="hardware-compatibility.html">Hardware Compatibility</a>
   </nav>
 </div>
@@ -559,9 +559,9 @@ TABLES.forEach(loadTable);
 <div class="hero" style="padding:48px 40px 40px;">
   <div class="hero-flex">
     <div class="hero-inner">
-      <span class="eyebrow">Industry Conformance Standards</span>
-      <h1 style="font-size:2rem;">Industry Conformance Standards</h1>
-      <p class="lede">Where RDK-B functionality overlaps an established external standards body, tracked by category (§7.1.3).</p>
+      <span class="eyebrow">South Bound APIs</span>
+      <h1 style="font-size:2rem;">South Bound Specification</h1>
+      <p class="lede">The vendor- and SoC-facing contract RDK-B exposes downward — HAL interfaces and OSS southbound delegation between middleware and the BSP.</p>
       
     </div>
     

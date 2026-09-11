@@ -79,6 +79,17 @@ PAGES = [
             {"slug": "north-bound-specification", "kind": "sections"},
         ],
     },
+    {
+        "active_id": "sbi-spec",
+        "slug": "south-bound-specification",
+        "eyebrow": "South Bound APIs",
+        "title": "South Bound Specification",
+        "lede": "The vendor- and SoC-facing contract RDK-B exposes downward — HAL "
+                "interfaces and OSS southbound delegation between middleware and the BSP.",
+        "tables": [
+            {"slug": "south-bound-specification", "kind": "sections"},
+        ],
+    },
 ]
 
 

@@ -31,7 +31,10 @@ NAV_LINKS = [
         ("link", "nbi-spec", "North Bound Specification", "north-bound-specification.html", False),
         ("link", "nbi", "List of North Bound APIs", "north-bound-apis.html", False),
     ]),
-    ("link", "sbi", "South Bound APIs", "south-bound-apis.html", False),
+    ("group", "sbi-group", "South Bound APIs", [
+        ("link", "sbi-spec", "South Bound Specification", "south-bound-specification.html", False),
+        ("link", "sbi", "List of South Bound APIs", "south-bound-apis.html", False),
+    ]),
     ("link", "hwcompat", "Hardware Compatibility", "hardware-compatibility.html", False),
     ("link", "components", "Core RDK Components", COMPONENTS_URL, True),
 ]
