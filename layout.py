@@ -146,8 +146,9 @@ SHARED_CSS = """
   }
   .hero-flex { display: flex; align-items: center; gap: 44px; max-width: 1520px; }
   .hero-inner { max-width: 640px; flex: 1 1 auto; min-width: 0; }
-  .hero-visual { flex: 0 0 460px; display: flex; justify-content: flex-end; align-items: center; margin-left: auto; }
-  .hero-visual img { max-width: 100%; max-height: 440px; width: auto; height: auto; object-fit: contain; mix-blend-mode: lighten; opacity: .92; -webkit-mask-image: radial-gradient(ellipse 62% 62% at 50% 50%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 62% 62% at 50% 50%, #000 60%, transparent 100%); }
+  .hero-visual { flex: 0 0 540px; max-width: 540px; display: flex; justify-content: flex-end; align-items: center; margin-left: auto; overflow: hidden; }
+  .hero-visual img { width: 100%; max-width: 540px; height: auto; object-fit: contain; mix-blend-mode: lighten; opacity: .92; -webkit-mask-image: radial-gradient(ellipse 78% 78% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 78% 78% at 50% 50%, #000 62%, transparent 100%); }
+  @media (max-width: 1300px) { .hero-visual { flex-basis: 420px; max-width: 420px; } .hero-visual img { max-width: 420px; } }
   @media (max-width: 1000px) { .hero-visual { display: none; } }
 
   .eyebrow { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: #7ec4f2; border: 1px solid rgba(126,196,242,0.35); background: rgba(126,196,242,0.06); border-radius: 999px; padding: 5px 13px; margin-bottom: 20px; }
@@ -422,7 +423,7 @@ def esc(s) -> str:
 # needs to change — render_hero() picks it up automatically, and pages
 # without an entry simply render without a hero image, exactly as now.
 HERO_IMAGES: dict[str, str] = {
-    "about": "rd.png",
+    "about": "rdz.png",
     # "architecture-standards": "images/architecture-standards-hero.png",
     # "technical-governance": "images/technical-governance-hero.png",
     # "nbi": "images/nbi-hero.png",
