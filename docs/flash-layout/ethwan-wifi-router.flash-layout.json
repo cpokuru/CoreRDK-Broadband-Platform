@@ -1,0 +1,17 @@
+{
+  "$schema": "https://cpokuru.github.io/CoreRDK-Broadband-Platform/schemas/flash-layout.schema.json",
+  "specVersion": "1.0",
+  "profileId": "ethwan-wifi-router",
+  "measured": true,
+  "referenceDevice": "BPI-R4 (MediaTek MT7988A/Filogic 880)",
+  "lastMeasured": "2026-09-02",
+  "totalFlashMB": 120,
+  "partitions": [
+    { "partition": "BL2 (mtd0)", "purpose": "Early boot stage.", "sizeMB": 1, "requiredForOTA": true, "owner": "vendor" },
+    { "partition": "u-boot-env (mtd1)", "purpose": "Bootloader environment.", "sizeMB": 0.5, "requiredForOTA": true, "owner": "vendor" },
+    { "partition": "Factory (mtd2)", "purpose": "Factory/calibration data.", "sizeMB": 4, "requiredForOTA": true, "owner": "vendor" },
+    { "partition": "FIP (mtd3)", "purpose": "Firmware Image Package.", "sizeMB": 2, "requiredForOTA": true, "owner": "vendor" },
+    { "partition": "ubi (mtd4)", "purpose": "UBI-managed storage.", "sizeMB": 112.5, "requiredForOTA": true, "owner": "core-rdk-b" }
+  ],
+  "notes": "MEASURED from /proc/mtd on the reference device \u2014 this is the actual onboard SPI-NAND, ~120 MiB total (nominal 128 MB device). CRITICAL CAVEAT: the reference build's RDK-B rootfs does NOT boot from this onboard flash \u2014 it boots from a separate 256 GB development SD card (mmcblk0, root partition ~14 GiB, 7.2 GiB used). This onboard flash layout therefore does NOT demonstrate that the 512 MB minFlashMB floor (Section 3, CRF-001) is sufficient, or insufficient, for a production rootfs \u2014 the production storage medium was never exercised by this measurement. This partition table is real and precise for what it covers (bootloader/factory/FIP/UBI), but a production flash sizing exercise against an actual deployable Yocto image is still needed; see Hardware Compatibility Specification Section 5.1.1 and Section 3.7's existing flash-floor reconciliation flag."
+}

@@ -1,0 +1,160 @@
+From b5ad21051a4dbcd86144970fcf8161df22a9057d Mon Sep 17 00:00:00 2001
+From: chandrakanth pokuru <chandrakanth_pokuru2@comcast.com>
+Date: Thu, 3 Sep 2026 16:17:35 -0400
+Subject: [PATCH 10/17] sb ph2 added iot specific things
+
+---
+ components/all-components.json           |  2 +-
+ components/ethwan-router-components.json |  2 +-
+ components/ext-easymesh-components.json  |  2 +-
+ components/ext-opensync-components.json  |  2 +-
+ components/gw-components.json            |  2 +-
+ components/gw-easymesh-components.json   |  2 +-
+ components/gw-opensync-components.json   |  2 +-
+ components/index.html                    |  2 +-
+ components/modem-onu-components.json     |  2 +-
+ hal-repos.json                           | 20 ++++++++++++++++++++
+ 10 files changed, 29 insertions(+), 9 deletions(-)
+
+diff --git a/components/all-components.json b/components/all-components.json
+index 6c31a34..e4d4f76 100644
+--- a/components/all-components.json
++++ b/components/all-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:51:58Z",
++  "generatedAt": "2026-09-03T20:17:15Z",
+   "title": "RDK-B Core Broadband Components",
+   "subtitle": "Every component relevant to RDK-B Core Broadband across all device profiles -- Common Core, Required, or Optional for at least one profile.",
+   "tiers": [
+diff --git a/components/ethwan-router-components.json b/components/ethwan-router-components.json
+index 6b9b505..e6b38f2 100644
+--- a/components/ethwan-router-components.json
++++ b/components/ethwan-router-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:51:57Z",
++  "generatedAt": "2026-09-03T20:17:14Z",
+   "title": "RDK-B EthWAN WiFi Router Components",
+   "subtitle": "Components for the EthWAN WiFi Router device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/ext-easymesh-components.json b/components/ext-easymesh-components.json
+index 5efd72c..8b19167 100644
+--- a/components/ext-easymesh-components.json
++++ b/components/ext-easymesh-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:51:58Z",
++  "generatedAt": "2026-09-03T20:17:15Z",
+   "title": "RDK-B EXT EasyMesh Components",
+   "subtitle": "Components for the EXT EasyMesh device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/ext-opensync-components.json b/components/ext-opensync-components.json
+index f7a6c0c..7c85350 100644
+--- a/components/ext-opensync-components.json
++++ b/components/ext-opensync-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:51:58Z",
++  "generatedAt": "2026-09-03T20:17:15Z",
+   "title": "RDK-B EXT OpenSync Components",
+   "subtitle": "Components for the EXT OpenSync device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-components.json b/components/gw-components.json
+index dca704e..1c94468 100644
+--- a/components/gw-components.json
++++ b/components/gw-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:51:57Z",
++  "generatedAt": "2026-09-03T20:17:14Z",
+   "title": "RDK-B GW Components",
+   "subtitle": "Components for the GW device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-easymesh-components.json b/components/gw-easymesh-components.json
+index 0486b64..db1e7c3 100644
+--- a/components/gw-easymesh-components.json
++++ b/components/gw-easymesh-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:51:58Z",
++  "generatedAt": "2026-09-03T20:17:15Z",
+   "title": "RDK-B GW EasyMesh Components",
+   "subtitle": "Components for the GW EasyMesh device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/gw-opensync-components.json b/components/gw-opensync-components.json
+index 370af02..af7c3ff 100644
+--- a/components/gw-opensync-components.json
++++ b/components/gw-opensync-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:51:57Z",
++  "generatedAt": "2026-09-03T20:17:14Z",
+   "title": "RDK-B GW OpenSync Components",
+   "subtitle": "Components for the GW OpenSync device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/components/index.html b/components/index.html
+index 8b9039b..4899049 100644
+--- a/components/index.html
++++ b/components/index.html
+@@ -459,7 +459,7 @@
+ 
+ <section class="tight-top">
+   <p style="color:var(--muted); font-size:0.85rem; margin:0 0 14px;">
+-    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-03T19:51:57Z
++    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-03T20:17:14Z
+   </p>
+   <div style="margin-bottom:18px;"><span class="pill" style="background:#fef3c7;color:#92400e">Common Core</span><span class="pill" style="background:#dbeafe;color:#1e40af">Required</span><span class="pill" style="background:#f3f4f6;color:#374151">Optional</span></div>
+   <table class="def-table">
+diff --git a/components/modem-onu-components.json b/components/modem-onu-components.json
+index 1fa20f0..d9f6254 100644
+--- a/components/modem-onu-components.json
++++ b/components/modem-onu-components.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "1.0",
+-  "generatedAt": "2026-09-03T19:51:57Z",
++  "generatedAt": "2026-09-03T20:17:14Z",
+   "title": "RDK-B Modem /ONU Components",
+   "subtitle": "Components for the Modem /ONU device profile: Common Core, Required, and Optional.",
+   "tiers": [
+diff --git a/hal-repos.json b/hal-repos.json
+index e5a02e9..37575ed 100644
+--- a/hal-repos.json
++++ b/hal-repos.json
+@@ -104,5 +104,25 @@
+     "repo": "rdkb-halif-xdsl",
+     "file": "xdsl.json",
+     "branch": "develop"
++  },
++   "Bluetooth": {
++    "repo": "TBD",
++    "file": "TBD",
++    "branch": "TBD"
++  },
++  "Matter": {
++    "repo": "TBD",
++    "file": "TBD",
++    "branch": "TBD"
++  },
++  "Thread": {
++    "repo": "TBD",
++    "file": "TBD",
++    "branch": "TBD"
++  },
++  "Zigbee": {
++    "repo": "TBD",
++    "file": "TBD",
++    "branch": "TBD"
+   }
+ }
+-- 
+2.51.2
+

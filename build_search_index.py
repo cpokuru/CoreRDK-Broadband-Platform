@@ -65,9 +65,13 @@ def build_index(about: dict, spec: dict, components: dict) -> list[dict]:
 
     # ---- spec-content.json ----
     for t in spec["five_tier"]:
+        if "split" in t:
+            text = " ".join(f'{c["title"]}: {c["text"]}' for c in t["split"])
+        else:
+            text = t["description"]
         docs.append({
             "title": f'Tier {t["tier"]} — {t["layer"]}',
-            "text": t["description"],
+            "text": text,
             "category": "Architecture — five-tier model",
             "url": "index.html#",
         })

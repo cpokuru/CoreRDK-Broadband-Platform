@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -43,20 +46,54 @@
   .topnav .brand { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
   .topnav .brand img { height: 26px; width: auto; display: block; }
   .topnav .brand-text { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 0.86rem; color: #fff; white-space: nowrap; }
-  .topnav nav { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; overflow-x: auto; }
-  .topnav nav a {
-    color: #aab8d4; text-decoration: none; font-size: 0.82rem; font-weight: 500;
-    padding: 8px 12px; border-radius: 6px; white-space: nowrap;
-    border-bottom: 2px solid transparent; transition: color 0.12s;
+  .topnav nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; row-gap: 8px; flex: 1 1 auto; min-width: 0; }
+
+  /* Every nav control — plain links, dropdown toggles, all of it — shares
+     this one pill style so the whole bar reads as one consistent design
+     echoing the "Core RDK Components" CTA's blue, instead of a mix of plain
+     text and boxes. */
+  .topnav > nav > a, .nav-group-toggle {
+    display: flex; align-items: center; gap: 5px; cursor: pointer;
+    background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); border: none;
+    font-family: inherit; color: #fff; text-decoration: none; font-size: 0.82rem; font-weight: 500;
+    line-height: 1.6; box-sizing: border-box; appearance: none; -webkit-appearance: none;
+    padding: 7px 13px; border-radius: 999px; white-space: nowrap; transition: all 0.12s; outline: none;
   }
-  .topnav nav a:hover { color: #fff; }
-  .topnav nav a.active { color: var(--rdk-blue); border-bottom-color: var(--rdk-blue); font-weight: 600; }
-  .topnav nav a .ext-arrow { font-size: 0.78em; color: #6fa8e8; }
+  .topnav > nav > a:hover, .nav-group-toggle:hover { filter: brightness(1.12); }
+  .topnav > nav > a.active, .nav-group.open .nav-group-toggle, .nav-group-toggle.active {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.6) inset; font-weight: 700;
+  }
+  .topnav > nav > a .ext-arrow { font-size: 0.78em; color: #e6ebff; }
+  .topnav > nav > a:focus-visible, .nav-group-toggle:focus-visible {
+    outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.55); color: #fff;
+  }
   .topnav .cta {
     flex: 0 0 auto; background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); color: #fff;
     font-size: 0.76rem; font-weight: 600; padding: 7px 14px; border-radius: 999px;
-    text-decoration: none; white-space: nowrap;
+    text-decoration: none; white-space: nowrap; border: none;
   }
+
+  /* ---- nav dropdown groups (Standards, North Bound APIs) ---- */
+  .nav-group { position: relative; flex: 0 0 auto; }
+  .nav-group-toggle .caret { font-size: 0.65em; transition: transform 0.15s; }
+  .nav-group.open .nav-group-toggle .caret { transform: rotate(180deg); }
+  .nav-dropdown {
+    display: none; position: absolute; top: 100%; left: 0; padding-top: 8px; z-index: 55;
+  }
+  .nav-group:hover .nav-dropdown, .nav-group.open .nav-dropdown, .nav-group:focus-within .nav-dropdown { display: block; }
+  .nav-dropdown-inner {
+    min-width: 230px; background: #10182b; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+    box-shadow: var(--shadow-md); padding: 6px;
+  }
+  .nav-dropdown a, .nav-dropdown a:visited {
+    display: block; color: #fff; text-decoration: none; font-size: 0.84rem; font-weight: 500;
+    padding: 9px 12px; border-radius: 7px; white-space: nowrap; border-bottom: none;
+  }
+  .nav-dropdown a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .nav-dropdown a.active, .nav-dropdown a.active:visited {
+    color: #fff; font-weight: 700; background: rgba(41,182,232,0.28);
+  }
+  .nav-dropdown a:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.45) inset; }
 
   /* ---- main content area ---- */
   .page-main { min-height: 100vh; margin-top: 61px; }
@@ -65,6 +102,8 @@
     .topnav { flex-wrap: wrap; padding: 10px 16px; }
     .topnav nav { order: 3; width: 100%; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 8px; }
     .page-main { margin-top: 108px; }
+    .nav-dropdown { position: static; padding-top: 0; }
+    .nav-dropdown-inner { box-shadow: none; border: none; background: rgba(255,255,255,0.03); margin: 2px 0 6px 12px; }
   }
 
   /* ---- hero ---- */
@@ -77,8 +116,9 @@
   }
   .hero-flex { display: flex; align-items: center; gap: 44px; max-width: 1520px; }
   .hero-inner { max-width: 640px; flex: 1 1 auto; min-width: 0; }
-  .hero-visual { flex: 0 0 320px; display: flex; justify-content: center; }
-  .hero-visual img { max-width: 100%; max-height: 320px; width: auto; height: auto; border-radius: 14px; object-fit: contain; }
+  .hero-visual { flex: 0 0 540px; max-width: 540px; display: flex; justify-content: flex-end; align-items: center; margin-left: auto; overflow: hidden; }
+  .hero-visual img { width: 100%; max-width: 540px; height: auto; object-fit: contain; mix-blend-mode: lighten; opacity: .92; -webkit-mask-image: radial-gradient(ellipse 78% 78% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 78% 78% at 50% 50%, #000 62%, transparent 100%); }
+  @media (max-width: 1300px) { .hero-visual { flex-basis: 420px; max-width: 420px; } .hero-visual img { max-width: 420px; } }
   @media (max-width: 1000px) { .hero-visual { display: none; } }
 
   .eyebrow { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: #7ec4f2; border: 1px solid rgba(126,196,242,0.35); background: rgba(126,196,242,0.06); border-radius: 999px; padding: 5px 13px; margin-bottom: 20px; }
@@ -138,11 +178,62 @@
   .card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
   .card h3 { font-size: 1.02rem; margin-bottom: 9px; }
   .card p { font-size: 0.92rem; margin: 0; }
-  table.def-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.9rem; }
-  table.def-table th, table.def-table td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
-  table.def-table th { background: #f1f3f9; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
-  table.def-table tbody tr:hover { background: #fafbff; }
+  table.def-table {
+    width: 100%; border-collapse: separate; border-spacing: 0; margin: 14px 0 28px;
+    font-size: 0.92rem; border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; box-shadow: var(--shadow-sm);
+  }
+  table.def-table th, table.def-table td { text-align: left; padding: 14px 18px; vertical-align: top; }
+  table.def-table th {
+    font-family: "Space Grotesk", sans-serif; font-size: 0.78rem; text-transform: uppercase;
+    letter-spacing: 0.06em; font-weight: 700; color: #fff;
+    background: linear-gradient(90deg, var(--hal), var(--middleware));
+    border-bottom: none;
+  }
+  table.def-table th:first-child { border-top-left-radius: 12px; }
+  table.def-table th:last-child { border-top-right-radius: 12px; }
+  table.def-table tbody tr { border-bottom: 1px solid var(--border); }
+  table.def-table tbody tr:last-child { border-bottom: none; }
+  table.def-table tbody tr:nth-child(odd) { background: #fbfcff; }
+  table.def-table tbody tr:nth-child(even) { background: #fff; }
+  table.def-table tbody tr:hover { background: var(--cloud-bg); }
+  table.def-table td { color: var(--muted); line-height: 1.65; border-right: 1px solid var(--border); }
+  table.def-table td:last-child { border-right: none; }
+  table.def-table td:first-child {
+    color: var(--ink); font-weight: 700; font-family: "Space Grotesk", sans-serif;
+    font-size: 0.94rem; border-left: 3px solid var(--rdk-blue); background: rgba(41,182,232,0.04);
+    width: 26%; min-width: 200px;
+  }
   table.def-table td.mono { color: var(--ink); font-weight: 600; }
+
+  /* ---- governance process sections (§7.2 / §7.3 narrative content) ---- */
+  .gov-section.level-2 { padding-top: 22px; margin-top: 22px; border-top: 1px solid var(--border); }
+  .gov-section.level-2:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+  .gov-section h3, .gov-section h4, .gov-section h5 {
+    display: flex; align-items: baseline; gap: 10px; font-family: "Space Grotesk", sans-serif;
+  }
+  .gov-section h3 { font-size: 1.12rem; }
+  .gov-section h4 { font-size: 1.0rem; margin-top: 14px; }
+  .gov-section h5 { font-size: 0.92rem; color: var(--muted); margin-top: 10px; }
+  .gov-num {
+    font-family: "JetBrains Mono", monospace; font-size: 0.72rem; font-weight: 700;
+    color: #fff; background: var(--middleware); padding: 2px 8px; border-radius: 5px;
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .gov-section p { margin: 6px 0 10px; font-size: 0.92rem; }
+  .gov-section ul { margin: 6px 0 16px; padding-left: 20px; color: var(--muted); }
+  .gov-section ul li { margin-bottom: 5px; line-height: 1.6; font-size: 0.92rem; }
+  .gov-section table.def-table { margin: 10px 0 18px; font-size: 0.86rem; }
+  .gov-section pre.code-block {
+    background: #0b1220; color: #cbd5e1; padding: 16px 18px; border-radius: 10px;
+    overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.8rem;
+    line-height: 1.55; margin: 10px 0 18px; white-space: pre;
+  }
+  .gov-section h5.gov-subhead {
+    font-family: "Space Grotesk", sans-serif; font-size: 0.82rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em; color: var(--middleware);
+    margin: 18px 0 6px; display: block;
+  }
   .timeline { border-left: 2px solid var(--border); margin-left: 6px; padding-left: 24px; display: flex; flex-direction: column; gap: 18px; }
   .tl-item { position: relative; }
   .tl-item::before { content: ""; position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--middleware); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--middleware); }
@@ -155,19 +246,27 @@
   .tier .body { flex: 1; padding: 19px 24px; }
   .tier .body h4 { margin: 0 0 4px; font-size: 1.02rem; }
   .tier .body p { margin: 0; font-size: 0.88rem; }
-  .tier.t5 { background: var(--cloud-bg); color: var(--cloud-fg); }
-  .tier.t5 .num { background: #d9e2ff; color: var(--cloud-fg); }
-  .tier.t4 { background: #e3f7ef; color: #065f46; }
-  .tier.t4 .num { background: var(--mgmt); color: #fff; }
+  .tier .body-split { display: flex; padding: 0; }
+  .tier .body-split .split-col { flex: 1; padding: 19px 24px; }
+  .tier .body-split .split-col:first-child { border-right: 1px solid rgba(255,255,255,0.25); }
+  .tier .body-split h4 { margin: 0 0 4px; font-size: 1.02rem; }
+  .tier .body-split p { margin: 0; font-size: 0.88rem; }
+  .tier.t5 { background: #e5e7eb; color: #1f2937; }
+  .tier.t5 .num { background: #d1d5db; color: #1f2937; }
+  .tier.t4 { background: #cfe0fb; color: #10284d; }
+  .tier.t4 .num { background: #9dc0f2; color: #10284d; }
   .tier.t3 { background: var(--middleware); color: #fff; }
   .tier.t3 .num { background: #1a3fb5; color: #fff; }
-  .tier.t3 .body p { color: #dce6ff; }
+  .tier.t3 .body p, .tier.t3 .body-split p { color: #dce6ff; }
+  .tier.t3 .body h4, .tier.t3 .body-split h4 { color: #fff; }
   .tier.t2 { background: var(--hal); color: #fff; }
   .tier.t2 .num { background: #0e2144; color: #fff; }
   .tier.t2 .body p { color: #c5d3e6; }
+  .tier.t2 .body h4 { color: #fff; }
   .tier.t1 { background: var(--bedrock); color: #fff; }
   .tier.t1 .num { background: #000308; color: #9fb2cf; }
   .tier.t1 .body p { color: #9fb2cf; }
+  .tier.t1 .body h4 { color: #fff; }
   .tier-caption { text-align: center; font-size: 0.82rem; color: var(--muted); margin-top: 12px; }
   .layer-stack { display: flex; flex-direction: column; gap: 6px; }
   .layer-box { margin-bottom: 6px; border-radius: 9px; padding: 13px 16px; font-size: 0.86rem; font-weight: 600; text-align: center; }
@@ -275,10 +374,49 @@
     <img src="RDK-logo.png" alt="RDK-B Core Broadband logo" onerror="this.style.display='none'">
   </div>
   <nav>
-    <a class="active" href="index.html">About Core RDK Broadband</a><a class="" href="architecture-standards.html">Architecture Standards</a><a class="" href="technical-governance.html">Development Standards</a><a class="" href="north-bound-apis.html">North Bound APIs</a><a class="" href="south-bound-apis.html">South Bound APIs</a><a class="" href="hardware-compatibility.html">Hardware Compatibility</a>
+    <a class="active" href="index.html">About Core RDK Broadband</a><a class="cta" href="components/">Core RDK Components ↗</a><div class="nav-group ">
+      <button type="button" class="nav-group-toggle ">Standards <span class="caret">&#9662;</span></button>
+      <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="" href="architecture-standards.html">Architecture Standards</a><a class="" href="industry-standards.html">Industry Conformance Standards</a><a class="" href="technical-governance.html">Development Standards</a></div></div>
+    </div><a class="" href="component-registry.html">Component Registry</a><div class="nav-group ">
+      <button type="button" class="nav-group-toggle ">North Bound APIs <span class="caret">&#9662;</span></button>
+      <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="" href="north-bound-specification.html">North Bound Specification</a><a class="" href="north-bound-apis.html">List of North Bound APIs</a></div></div>
+    </div><div class="nav-group ">
+      <button type="button" class="nav-group-toggle ">South Bound APIs <span class="caret">&#9662;</span></button>
+      <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="" href="south-bound-specification.html">South Bound Specification</a><a class="" href="south-bound-apis.html">List of South Bound APIs</a></div></div>
+    </div><a class="" href="hardware-compatibility.html">Hardware Compatibility</a>
   </nav>
-  <a class="cta" href="components/">Core RDK Components ↗</a>
 </div>
+<script>
+  // Click-to-toggle for touch devices; desktop still gets :hover/:focus-within
+  // from CSS for free. Closes other open groups and closes on outside click.
+  document.querySelectorAll('.nav-group-toggle').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const group = btn.closest('.nav-group');
+      const wasOpen = group.classList.contains('open');
+      document.querySelectorAll('.nav-group.open').forEach(g => g.classList.remove('open'));
+      if (!wasOpen) group.classList.add('open');
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.nav-group.open').forEach(g => g.classList.remove('open'));
+  });
+
+  // Belt-and-braces for mouse users: mirror hover with 'open' via JS too, with
+  // a short close delay, so the menu survives brief gaps/edge cases in pure
+  // CSS :hover tracking instead of relying on it alone.
+  let navCloseTimer = null;
+  document.querySelectorAll('.nav-group').forEach(group => {
+    group.addEventListener('mouseenter', () => {
+      clearTimeout(navCloseTimer);
+      document.querySelectorAll('.nav-group.open').forEach(g => { if (g !== group) g.classList.remove('open'); });
+      group.classList.add('open');
+    });
+    group.addEventListener('mouseleave', () => {
+      navCloseTimer = setTimeout(() => group.classList.remove('open'), 250);
+    });
+  });
+</script>
 <div class="page-main">
 
 
@@ -288,9 +426,9 @@
       <span class="eyebrow">Core RDK Broadband</span>
       <h1>Core RDK Broadband Platform</h1>
       <p class="lede">RDKB Core is a collection of foundational building-blocks called &quot;components.&quot; They&#x27;re designed for easier reuse, improved modularity, RDK Ready vendor certification, reduced code size, and consistent interface definitions.</p>
-      <div class="badge-row"><span class="badge">26 features</span><span class="badge">7 device profiles</span><span class="badge">Five-tier architecture</span><span class="badge">Apache-2.0 / LGPL-2.1</span></div>
+      <div class="badge-row"><span class="badge">26 features</span><span class="badge">7 device profiles</span><span class="badge">Five-tier system</span><span class="badge">Apache-2.0 / LGPL-2.1</span></div>
     </div>
-    
+    <div class="hero-visual"><img src="rdz.png" alt=""></div>
   </div>
 </div>
 
@@ -354,13 +492,13 @@
     <div class="card" id="modularity-build-time-dependencies" style="margin-bottom:16px; scroll-margin-top:80px;">
       <h3>Modularity — Build-Time Dependencies</h3>
       <p><strong style="color:var(--ink);">Goal —</strong> Avoid tight coupling and unnecessary build-time dependencies. Developers shouldn&#x27;t have to manually edit and strip dependencies every time a component is reused.</p>
-      <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Many components — Cable Modem Agent, OneWifi, WAN Manager, DHCP Manager, P&amp;M, Utopia, Test and Diag, TR-069 PA, Xconf, and others — carry an unnecessary build-time dependency on the cable modem HAL interface today.</p>
+      <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Some components have problem build-time dependencies with other components. If these components are not in the software build, then a build time error will occur. For example: OneWifi, WAN Manager, DHCP Manager, P&amp;M, Utopia, Test and Diag, TR-069 PA, Xconf, and others — carry an unnecessary build-time dependency on the cable modem HAL interface today.</p>
     </div>
 
     <div class="card" id="modularity-run-time-dependencies" style="margin-bottom:16px; scroll-margin-top:80px;">
       <h3>Modularity — Run-Time Dependencies</h3>
       <p><strong style="color:var(--ink);">Goal —</strong> Run-time dependencies to optional components and apps must be flexible and dynamic. A component that relies on another&#x27;s methods or properties must keep providing its expected feature subset even when that component isn&#x27;t present.</p>
-      <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Many components — Utopia, RFC, CcspCr, Test and Diag, TR-069 PA, Xconf, OneWifi, CcspWiFiAgent, CcspHotspot, and others — have an inflexible run-time dependency on T2 telemetry, which is actually optional; some operators use other telemetry approaches entirely.</p>
+      <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Some components have problem run-time dependencies with other components. If these components are not in the software build, then a run-time error, unexpected behavior or crash may occur. For example: Utopia, RFC, CcspCr, Test and Diag, TR-069 PA, Xconf, OneWifi, CcspWiFiAgent, CcspHotspot, and others — have an inflexible run-time dependency on T2 telemetry. This can be a problem because T2 telemetry is an optional component; some operators use other telemetry approaches entirely.</p>
     </div>
 
     <div class="card" id="reduced-code-size" style="margin-bottom:16px; scroll-margin-top:80px;">
@@ -381,7 +519,7 @@
     <div class="two-col">
     <div class="card">
       <h3>Well-defined interfaces to vendor code</h3>
-      <p style="margin-bottom:0;">Use industry-standard vendor interfaces (e.g. NL80211) as the RDKB HAL wherever they already exist. Where gaps remain, RDK components support a well-documented HAL interface spec instead — or a standard interface plus RDK-defined extensions. Vendor interfaces evolve over time, so tight version control is maintained between each HAL spec, the RDKB component using it, and the vendor code certified against it.</p>
+      <p style="margin-bottom:0;">Use industry-standard vendor interfaces (e.g. NL80211) as the RDKB HAL wherever they already exist. Where gaps remain, RDK components support an RDK-defined HAL interface — or a standard HAL interface plus RDK-defined HAL extensions. Vendor interfaces evolve over time, so tight version control is maintained between each HAL spec, the RDKB component using it, and the vendor code certified against it.</p>
     </div>
     <div class="card">
       <h3>Test and certification program</h3>
@@ -415,7 +553,7 @@
 <section style="background:#fff; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
   <div class="section-head">
     <span class="eyebrow-lt">Architecture</span>
-    <h2>The five-tier model</h2>
+    <h2>System Diagram</h2>
     <p>RDK-B's architecture reads like a cross-section: cloud-facing management at the
       top, silicon at the base, with the RDK-B middleware — the platform's largest tier —
       doing the work in between.</p>
@@ -425,45 +563,30 @@
     
     <div class="tier t5">
       <div class="num">5</div>
-      <div class="body">
-        <h4>Cloud / ACS</h4>
-        <p>Operator cloud: ACS, USP Controller, xConf, WebConfig, Telemetry backends, Crash collection, Log aggregation.</p>
-      </div>
+      <div class="body"><h4>Cloud / ACS</h4><p>Operator cloud: ACS, USP Controller, xConf, WebConfig, Telemetry backends, Crash collection, Log aggregation.</p></div>
     </div>
 
     <div class="tier t4">
       <div class="num">4</div>
-      <div class="body">
-        <h4>Management Protocols</h4>
-        <p>parodus/WebPA, usp-pa-vendor-rdk, tr069-protocol-agent, xconf-client, WebconfigFramework, T2 telemetry.</p>
-      </div>
+      <div class="body"><h4>RDK-B Protocol Agent Components</h4><p>parodus/WebPA, usp-pa-vendor-rdk, tr069-protocol-agent, xconf-client, WebconfigFramework, T2 telemetry.</p></div>
     </div>
 
     <div class="tier t3">
       <div class="num">3</div>
-      <div class="body">
-        <h4>RDK-B Middleware</h4>
-        <p>RDK-B components: OneWiFi, wan-manager, dhcp-manager, DSM, Dobby, BartonCore, all feature components. All communicate via RBUS.</p>
-      </div>
+      <div class="body body-split"><div class="split-col"><h4>Other RDK-B Components</h4><p>Examples: OneWiFi, wan-manager, dhcp-manager, DSM, Dobby, BartonCore, all feature components. All communicate via RBUS.</p></div><div class="split-col"><h4>RDK-B Downloadable Apps</h4><p>Broadband apps that may be downloaded and run within the RDK-B app framework.</p></div></div>
     </div>
 
     <div class="tier t2">
       <div class="num">2</div>
-      <div class="body">
-        <h4>HAL / BSP</h4>
-        <p>rdkb-halif-* interface libraries and vendor BSP. Boundary between RDK-B middleware and SoC firmware.</p>
-      </div>
+      <div class="body"><h4>RDK-B HAL Interfaces</h4><p>Standard Linux interfaces and RDK-defined interfaces used to abstract vendor software/hardware.</p></div>
     </div>
 
     <div class="tier t1">
       <div class="num">1</div>
-      <div class="body">
-        <h4>Hardware / SoC</h4>
-        <p>Physical silicon: SoC CPU, Wi-Fi radio, modem chipset, Ethernet switch, Flash/RAM.</p>
-      </div>
+      <div class="body"><h4>Vendor Layer</h4><p>Physical silicon, vendor BSP and driver software.</p></div>
     </div>
   </div>
-  <div class="tier-caption">Tier 3 (RDK-B Middleware) is where nearly all feature development happens; Tiers 1–2 are vendor-owned and certified via RDK Ready.</div>
+  <div class="tier-caption">Tier 1 is owned by vendors and certified via RDK Ready. Tiers 2, 3 and 4 are where RDK-B feature development happens. Tier 5 is cloud or back-office software that is out of the scope for RDK-B.</div>
 
   <div class="two-col" style="margin-top:44px;">
     <div>
@@ -502,8 +625,7 @@
     <a href="https://github.com/rdkcentral">rdkcentral on GitHub<span>Component source repositories</span></a>
   </div>
   <div class="footer-meta">
-    RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0 · RDKM · © 2026 RDK Central. All rights reserved.
-    Generated from RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0.pdf.
+    RDKM · © 2026 RDK Central. All rights reserved. Generated from RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.1.pdf.
   </div>
 </footer>
 
@@ -559,7 +681,7 @@
       <button class="contact-submit" id="contact-submit" type="submit">Send</button>
       <div class="contact-status" id="contact-status"></div>
     </form>
-    <a class="contact-mailto" href="mailto:support@rdkcentral.com">Or email support@rdkcentral.com directly</a>
+    <a class="contact-mailto" href="mailto:chandrakanth_pokuru2@comcast.com">Or email chandrakanth_pokuru2@comcast.com directly</a>
   </div>
 </div>
 
@@ -626,7 +748,8 @@
     if (rest.length) {
       html += '<div class="chatbox-related">Related</div>';
       html += rest.map(x => {
-        const href = x.doc.url.endsWith('#') ? x.doc.url.slice(0, -1) || '#' : x.doc.url;
+        let href = x.doc.url.endsWith('#') ? x.doc.url.slice(0, -1) || '#' : x.doc.url;
+        if (href !== '#' && !/^([a-z]+:)?\/\//i.test(href)) href = '' + href;
         return '<a class="chatbox-result" href="' + esc(href) + '">' +
           '<div class="cb-r-title">' + esc(x.doc.title) + '</div>' +
           '<div class="cb-r-cat">' + esc(x.doc.category) + '</div>' +
@@ -678,7 +801,7 @@
       _subject: 'New message from RDK-B Core Broadband site',
     };
 
-    fetch('https://formsubmit.co/ajax/support@rdkcentral.com', {
+    fetch('https://formsubmit.co/ajax/chandrakanth_pokuru2@comcast.com', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(payload),

@@ -40,8 +40,7 @@ FOOTER = """
     <a href="https://github.com/rdkcentral">rdkcentral on GitHub<span>Component source repositories</span></a>
   </div>
   <div class="footer-meta">
-    RDK-B_CoreRDK_Spec_MVP(InternalReference)_v1.0 · RDKM · © 2026 RDK Central. All rights reserved.
-    Generated from {source_pdf}.
+    RDKM · © 2026 RDK Central. All rights reserved. Generated from {source_pdf}.
   </div>
 </footer>
 """.format(components_url=COMPONENTS_URL, components_full_url=COMPONENTS_FULL_URL,
@@ -96,13 +95,18 @@ def render_benefits(groups: list[dict]) -> str:
 def render_five_tier(tiers: list[dict]) -> str:
     out = []
     for t in sorted(tiers, key=lambda x: -x["tier"]):
+        if "split" in t:
+            cols = "".join(
+                f'<div class="split-col"><h4>{esc(c["title"])}</h4><p>{esc(c["text"])}</p></div>'
+                for c in t["split"]
+            )
+            body = f'<div class="body body-split">{cols}</div>'
+        else:
+            body = f'<div class="body"><h4>{esc(t["layer"])}</h4><p>{esc(t["description"])}</p></div>'
         out.append(f'''
     <div class="tier t{t["tier"]}">
       <div class="num">{t["tier"]}</div>
-      <div class="body">
-        <h4>{esc(t["layer"])}</h4>
-        <p>{esc(t["description"])}</p>
-      </div>
+      {body}
     </div>''')
     return "\n".join(out)
 
@@ -120,7 +124,7 @@ def build_about_page(spec: dict, about: dict) -> str:
     hero_badges = (
         '<span class="badge">26 features</span>'
         '<span class="badge">7 device profiles</span>'
-        '<span class="badge">Five-tier architecture</span>'
+        '<span class="badge">Five-tier system</span>'
         '<span class="badge">Apache-2.0 / LGPL-2.1</span>'
     )
     body = f'''
@@ -178,7 +182,7 @@ def build_about_page(spec: dict, about: dict) -> str:
 <section style="background:#fff; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
   <div class="section-head">
     <span class="eyebrow-lt">Architecture</span>
-    <h2>The five-tier model</h2>
+    <h2>System Diagram</h2>
     <p>RDK-B's architecture reads like a cross-section: cloud-facing management at the
       top, silicon at the base, with the RDK-B middleware — the platform's largest tier —
       doing the work in between.</p>
@@ -187,7 +191,7 @@ def build_about_page(spec: dict, about: dict) -> str:
   <div class="tier-diagram">
     {render_five_tier(spec["five_tier"])}
   </div>
-  <div class="tier-caption">Tier 3 (RDK-B Middleware) is where nearly all feature development happens; Tiers 1–2 are vendor-owned and certified via RDK Ready.</div>
+  <div class="tier-caption">Tier 1 is owned by vendors and certified via RDK Ready. Tiers 2, 3 and 4 are where RDK-B feature development happens. Tier 5 is cloud or back-office software that is out of the scope for RDK-B.</div>
 
   <div class="two-col" style="margin-top:44px;">
     <div>

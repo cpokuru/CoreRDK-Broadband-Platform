@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -43,20 +46,54 @@
   .topnav .brand { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
   .topnav .brand img { height: 26px; width: auto; display: block; }
   .topnav .brand-text { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 0.86rem; color: #fff; white-space: nowrap; }
-  .topnav nav { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; overflow-x: auto; }
-  .topnav nav a {
-    color: #aab8d4; text-decoration: none; font-size: 0.82rem; font-weight: 500;
-    padding: 8px 12px; border-radius: 6px; white-space: nowrap;
-    border-bottom: 2px solid transparent; transition: color 0.12s;
+  .topnav nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; row-gap: 8px; flex: 1 1 auto; min-width: 0; }
+
+  /* Every nav control — plain links, dropdown toggles, all of it — shares
+     this one pill style so the whole bar reads as one consistent design
+     echoing the "Core RDK Components" CTA's blue, instead of a mix of plain
+     text and boxes. */
+  .topnav > nav > a, .nav-group-toggle {
+    display: flex; align-items: center; gap: 5px; cursor: pointer;
+    background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); border: none;
+    font-family: inherit; color: #fff; text-decoration: none; font-size: 0.82rem; font-weight: 500;
+    line-height: 1.6; box-sizing: border-box; appearance: none; -webkit-appearance: none;
+    padding: 7px 13px; border-radius: 999px; white-space: nowrap; transition: all 0.12s; outline: none;
   }
-  .topnav nav a:hover { color: #fff; }
-  .topnav nav a.active { color: var(--rdk-blue); border-bottom-color: var(--rdk-blue); font-weight: 600; }
-  .topnav nav a .ext-arrow { font-size: 0.78em; color: #6fa8e8; }
+  .topnav > nav > a:hover, .nav-group-toggle:hover { filter: brightness(1.12); }
+  .topnav > nav > a.active, .nav-group.open .nav-group-toggle, .nav-group-toggle.active {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.6) inset; font-weight: 700;
+  }
+  .topnav > nav > a .ext-arrow { font-size: 0.78em; color: #e6ebff; }
+  .topnav > nav > a:focus-visible, .nav-group-toggle:focus-visible {
+    outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.55); color: #fff;
+  }
   .topnav .cta {
     flex: 0 0 auto; background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); color: #fff;
     font-size: 0.76rem; font-weight: 600; padding: 7px 14px; border-radius: 999px;
-    text-decoration: none; white-space: nowrap;
+    text-decoration: none; white-space: nowrap; border: none;
   }
+
+  /* ---- nav dropdown groups (Standards, North Bound APIs) ---- */
+  .nav-group { position: relative; flex: 0 0 auto; }
+  .nav-group-toggle .caret { font-size: 0.65em; transition: transform 0.15s; }
+  .nav-group.open .nav-group-toggle .caret { transform: rotate(180deg); }
+  .nav-dropdown {
+    display: none; position: absolute; top: 100%; left: 0; padding-top: 8px; z-index: 55;
+  }
+  .nav-group:hover .nav-dropdown, .nav-group.open .nav-dropdown, .nav-group:focus-within .nav-dropdown { display: block; }
+  .nav-dropdown-inner {
+    min-width: 230px; background: #10182b; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+    box-shadow: var(--shadow-md); padding: 6px;
+  }
+  .nav-dropdown a, .nav-dropdown a:visited {
+    display: block; color: #fff; text-decoration: none; font-size: 0.84rem; font-weight: 500;
+    padding: 9px 12px; border-radius: 7px; white-space: nowrap; border-bottom: none;
+  }
+  .nav-dropdown a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .nav-dropdown a.active, .nav-dropdown a.active:visited {
+    color: #fff; font-weight: 700; background: rgba(41,182,232,0.28);
+  }
+  .nav-dropdown a:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.45) inset; }
 
   /* ---- main content area ---- */
   .page-main { min-height: 100vh; margin-top: 61px; }
@@ -65,6 +102,8 @@
     .topnav { flex-wrap: wrap; padding: 10px 16px; }
     .topnav nav { order: 3; width: 100%; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 8px; }
     .page-main { margin-top: 108px; }
+    .nav-dropdown { position: static; padding-top: 0; }
+    .nav-dropdown-inner { box-shadow: none; border: none; background: rgba(255,255,255,0.03); margin: 2px 0 6px 12px; }
   }
 
   /* ---- hero ---- */
@@ -77,8 +116,9 @@
   }
   .hero-flex { display: flex; align-items: center; gap: 44px; max-width: 1520px; }
   .hero-inner { max-width: 640px; flex: 1 1 auto; min-width: 0; }
-  .hero-visual { flex: 0 0 320px; display: flex; justify-content: center; }
-  .hero-visual img { max-width: 100%; max-height: 320px; width: auto; height: auto; border-radius: 14px; object-fit: contain; }
+  .hero-visual { flex: 0 0 540px; max-width: 540px; display: flex; justify-content: flex-end; align-items: center; margin-left: auto; overflow: hidden; }
+  .hero-visual img { width: 100%; max-width: 540px; height: auto; object-fit: contain; mix-blend-mode: lighten; opacity: .92; -webkit-mask-image: radial-gradient(ellipse 78% 78% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 78% 78% at 50% 50%, #000 62%, transparent 100%); }
+  @media (max-width: 1300px) { .hero-visual { flex-basis: 420px; max-width: 420px; } .hero-visual img { max-width: 420px; } }
   @media (max-width: 1000px) { .hero-visual { display: none; } }
 
   .eyebrow { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: #7ec4f2; border: 1px solid rgba(126,196,242,0.35); background: rgba(126,196,242,0.06); border-radius: 999px; padding: 5px 13px; margin-bottom: 20px; }
@@ -138,11 +178,62 @@
   .card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
   .card h3 { font-size: 1.02rem; margin-bottom: 9px; }
   .card p { font-size: 0.92rem; margin: 0; }
-  table.def-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.9rem; }
-  table.def-table th, table.def-table td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
-  table.def-table th { background: #f1f3f9; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
-  table.def-table tbody tr:hover { background: #fafbff; }
+  table.def-table {
+    width: 100%; border-collapse: separate; border-spacing: 0; margin: 14px 0 28px;
+    font-size: 0.92rem; border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; box-shadow: var(--shadow-sm);
+  }
+  table.def-table th, table.def-table td { text-align: left; padding: 14px 18px; vertical-align: top; }
+  table.def-table th {
+    font-family: "Space Grotesk", sans-serif; font-size: 0.78rem; text-transform: uppercase;
+    letter-spacing: 0.06em; font-weight: 700; color: #fff;
+    background: linear-gradient(90deg, var(--hal), var(--middleware));
+    border-bottom: none;
+  }
+  table.def-table th:first-child { border-top-left-radius: 12px; }
+  table.def-table th:last-child { border-top-right-radius: 12px; }
+  table.def-table tbody tr { border-bottom: 1px solid var(--border); }
+  table.def-table tbody tr:last-child { border-bottom: none; }
+  table.def-table tbody tr:nth-child(odd) { background: #fbfcff; }
+  table.def-table tbody tr:nth-child(even) { background: #fff; }
+  table.def-table tbody tr:hover { background: var(--cloud-bg); }
+  table.def-table td { color: var(--muted); line-height: 1.65; border-right: 1px solid var(--border); }
+  table.def-table td:last-child { border-right: none; }
+  table.def-table td:first-child {
+    color: var(--ink); font-weight: 700; font-family: "Space Grotesk", sans-serif;
+    font-size: 0.94rem; border-left: 3px solid var(--rdk-blue); background: rgba(41,182,232,0.04);
+    width: 26%; min-width: 200px;
+  }
   table.def-table td.mono { color: var(--ink); font-weight: 600; }
+
+  /* ---- governance process sections (§7.2 / §7.3 narrative content) ---- */
+  .gov-section.level-2 { padding-top: 22px; margin-top: 22px; border-top: 1px solid var(--border); }
+  .gov-section.level-2:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+  .gov-section h3, .gov-section h4, .gov-section h5 {
+    display: flex; align-items: baseline; gap: 10px; font-family: "Space Grotesk", sans-serif;
+  }
+  .gov-section h3 { font-size: 1.12rem; }
+  .gov-section h4 { font-size: 1.0rem; margin-top: 14px; }
+  .gov-section h5 { font-size: 0.92rem; color: var(--muted); margin-top: 10px; }
+  .gov-num {
+    font-family: "JetBrains Mono", monospace; font-size: 0.72rem; font-weight: 700;
+    color: #fff; background: var(--middleware); padding: 2px 8px; border-radius: 5px;
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .gov-section p { margin: 6px 0 10px; font-size: 0.92rem; }
+  .gov-section ul { margin: 6px 0 16px; padding-left: 20px; color: var(--muted); }
+  .gov-section ul li { margin-bottom: 5px; line-height: 1.6; font-size: 0.92rem; }
+  .gov-section table.def-table { margin: 10px 0 18px; font-size: 0.86rem; }
+  .gov-section pre.code-block {
+    background: #0b1220; color: #cbd5e1; padding: 16px 18px; border-radius: 10px;
+    overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.8rem;
+    line-height: 1.55; margin: 10px 0 18px; white-space: pre;
+  }
+  .gov-section h5.gov-subhead {
+    font-family: "Space Grotesk", sans-serif; font-size: 0.82rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em; color: var(--middleware);
+    margin: 18px 0 6px; display: block;
+  }
   .timeline { border-left: 2px solid var(--border); margin-left: 6px; padding-left: 24px; display: flex; flex-direction: column; gap: 18px; }
   .tl-item { position: relative; }
   .tl-item::before { content: ""; position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--middleware); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--middleware); }
@@ -155,19 +246,27 @@
   .tier .body { flex: 1; padding: 19px 24px; }
   .tier .body h4 { margin: 0 0 4px; font-size: 1.02rem; }
   .tier .body p { margin: 0; font-size: 0.88rem; }
-  .tier.t5 { background: var(--cloud-bg); color: var(--cloud-fg); }
-  .tier.t5 .num { background: #d9e2ff; color: var(--cloud-fg); }
-  .tier.t4 { background: #e3f7ef; color: #065f46; }
-  .tier.t4 .num { background: var(--mgmt); color: #fff; }
+  .tier .body-split { display: flex; padding: 0; }
+  .tier .body-split .split-col { flex: 1; padding: 19px 24px; }
+  .tier .body-split .split-col:first-child { border-right: 1px solid rgba(255,255,255,0.25); }
+  .tier .body-split h4 { margin: 0 0 4px; font-size: 1.02rem; }
+  .tier .body-split p { margin: 0; font-size: 0.88rem; }
+  .tier.t5 { background: #e5e7eb; color: #1f2937; }
+  .tier.t5 .num { background: #d1d5db; color: #1f2937; }
+  .tier.t4 { background: #cfe0fb; color: #10284d; }
+  .tier.t4 .num { background: #9dc0f2; color: #10284d; }
   .tier.t3 { background: var(--middleware); color: #fff; }
   .tier.t3 .num { background: #1a3fb5; color: #fff; }
-  .tier.t3 .body p { color: #dce6ff; }
+  .tier.t3 .body p, .tier.t3 .body-split p { color: #dce6ff; }
+  .tier.t3 .body h4, .tier.t3 .body-split h4 { color: #fff; }
   .tier.t2 { background: var(--hal); color: #fff; }
   .tier.t2 .num { background: #0e2144; color: #fff; }
   .tier.t2 .body p { color: #c5d3e6; }
+  .tier.t2 .body h4 { color: #fff; }
   .tier.t1 { background: var(--bedrock); color: #fff; }
   .tier.t1 .num { background: #000308; color: #9fb2cf; }
   .tier.t1 .body p { color: #9fb2cf; }
+  .tier.t1 .body h4 { color: #fff; }
   .tier-caption { text-align: center; font-size: 0.82rem; color: var(--muted); margin-top: 12px; }
   .layer-stack { display: flex; flex-direction: column; gap: 6px; }
   .layer-box { margin-bottom: 6px; border-radius: 9px; padding: 13px 16px; font-size: 0.86rem; font-weight: 600; text-align: center; }
@@ -281,10 +380,55 @@
   }
   .dml-btn:hover { background: #1442ad; }
   #dml-panel { margin-top: 20px; }
+
+  /* ---- BBF-inspired DML tree styling ---- */
+  .bbf-object-head {
+    background: linear-gradient(135deg, #fef9e7, #fef3c7); border: 1px solid #fde68a;
+    border-radius: 8px; padding: 8px 14px; margin: 4px 0 0;
+    font-family: "JetBrains Mono", monospace; font-weight: 700; color: #78350f;
+  }
+  .bbf-object-head-root {
+    background: linear-gradient(135deg, #451a03, #78350f); border-color: #78350f;
+    color: #fef3c7; font-size: 1rem; margin-bottom: 14px; box-shadow: var(--shadow-sm);
+  }
+  .bbf-object-head-with-table { border-radius: 8px 8px 0 0; margin-bottom: 0; }
+  .bbf-object-head .bbf-count { font-weight: 500; font-size: 0.78rem; color: #92400e; margin-left: 8px; }
+  .bbf-object-head-root .bbf-count { color: #fde68a; }
+  .bbf-desc { font-size: 0.82rem; color: var(--muted); margin: 8px 0 0; padding: 0 14px; }
+  .bbf-table-wrap {
+    border: 1px solid var(--border); border-top: none; border-radius: 0 0 10px 10px;
+    overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 8px;
+  }
+  table.bbf-table { width: 100%; border-collapse: collapse; margin: 0; font-size: 0.85rem; }
+  table.bbf-table th {
+    background: #eef1f6; text-align: left; padding: 8px 12px; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); border-bottom: 2px solid var(--border);
+  }
+  table.bbf-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.bbf-table tbody tr.bbf-row-param:nth-child(even) { background: #f8fafc; }
+  table.bbf-table tr.bbf-row-count { background: #eef2ff; }
+  table.bbf-table tr.bbf-row-method { background: #ecfdf5; }
+  table.bbf-table tr.bbf-row-event { background: #eff6ff; }
+  table.bbf-table tr.bbf-row-param:hover,
+  table.bbf-table tr.bbf-row-count:hover,
+  table.bbf-table tr.bbf-row-method:hover,
+  table.bbf-table tr.bbf-row-event:hover { filter: brightness(0.97); }
+  table.bbf-table td.bbf-name { font-family: "JetBrains Mono", monospace; font-weight: 600; color: var(--ink); }
+  table.bbf-table td.bbf-type { font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: #4338ca; }
+  table.bbf-table td.bbf-access { font-size: 0.8rem; }
+  table.bbf-table td.bbf-desc { color: var(--muted); font-size: 0.8rem; }
+  table.bbf-table td.bbf-desc.bbf-desc-empty { color: #cbd5e1; font-style: italic; }
+  .bbf-tag {
+    display: inline-block; font-size: 0.64rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.03em; padding: 2px 7px; border-radius: 999px; margin-left: 7px;
+  }
+  .bbf-tag-count { background: #e0e7ff; color: #3730a3; }
+  .bbf-tag-method { background: #d1fae5; color: #065f46; }
+  .bbf-tag-event { background: #dbeafe; color: #1e40af; }
 </style>
 
 <script>
-const COMPONENTS_JSON = 'components/ethwan-router-components.json';
+const COMPONENTS_JSON = 'components/all-components.json';
 const REPO_MAP_JSON = 'dml-repos.json';
 const RAW_BASE = 'https://raw.githubusercontent.com/cpokuru/';
 
@@ -292,6 +436,18 @@ function esc(s) {
   const d = document.createElement('div');
   d.textContent = s ?? '';
   return d.innerHTML;
+}
+
+// dml-repos.json entries can be either:
+//   "Component Name": "RepoSlug"                                  (file defaults to dml.json, branch defaults to main)
+//   "Component Name": { "repo": "RepoSlug", "file": "custom.json" }                    (explicit filename, still main)
+//   "Component Name": { "repo": "RepoSlug", "file": "custom.json", "branch": "develop" } (explicit filename + branch)
+// so each component's data file doesn't have to be literally named dml.json,
+// or live on main -- some repos publish their interface file on develop or
+// another branch before it's merged.
+function resolveRepoEntry(mapValue) {
+  if (typeof mapValue === 'string') return { repo: mapValue, file: 'dml.json', branch: 'main' };
+  return { repo: mapValue.repo, file: mapValue.file || 'dml.json', branch: mapValue.branch || 'main' };
 }
 
 // ---- generic renderer for whatever shape dml.json turns out to be ----
@@ -323,10 +479,146 @@ function renderTree(value) {
   return `<pre style="background:#0b1220;color:#cbd5e1;padding:20px;border-radius:10px;overflow-x:auto;font-size:0.82rem;max-height:600px;">${esc(JSON.stringify(value, null, 2))}</pre>`;
 }
 
+// ---- BBF-style hierarchical tree (matches the official TR-181 USP HTML
+// data model browser layout: Device. -> Device.X_RDK_WanManager. -> nested
+// objects, each showing its own parameters before its child objects) ----
+
+function isObjectPath(path) {
+  return path.trim().endsWith('.');
+}
+
+function buildBbfTree(elements) {
+  // root node represents the implicit top-level "Device" umbrella; every
+  // element's path is threaded down through it segment by segment.
+  const root = { name: 'Device', children: {}, own: null };
+  for (const [path, meta] of Object.entries(elements)) {
+    const clean = path.trim().replace(/\.$/, '');
+    const segments = clean.split('.');
+    let node = root;
+    for (let i = 1; i < segments.length; i++) { // start at 1: segment 0 is always "Device" itself
+      const seg = segments[i];
+      if (!node.children[seg]) node.children[seg] = { name: seg, children: {}, own: null };
+      node = node.children[seg];
+    }
+    node.own = { path, meta, isObject: isObjectPath(path) };
+  }
+  return root;
+}
+
+function isNumberOfEntriesName(name) {
+  return /NumberOfEntries$/i.test(name);
+}
+
+function splitLeafAndObjectChildren(node) {
+  const entries = Object.entries(node.children);
+  const leaves = [];
+  const objects = [];
+  for (const [name, child] of entries) {
+    const hasGrandchildren = Object.keys(child.children).length > 0;
+    if (hasGrandchildren || (child.own && child.own.isObject)) {
+      objects.push([name, child]);
+    } else {
+      leaves.push([name, child]);
+    }
+  }
+  // BBF convention: *NumberOfEntries parameters first, then the rest
+  // alphabetically (the source data carries no explicit schema order, so
+  // alphabetical is the most defensible default for everything else).
+  leaves.sort(([a], [b]) => {
+    const aNoe = isNumberOfEntriesName(a), bNoe = isNumberOfEntriesName(b);
+    if (aNoe !== bNoe) return aNoe ? -1 : 1;
+    return a.localeCompare(b);
+  });
+  objects.sort(([a], [b]) => a.localeCompare(b));
+  return { leaves, objects };
+}
+
+function renderParamRow(name, child, pathPrefix) {
+  const meta = child.own ? child.own.meta : {};
+  const type = meta.type || '';
+  const access = Array.isArray(meta.access) ? meta.access.join(', ') : (meta.access || '');
+  const desc = (meta.description || '').trim();
+  const isMethod = name.endsWith('()');
+  const isEvent = Array.isArray(meta.access) && meta.access.includes('subscribeOnChange') && !type;
+  const isCount = isNumberOfEntriesName(name);
+
+  let rowClass = 'bbf-row-param';
+  let tag = '';
+  if (isCount) { rowClass = 'bbf-row-count'; tag = '<span class="bbf-tag bbf-tag-count">count</span>'; }
+  else if (isMethod) { rowClass = 'bbf-row-method'; tag = '<span class="bbf-tag bbf-tag-method">method</span>'; }
+  else if (isEvent) { rowClass = 'bbf-row-event'; tag = '<span class="bbf-tag bbf-tag-event">event</span>'; }
+
+  const descCell = desc
+    ? `<td class="bbf-desc">${esc(desc)}</td>`
+    : `<td class="bbf-desc bbf-desc-empty">not documented</td>`;
+
+  return `<tr class="${rowClass}">
+    <td class="bbf-name">${esc(name)}${tag}</td>
+    <td class="bbf-type">${esc(type || (isMethod ? 'method' : ''))}</td>
+    <td class="bbf-access">${esc(access)}</td>
+    ${descCell}
+  </tr>`;
+}
+
+function renderObjectNode(node, pathPrefix, depth) {
+  const { leaves, objects } = splitLeafAndObjectChildren(node);
+  const fullPath = pathPrefix + node.name + (Object.keys(node.children).length ? '.' : '');
+  const meta = node.own ? node.own.meta : {};
+  const headClass = 'bbf-object-head' + (leaves.length ? ' bbf-object-head-with-table' : '');
+  let html = `<div style="margin-left:${depth * 18}px; margin-bottom:18px;">`;
+  html += `<div class="${headClass}" style="font-size:${depth === 0 ? '0.95rem' : '0.86rem'};">${esc(fullPath)}${leaves.length ? `<span class="bbf-count">${leaves.length} ${leaves.length === 1 ? 'entry' : 'entries'}</span>` : ''}</div>`;
+  if (meta.description && meta.description.trim()) {
+    html += `<p class="bbf-desc">${esc(meta.description)}</p>`;
+  }
+  if (leaves.length) {
+    html += `<div class="bbf-table-wrap"><table class="bbf-table"><thead><tr><th>Name</th><th>Type</th><th>Access</th><th>Description</th></tr></thead><tbody>` +
+      leaves.map(([name, child]) => renderParamRow(name, child, fullPath)).join('') +
+      `</tbody></table></div>`;
+  }
+  html += '</div>';
+  for (const [, child] of objects) {
+    html += renderObjectNode(child, fullPath, depth + 1);
+  }
+  return html;
+}
+
+function renderBbfTree(elements) {
+  const root = buildBbfTree(elements);
+  // root itself ("Device") is never a real object with its own params --
+  // skip straight to rendering its real children (e.g. X_RDK_WanManager).
+  const { objects } = splitLeafAndObjectChildren(root);
+  if (!objects.length) return renderTree(elements); // defensive fallback, shouldn't normally happen
+  return `<div class="bbf-object-head bbf-object-head-root">Device.</div>` +
+    objects.map(([, child]) => renderObjectNode(child, 'Device.', 0)).join('');
+}
+
 function renderDmlPayload(data) {
-  // A DML export commonly separates "objects" (the tree nodes) from
-  // "parameters" (the leaves) -- render each as its own table when present,
-  // otherwise fall back to the generic array/tree detection.
+  // Shape A: { componentInterfaceDefinition: {...}, elements: { "Device.X...": {...}, ... } }
+  // A real TR-181-style export, keyed by full parameter path rather than an
+  // array. Rendered as a genuine hierarchical tree matching the BBF USP HTML
+  // data model browser convention (e.g. tr-181-2-21-0-usp.html): Device. ->
+  // Device.X_RDK_WanManager. -> nested objects, each object showing its own
+  // direct parameters before its child objects, with *NumberOfEntries
+  // parameters hoisted to the top of that list (BBF convention: the count
+  // parameter for a table is documented immediately under its parent
+  // object, ahead of the table's own row schema).
+  if (data && typeof data === 'object' && data.elements && typeof data.elements === 'object' && !Array.isArray(data.elements)) {
+    const def = data.componentInterfaceDefinition || {};
+    let out = '';
+    if (def.name || def.description) {
+      out += `<div class="card" style="margin-bottom:16px;">
+        <h3>${esc(def.name || 'Interface')}${def.version ? ' <span class="mono" style="font-weight:400;font-size:0.8rem;color:var(--muted);">v' + esc(def.version) + '</span>' : ''}</h3>
+        <p style="margin-bottom:6px;">${esc(def.description || '')}</p>
+        <p class="mono" style="font-size:0.78rem; margin-bottom:0;">${esc(def.moduleName || '')}${def.generated ? ' · generated ' + esc(def.generated) : ''}</p>
+      </div>`;
+    }
+    out += renderBbfTree(data.elements);
+    return out;
+  }
+
+  // Shape B: a DML export that already separates "objects" from "parameters"
+  // as flat arrays -- render each as its own table when present, otherwise
+  // fall back to the generic array/tree detection.
   if (data && typeof data === 'object' && !Array.isArray(data) && (data.objects || data.parameters)) {
     let out = '';
     if (data.objects) {
@@ -346,9 +638,9 @@ let allComponents = [];
 let repoMap = {};
 
 function componentRowHtml(c) {
-  const repo = repoMap[c.name];
-  const action = repo
-    ? `<button class="dml-btn" data-name="${esc(c.name)}" data-repo="${esc(repo)}">View DML</button>`
+  const repoEntry = repoMap[c.name];
+  const action = repoEntry
+    ? `<button class="dml-btn" data-name="${esc(c.name)}">View DML</button>`
     : `<span class="muted" style="font-size:0.85rem;">Not available yet</span>`;
   return `<tr>
     <td>${esc(c.name)}</td>
@@ -363,13 +655,14 @@ function renderComponentTable(filterText) {
   document.getElementById('component-table-body').innerHTML = rows.map(componentRowHtml).join('');
   document.getElementById('component-count').textContent = `${rows.length} of ${allComponents.length} components`;
   document.querySelectorAll('.dml-btn').forEach(btn => {
-    btn.addEventListener('click', () => loadDml(btn.dataset.name, btn.dataset.repo));
+    btn.addEventListener('click', () => loadDml(btn.dataset.name));
   });
 }
 
-function loadDml(name, repo) {
+function loadDml(name) {
+  const { repo, file, branch } = resolveRepoEntry(repoMap[name]);
   const panel = document.getElementById('dml-panel');
-  const url = RAW_BASE + repo + '/main/dml.json';
+  const url = RAW_BASE + repo + '/' + branch + '/' + file;
   panel.innerHTML = `
     <div class="subhead" style="margin-top:0;">${esc(name)} <span class="mono" style="font-weight:400;font-size:0.8rem;color:var(--muted);">// ${esc(repo)}</span></div>
     <p>Loading <code>${esc(url)}</code>…</p>`;
@@ -421,10 +714,49 @@ Promise.all([
     <img src="RDK-logo.png" alt="RDK-B Core Broadband logo" onerror="this.style.display='none'">
   </div>
   <nav>
-    <a class="" href="index.html">About Core RDK Broadband</a><a class="" href="architecture-standards.html">Architecture Standards</a><a class="" href="technical-governance.html">Development Standards</a><a class="active" href="north-bound-apis.html">North Bound APIs</a><a class="" href="south-bound-apis.html">South Bound APIs</a><a class="" href="hardware-compatibility.html">Hardware Compatibility</a>
+    <a class="" href="index.html">About Core RDK Broadband</a><a class="cta" href="components/">Core RDK Components ↗</a><div class="nav-group ">
+      <button type="button" class="nav-group-toggle ">Standards <span class="caret">&#9662;</span></button>
+      <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="" href="architecture-standards.html">Architecture Standards</a><a class="" href="industry-standards.html">Industry Conformance Standards</a><a class="" href="technical-governance.html">Development Standards</a></div></div>
+    </div><a class="" href="component-registry.html">Component Registry</a><div class="nav-group open">
+      <button type="button" class="nav-group-toggle active">North Bound APIs <span class="caret">&#9662;</span></button>
+      <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="" href="north-bound-specification.html">North Bound Specification</a><a class="active" href="north-bound-apis.html">List of North Bound APIs</a></div></div>
+    </div><div class="nav-group ">
+      <button type="button" class="nav-group-toggle ">South Bound APIs <span class="caret">&#9662;</span></button>
+      <div class="nav-dropdown"><div class="nav-dropdown-inner"><a class="" href="south-bound-specification.html">South Bound Specification</a><a class="" href="south-bound-apis.html">List of South Bound APIs</a></div></div>
+    </div><a class="" href="hardware-compatibility.html">Hardware Compatibility</a>
   </nav>
-  <a class="cta" href="components/">Core RDK Components ↗</a>
 </div>
+<script>
+  // Click-to-toggle for touch devices; desktop still gets :hover/:focus-within
+  // from CSS for free. Closes other open groups and closes on outside click.
+  document.querySelectorAll('.nav-group-toggle').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const group = btn.closest('.nav-group');
+      const wasOpen = group.classList.contains('open');
+      document.querySelectorAll('.nav-group.open').forEach(g => g.classList.remove('open'));
+      if (!wasOpen) group.classList.add('open');
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.nav-group.open').forEach(g => g.classList.remove('open'));
+  });
+
+  // Belt-and-braces for mouse users: mirror hover with 'open' via JS too, with
+  // a short close delay, so the menu survives brief gaps/edge cases in pure
+  // CSS :hover tracking instead of relying on it alone.
+  let navCloseTimer = null;
+  document.querySelectorAll('.nav-group').forEach(group => {
+    group.addEventListener('mouseenter', () => {
+      clearTimeout(navCloseTimer);
+      document.querySelectorAll('.nav-group.open').forEach(g => { if (g !== group) g.classList.remove('open'); });
+      group.classList.add('open');
+    });
+    group.addEventListener('mouseleave', () => {
+      navCloseTimer = setTimeout(() => group.classList.remove('open'), 250);
+    });
+  });
+</script>
 <div class="page-main">
 
 
@@ -509,7 +841,7 @@ Promise.all([
       <button class="contact-submit" id="contact-submit" type="submit">Send</button>
       <div class="contact-status" id="contact-status"></div>
     </form>
-    <a class="contact-mailto" href="mailto:support@rdkcentral.com">Or email support@rdkcentral.com directly</a>
+    <a class="contact-mailto" href="mailto:chandrakanth_pokuru2@comcast.com">Or email chandrakanth_pokuru2@comcast.com directly</a>
   </div>
 </div>
 
@@ -576,7 +908,8 @@ Promise.all([
     if (rest.length) {
       html += '<div class="chatbox-related">Related</div>';
       html += rest.map(x => {
-        const href = x.doc.url.endsWith('#') ? x.doc.url.slice(0, -1) || '#' : x.doc.url;
+        let href = x.doc.url.endsWith('#') ? x.doc.url.slice(0, -1) || '#' : x.doc.url;
+        if (href !== '#' && !/^([a-z]+:)?\/\//i.test(href)) href = '' + href;
         return '<a class="chatbox-result" href="' + esc(href) + '">' +
           '<div class="cb-r-title">' + esc(x.doc.title) + '</div>' +
           '<div class="cb-r-cat">' + esc(x.doc.category) + '</div>' +
@@ -628,7 +961,7 @@ Promise.all([
       _subject: 'New message from RDK-B Core Broadband site',
     };
 
-    fetch('https://formsubmit.co/ajax/support@rdkcentral.com', {
+    fetch('https://formsubmit.co/ajax/chandrakanth_pokuru2@comcast.com', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(payload),

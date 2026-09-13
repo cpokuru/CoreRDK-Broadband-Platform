@@ -9,19 +9,34 @@ browser as Python.
 from __future__ import annotations
 
 import html
+import json
 
 COMPONENTS_URL = "components/"
 
-# (id, label, href, external) — external items get an "external link" arrow
-# and open the components site rather than a local page in this repo.
+# Nav structure: each top-level entry is either
+#   ("link", id, label, href, external)      -- a plain nav link
+#   ("group", id, label, [child_link, ...])   -- a dropdown; children are
+#                                                 ("link", id, label, href, external) tuples
+# external items get an "external link" arrow and open the components site
+# rather than a local page in this repo.
 NAV_LINKS = [
-    ("about", "About Core RDK Broadband", "index.html", False),
-    ("architecture-standards", "Architecture Standards", "architecture-standards.html", False),
-    ("technical-governance", "Development Standards", "technical-governance.html", False),
-    ("nbi", "North Bound APIs", "north-bound-apis.html", False),
-    ("sbi", "South Bound APIs", "south-bound-apis.html", False),
-    ("hwcompat", "Hardware Compatibility", "hardware-compatibility.html", False),
-    ("components", "Core RDK Components", COMPONENTS_URL, True),
+    ("link", "about", "About Core RDK Broadband", "index.html", False),
+    ("group", "standards", "Standards", [
+        ("link", "architecture-standards", "Architecture Standards", "architecture-standards.html", False),
+        ("link", "industry-standards", "Industry Conformance Standards", "industry-standards.html", False),
+        ("link", "technical-governance", "Development Standards", "technical-governance.html", False),
+    ]),
+    ("link", "component-registry", "Component Registry", "component-registry.html", False),
+    ("group", "nbi-group", "North Bound APIs", [
+        ("link", "nbi-spec", "North Bound Specification", "north-bound-specification.html", False),
+        ("link", "nbi", "List of North Bound APIs", "north-bound-apis.html", False),
+    ]),
+    ("group", "sbi-group", "South Bound APIs", [
+        ("link", "sbi-spec", "South Bound Specification", "south-bound-specification.html", False),
+        ("link", "sbi", "List of South Bound APIs", "south-bound-apis.html", False),
+    ]),
+    ("link", "hwcompat", "Hardware Compatibility", "hardware-compatibility.html", False),
+    ("link", "components", "Core RDK Components", COMPONENTS_URL, True),
 ]
 
 SHARED_CSS = """
@@ -61,20 +76,54 @@ SHARED_CSS = """
   .topnav .brand { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
   .topnav .brand img { height: 26px; width: auto; display: block; }
   .topnav .brand-text { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 0.86rem; color: #fff; white-space: nowrap; }
-  .topnav nav { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; overflow-x: auto; }
-  .topnav nav a {
-    color: #aab8d4; text-decoration: none; font-size: 0.82rem; font-weight: 500;
-    padding: 8px 12px; border-radius: 6px; white-space: nowrap;
-    border-bottom: 2px solid transparent; transition: color 0.12s;
+  .topnav nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; row-gap: 8px; flex: 1 1 auto; min-width: 0; }
+
+  /* Every nav control — plain links, dropdown toggles, all of it — shares
+     this one pill style so the whole bar reads as one consistent design
+     echoing the "Core RDK Components" CTA's blue, instead of a mix of plain
+     text and boxes. */
+  .topnav > nav > a, .nav-group-toggle {
+    display: flex; align-items: center; gap: 5px; cursor: pointer;
+    background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); border: none;
+    font-family: inherit; color: #fff; text-decoration: none; font-size: 0.82rem; font-weight: 500;
+    line-height: 1.6; box-sizing: border-box; appearance: none; -webkit-appearance: none;
+    padding: 7px 13px; border-radius: 999px; white-space: nowrap; transition: all 0.12s; outline: none;
   }
-  .topnav nav a:hover { color: #fff; }
-  .topnav nav a.active { color: var(--rdk-blue); border-bottom-color: var(--rdk-blue); font-weight: 600; }
-  .topnav nav a .ext-arrow { font-size: 0.78em; color: #6fa8e8; }
+  .topnav > nav > a:hover, .nav-group-toggle:hover { filter: brightness(1.12); }
+  .topnav > nav > a.active, .nav-group.open .nav-group-toggle, .nav-group-toggle.active {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.6) inset; font-weight: 700;
+  }
+  .topnav > nav > a .ext-arrow { font-size: 0.78em; color: #e6ebff; }
+  .topnav > nav > a:focus-visible, .nav-group-toggle:focus-visible {
+    outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.55); color: #fff;
+  }
   .topnav .cta {
     flex: 0 0 auto; background: linear-gradient(90deg, var(--rdk-blue), #7c3aed); color: #fff;
     font-size: 0.76rem; font-weight: 600; padding: 7px 14px; border-radius: 999px;
-    text-decoration: none; white-space: nowrap;
+    text-decoration: none; white-space: nowrap; border: none;
   }
+
+  /* ---- nav dropdown groups (Standards, North Bound APIs) ---- */
+  .nav-group { position: relative; flex: 0 0 auto; }
+  .nav-group-toggle .caret { font-size: 0.65em; transition: transform 0.15s; }
+  .nav-group.open .nav-group-toggle .caret { transform: rotate(180deg); }
+  .nav-dropdown {
+    display: none; position: absolute; top: 100%; left: 0; padding-top: 8px; z-index: 55;
+  }
+  .nav-group:hover .nav-dropdown, .nav-group.open .nav-dropdown, .nav-group:focus-within .nav-dropdown { display: block; }
+  .nav-dropdown-inner {
+    min-width: 230px; background: #10182b; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
+    box-shadow: var(--shadow-md); padding: 6px;
+  }
+  .nav-dropdown a, .nav-dropdown a:visited {
+    display: block; color: #fff; text-decoration: none; font-size: 0.84rem; font-weight: 500;
+    padding: 9px 12px; border-radius: 7px; white-space: nowrap; border-bottom: none;
+  }
+  .nav-dropdown a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .nav-dropdown a.active, .nav-dropdown a.active:visited {
+    color: #fff; font-weight: 700; background: rgba(41,182,232,0.28);
+  }
+  .nav-dropdown a:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.45) inset; }
 
   /* ---- main content area ---- */
   .page-main { min-height: 100vh; margin-top: 61px; }
@@ -83,6 +132,8 @@ SHARED_CSS = """
     .topnav { flex-wrap: wrap; padding: 10px 16px; }
     .topnav nav { order: 3; width: 100%; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 8px; }
     .page-main { margin-top: 108px; }
+    .nav-dropdown { position: static; padding-top: 0; }
+    .nav-dropdown-inner { box-shadow: none; border: none; background: rgba(255,255,255,0.03); margin: 2px 0 6px 12px; }
   }
 
   /* ---- hero ---- */
@@ -95,8 +146,9 @@ SHARED_CSS = """
   }
   .hero-flex { display: flex; align-items: center; gap: 44px; max-width: 1520px; }
   .hero-inner { max-width: 640px; flex: 1 1 auto; min-width: 0; }
-  .hero-visual { flex: 0 0 320px; display: flex; justify-content: center; }
-  .hero-visual img { max-width: 100%; max-height: 320px; width: auto; height: auto; border-radius: 14px; object-fit: contain; }
+  .hero-visual { flex: 0 0 540px; max-width: 540px; display: flex; justify-content: flex-end; align-items: center; margin-left: auto; overflow: hidden; }
+  .hero-visual img { width: 100%; max-width: 540px; height: auto; object-fit: contain; mix-blend-mode: lighten; opacity: .92; -webkit-mask-image: radial-gradient(ellipse 78% 78% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 78% 78% at 50% 50%, #000 62%, transparent 100%); }
+  @media (max-width: 1300px) { .hero-visual { flex-basis: 420px; max-width: 420px; } .hero-visual img { max-width: 420px; } }
   @media (max-width: 1000px) { .hero-visual { display: none; } }
 
   .eyebrow { display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: #7ec4f2; border: 1px solid rgba(126,196,242,0.35); background: rgba(126,196,242,0.06); border-radius: 999px; padding: 5px 13px; margin-bottom: 20px; }
@@ -156,11 +208,62 @@ SHARED_CSS = """
   .card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
   .card h3 { font-size: 1.02rem; margin-bottom: 9px; }
   .card p { font-size: 0.92rem; margin: 0; }
-  table.def-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.9rem; }
-  table.def-table th, table.def-table td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
-  table.def-table th { background: #f1f3f9; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
-  table.def-table tbody tr:hover { background: #fafbff; }
+  table.def-table {
+    width: 100%; border-collapse: separate; border-spacing: 0; margin: 14px 0 28px;
+    font-size: 0.92rem; border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; box-shadow: var(--shadow-sm);
+  }
+  table.def-table th, table.def-table td { text-align: left; padding: 14px 18px; vertical-align: top; }
+  table.def-table th {
+    font-family: "Space Grotesk", sans-serif; font-size: 0.78rem; text-transform: uppercase;
+    letter-spacing: 0.06em; font-weight: 700; color: #fff;
+    background: linear-gradient(90deg, var(--hal), var(--middleware));
+    border-bottom: none;
+  }
+  table.def-table th:first-child { border-top-left-radius: 12px; }
+  table.def-table th:last-child { border-top-right-radius: 12px; }
+  table.def-table tbody tr { border-bottom: 1px solid var(--border); }
+  table.def-table tbody tr:last-child { border-bottom: none; }
+  table.def-table tbody tr:nth-child(odd) { background: #fbfcff; }
+  table.def-table tbody tr:nth-child(even) { background: #fff; }
+  table.def-table tbody tr:hover { background: var(--cloud-bg); }
+  table.def-table td { color: var(--muted); line-height: 1.65; border-right: 1px solid var(--border); }
+  table.def-table td:last-child { border-right: none; }
+  table.def-table td:first-child {
+    color: var(--ink); font-weight: 700; font-family: "Space Grotesk", sans-serif;
+    font-size: 0.94rem; border-left: 3px solid var(--rdk-blue); background: rgba(41,182,232,0.04);
+    width: 26%; min-width: 200px;
+  }
   table.def-table td.mono { color: var(--ink); font-weight: 600; }
+
+  /* ---- governance process sections (§7.2 / §7.3 narrative content) ---- */
+  .gov-section.level-2 { padding-top: 22px; margin-top: 22px; border-top: 1px solid var(--border); }
+  .gov-section.level-2:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+  .gov-section h3, .gov-section h4, .gov-section h5 {
+    display: flex; align-items: baseline; gap: 10px; font-family: "Space Grotesk", sans-serif;
+  }
+  .gov-section h3 { font-size: 1.12rem; }
+  .gov-section h4 { font-size: 1.0rem; margin-top: 14px; }
+  .gov-section h5 { font-size: 0.92rem; color: var(--muted); margin-top: 10px; }
+  .gov-num {
+    font-family: "JetBrains Mono", monospace; font-size: 0.72rem; font-weight: 700;
+    color: #fff; background: var(--middleware); padding: 2px 8px; border-radius: 5px;
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .gov-section p { margin: 6px 0 10px; font-size: 0.92rem; }
+  .gov-section ul { margin: 6px 0 16px; padding-left: 20px; color: var(--muted); }
+  .gov-section ul li { margin-bottom: 5px; line-height: 1.6; font-size: 0.92rem; }
+  .gov-section table.def-table { margin: 10px 0 18px; font-size: 0.86rem; }
+  .gov-section pre.code-block {
+    background: #0b1220; color: #cbd5e1; padding: 16px 18px; border-radius: 10px;
+    overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.8rem;
+    line-height: 1.55; margin: 10px 0 18px; white-space: pre;
+  }
+  .gov-section h5.gov-subhead {
+    font-family: "Space Grotesk", sans-serif; font-size: 0.82rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em; color: var(--middleware);
+    margin: 18px 0 6px; display: block;
+  }
   .timeline { border-left: 2px solid var(--border); margin-left: 6px; padding-left: 24px; display: flex; flex-direction: column; gap: 18px; }
   .tl-item { position: relative; }
   .tl-item::before { content: ""; position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--middleware); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--middleware); }
@@ -173,19 +276,27 @@ SHARED_CSS = """
   .tier .body { flex: 1; padding: 19px 24px; }
   .tier .body h4 { margin: 0 0 4px; font-size: 1.02rem; }
   .tier .body p { margin: 0; font-size: 0.88rem; }
-  .tier.t5 { background: var(--cloud-bg); color: var(--cloud-fg); }
-  .tier.t5 .num { background: #d9e2ff; color: var(--cloud-fg); }
-  .tier.t4 { background: #e3f7ef; color: #065f46; }
-  .tier.t4 .num { background: var(--mgmt); color: #fff; }
+  .tier .body-split { display: flex; padding: 0; }
+  .tier .body-split .split-col { flex: 1; padding: 19px 24px; }
+  .tier .body-split .split-col:first-child { border-right: 1px solid rgba(255,255,255,0.25); }
+  .tier .body-split h4 { margin: 0 0 4px; font-size: 1.02rem; }
+  .tier .body-split p { margin: 0; font-size: 0.88rem; }
+  .tier.t5 { background: #e5e7eb; color: #1f2937; }
+  .tier.t5 .num { background: #d1d5db; color: #1f2937; }
+  .tier.t4 { background: #cfe0fb; color: #10284d; }
+  .tier.t4 .num { background: #9dc0f2; color: #10284d; }
   .tier.t3 { background: var(--middleware); color: #fff; }
   .tier.t3 .num { background: #1a3fb5; color: #fff; }
-  .tier.t3 .body p { color: #dce6ff; }
+  .tier.t3 .body p, .tier.t3 .body-split p { color: #dce6ff; }
+  .tier.t3 .body h4, .tier.t3 .body-split h4 { color: #fff; }
   .tier.t2 { background: var(--hal); color: #fff; }
   .tier.t2 .num { background: #0e2144; color: #fff; }
   .tier.t2 .body p { color: #c5d3e6; }
+  .tier.t2 .body h4 { color: #fff; }
   .tier.t1 { background: var(--bedrock); color: #fff; }
   .tier.t1 .num { background: #000308; color: #9fb2cf; }
   .tier.t1 .body p { color: #9fb2cf; }
+  .tier.t1 .body h4 { color: #fff; }
   .tier-caption { text-align: center; font-size: 0.82rem; color: var(--muted); margin-top: 12px; }
   .layer-stack { display: flex; flex-direction: column; gap: 6px; }
   .layer-box { margin-bottom: 6px; border-radius: 9px; padding: 13px 16px; font-size: 0.86rem; font-weight: 600; text-align: center; }
@@ -312,7 +423,7 @@ def esc(s) -> str:
 # needs to change — render_hero() picks it up automatically, and pages
 # without an entry simply render without a hero image, exactly as now.
 HERO_IMAGES: dict[str, str] = {
-    # "about": "images/about-hero.png",
+    "about": "rdz.png",
     # "architecture-standards": "images/architecture-standards-hero.png",
     # "technical-governance": "images/technical-governance-hero.png",
     # "nbi": "images/nbi-hero.png",
@@ -364,22 +475,77 @@ def render_quicklinks(items: list[dict]) -> str:
     return f'<div class="quicklink-row">{"".join(cards)}</div>'
 
 
-def render_topnav(active_id: str) -> str:
+def render_topnav(active_id: str, path_prefix: str = "") -> str:
+    """path_prefix: relative-path prefix for links to root-level pages and
+    the logo, e.g. "../" when rendering a page one directory deeper than the
+    repo root (components/index.html). Root-level pages pass "" (default)."""
     links_html = []
-    for id_, label, href, external in NAV_LINKS:
-        if id_ == "components":
-            continue  # rendered separately as the CTA button, not a plain nav link
-        cls = "active" if id_ == active_id else ""
-        links_html.append(f'<a class="{cls}" href="{esc(href)}">{esc(label)}</a>')
+    for entry in NAV_LINKS:
+        kind = entry[0]
+        if kind == "link":
+            _, id_, label, href, external = entry
+            if id_ == "components":
+                continue  # placed separately, right after "About", not in normal order
+            cls = "active" if id_ == active_id else ""
+            links_html.append(f'<a class="{cls}" href="{esc(path_prefix + href)}">{esc(label)}</a>')
+            if id_ == "about":
+                # "Core RDK Components" goes immediately after the About link.
+                # When we ARE the components page, link to self ("."); otherwise
+                # link down into components/ from wherever we are.
+                cta_href = "." if active_id == "components" else path_prefix + COMPONENTS_URL
+                links_html.append(f'<a class="cta" href="{esc(cta_href)}">Core RDK Components ↗</a>')
+        else:  # "group"
+            _, group_id, group_label, children = entry
+            child_ids = {c[1] for c in children}
+            toggle_cls = "active" if active_id in child_ids else ""
+            open_cls = "open" if active_id in child_ids else ""
+            child_links = "".join(
+                f'<a class="{"active" if cid == active_id else ""}" href="{esc(path_prefix + chref)}">{esc(clabel)}</a>'
+                for _, cid, clabel, chref, _cext in children
+            )
+            links_html.append(f'''<div class="nav-group {open_cls}">
+      <button type="button" class="nav-group-toggle {toggle_cls}">{esc(group_label)} <span class="caret">&#9662;</span></button>
+      <div class="nav-dropdown"><div class="nav-dropdown-inner">{child_links}</div></div>
+    </div>''')
     return f'''<div class="topnav">
   <div class="brand">
-    <img src="RDK-logo.png" alt="RDK-B Core Broadband logo" onerror="this.style.display='none'">
+    <img src="{esc(path_prefix)}RDK-logo.png" alt="RDK-B Core Broadband logo" onerror="this.style.display='none'">
   </div>
   <nav>
     {"".join(links_html)}
   </nav>
-  <a class="cta" href="{esc(COMPONENTS_URL)}">Core RDK Components ↗</a>
-</div>'''
+</div>
+<script>
+  // Click-to-toggle for touch devices; desktop still gets :hover/:focus-within
+  // from CSS for free. Closes other open groups and closes on outside click.
+  document.querySelectorAll('.nav-group-toggle').forEach(btn => {{
+    btn.addEventListener('click', (e) => {{
+      e.stopPropagation();
+      const group = btn.closest('.nav-group');
+      const wasOpen = group.classList.contains('open');
+      document.querySelectorAll('.nav-group.open').forEach(g => g.classList.remove('open'));
+      if (!wasOpen) group.classList.add('open');
+    }});
+  }});
+  document.addEventListener('click', () => {{
+    document.querySelectorAll('.nav-group.open').forEach(g => g.classList.remove('open'));
+  }});
+
+  // Belt-and-braces for mouse users: mirror hover with 'open' via JS too, with
+  // a short close delay, so the menu survives brief gaps/edge cases in pure
+  // CSS :hover tracking instead of relying on it alone.
+  let navCloseTimer = null;
+  document.querySelectorAll('.nav-group').forEach(group => {{
+    group.addEventListener('mouseenter', () => {{
+      clearTimeout(navCloseTimer);
+      document.querySelectorAll('.nav-group.open').forEach(g => {{ if (g !== group) g.classList.remove('open'); }});
+      group.classList.add('open');
+    }});
+    group.addEventListener('mouseleave', () => {{
+      navCloseTimer = setTimeout(() => group.classList.remove('open'), 250);
+    }});
+  }});
+</script>'''
 
 
 CHATBOX_HTML = """
@@ -404,55 +570,56 @@ CHATBOX_HTML = """
 </div>
 """
 
-CHATBOX_SCRIPT = """
+def render_chatbox_script(path_prefix: str = "") -> str:
+    return f"""
 <script>
-(function() {
+(function() {{
   let searchDocs = null;
 
-  function esc(s) {
+  function esc(s) {{
     const d = document.createElement('div');
     d.textContent = s ?? '';
     return d.innerHTML;
-  }
+  }}
 
-  function score(doc, terms) {
+  function score(doc, terms) {{
     const title = doc.title.toLowerCase();
     const text = doc.text.toLowerCase();
     let s = 0;
-    for (const t of terms) {
+    for (const t of terms) {{
       if (title.includes(t)) s += 10;
       if (text.includes(t)) s += 2;
-    }
+    }}
     return s;
-  }
+  }}
 
-  function runSearch(query) {
+  function runSearch(query) {{
     const body = document.getElementById('chatbox-body');
     const terms = query.toLowerCase().split(/\\s+/).filter(Boolean);
     if (!terms.length) return;
 
-    if (!searchDocs) {
+    if (!searchDocs) {{
       body.innerHTML = '<div class="chatbox-welcome">Loading search index…</div>';
-      fetch('search-index.json', { cache: 'no-store' })
-        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then(data => { searchDocs = data.docs; renderResults(query, terms); })
-        .catch(err => { body.innerHTML = '<div class="chatbox-welcome">Could not load the search index (' + esc(err.message) + ').</div>'; });
+      fetch('{path_prefix}search-index.json', {{ cache: 'no-store' }})
+        .then(r => {{ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }})
+        .then(data => {{ searchDocs = data.docs; renderResults(query, terms); }})
+        .catch(err => {{ body.innerHTML = '<div class="chatbox-welcome">Could not load the search index (' + esc(err.message) + ').</div>'; }});
       return;
-    }
+    }}
     renderResults(query, terms);
-  }
+  }}
 
-  function renderResults(query, terms) {
+  function renderResults(query, terms) {{
     const body = document.getElementById('chatbox-body');
     const scored = searchDocs
-      .map(doc => ({ doc, s: score(doc, terms) }))
+      .map(doc => ({{ doc, s: score(doc, terms) }}))
       .filter(x => x.s > 0)
       .sort((a, b) => b.s - a.s);
 
-    if (!scored.length) {
+    if (!scored.length) {{
       body.innerHTML = '<div class="chatbox-welcome">No matches for "' + esc(query) + '". Try a different term — component names, standard names, or words like "modularity" or "RBUS" work well.</div>';
       return;
-    }
+    }}
 
     const best = scored[0].doc;
     const rest = scored.slice(1, 6);
@@ -463,18 +630,19 @@ CHATBOX_SCRIPT = """
       '<div class="cb-text">' + esc(best.text) + '</div>' +
       '</div>';
 
-    if (rest.length) {
+    if (rest.length) {{
       html += '<div class="chatbox-related">Related</div>';
-      html += rest.map(x => {
-        const href = x.doc.url.endsWith('#') ? x.doc.url.slice(0, -1) || '#' : x.doc.url;
+      html += rest.map(x => {{
+        let href = x.doc.url.endsWith('#') ? x.doc.url.slice(0, -1) || '#' : x.doc.url;
+        if (href !== '#' && !/^([a-z]+:)?\\/\\//i.test(href)) href = '{path_prefix}' + href;
         return '<a class="chatbox-result" href="' + esc(href) + '">' +
           '<div class="cb-r-title">' + esc(x.doc.title) + '</div>' +
           '<div class="cb-r-cat">' + esc(x.doc.category) + '</div>' +
           '</a>';
-      }).join('');
-    }
+      }}).join('');
+    }}
     body.innerHTML = html;
-  }
+  }}
 
   const toggle = document.getElementById('chatbox-toggle');
   const panel = document.getElementById('chatbox-panel');
@@ -482,10 +650,10 @@ CHATBOX_SCRIPT = """
   const form = document.getElementById('chatbox-form');
   const input = document.getElementById('chatbox-input');
 
-  toggle.addEventListener('click', () => { panel.classList.toggle('open'); if (panel.classList.contains('open')) input.focus(); });
+  toggle.addEventListener('click', () => {{ panel.classList.toggle('open'); if (panel.classList.contains('open')) input.focus(); }});
   closeBtn.addEventListener('click', () => panel.classList.remove('open'));
-  form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value.trim()) runSearch(input.value.trim()); });
-})();
+  form.addEventListener('submit', (e) => {{ e.preventDefault(); if (input.value.trim()) runSearch(input.value.trim()); }});
+}})();
 </script>
 """
 
@@ -494,7 +662,7 @@ CHATBOX_SCRIPT = """
 # confirmation email asking you to click "Activate Form"; every submission
 # after that lands straight in the inbox. Sent via their /ajax/ endpoint so
 # the page never redirects away — the result renders in this same panel.
-CONTACT_EMAIL = "support@rdkcentral.com"
+CONTACT_EMAIL = "chandrakanth_pokuru2@comcast.com"
 
 CONTACT_HTML = f"""
 <button class="contact-toggle" id="contact-toggle" aria-label="Contact us">
@@ -585,7 +753,7 @@ CONTACT_SCRIPT = f"""
 """
 
 
-def render_page(active_id: str, head_extra: str, body_html: str, script: str = "") -> str:
+def render_page(active_id: str, head_extra: str, body_html: str, script: str = "", path_prefix: str = "") -> str:
     """Wrap body_html (hero + sections + footer, everything but <head>/sidebar)
     in the shared shell. body_html should NOT include <html>/<head>/<body> tags.
     Pass any <script> block via `script`, not inside head_extra — head_extra
@@ -598,6 +766,9 @@ def render_page(active_id: str, head_extra: str, body_html: str, script: str = "
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -606,15 +777,197 @@ def render_page(active_id: str, head_extra: str, body_html: str, script: str = "
 </head>
 <body>
 <div class="accent-bar"></div>
-{render_topnav(active_id)}
+{render_topnav(active_id, path_prefix)}
 <div class="page-main">
 {body_html}
 </div>
 {CHATBOX_HTML}
 {CONTACT_HTML}
 {script}
-{CHATBOX_SCRIPT}
+{render_chatbox_script(path_prefix)}
 {CONTACT_SCRIPT}
 </body>
 </html>
 '''
+
+
+# ---------- generic "stub" page renderer ----------
+#
+# Used by any page that just needs the shared shell + a client-side loader
+# for a JSON/XML data file that may not exist yet (renders a clean "no data
+# published yet" empty state until one shows up next to the page). One page
+# = one call to render_stub_page(); each generator script that wants this
+# (gen_stub_pages.py, gen_component_registry_page.py, etc.) owns its own
+# PAGE dict and writes its own file — this function only owns the shared
+# markup/JS so it isn't duplicated across those scripts.
+
+STUB_LOADER_SCRIPT_TEMPLATE = """
+<script>
+const TABLES = {tables_json};
+
+function esc(s) {{
+  const d = document.createElement('div');
+  d.textContent = s ?? '';
+  return d.innerHTML;
+}}
+
+// Very small generic XML -> plain-object walker. Repeated sibling tags
+// become an array; text-only leaves become strings. Good enough for a
+// simple "list of records" style XML file; deeply irregular XML falls
+// back to the raw-tree renderer further down.
+function xmlToObj(node) {{
+  const children = Array.from(node.children);
+  if (children.length === 0) {{
+    return (node.textContent || '').trim();
+  }}
+  const out = {{}};
+  for (const child of children) {{
+    const val = xmlToObj(child);
+    if (out[child.tagName] === undefined) {{
+      out[child.tagName] = val;
+    }} else if (Array.isArray(out[child.tagName])) {{
+      out[child.tagName].push(val);
+    }} else {{
+      out[child.tagName] = [out[child.tagName], val];
+    }}
+  }}
+  return out;
+}}
+
+function findRecordArray(value) {{
+  // Walk a parsed JSON/XML object looking for the first array of
+  // same-shaped flat objects — that's almost certainly "the data".
+  if (Array.isArray(value)) return value;
+  if (value && typeof value === 'object') {{
+    for (const v of Object.values(value)) {{
+      const found = findRecordArray(v);
+      if (found) return found;
+    }}
+  }}
+  return null;
+}}
+
+function renderTable(rows) {{
+  const isFlatObjectArray = rows.every(r => r && typeof r === 'object' && !Array.isArray(r));
+  if (!isFlatObjectArray) {{
+    return '<ul class="def-table" style="list-style:none;padding:0;">' +
+      rows.map(r => `<li style="padding:9px 12px;border-bottom:1px solid var(--border);">${{esc(String(r))}}</li>`).join('') +
+      '</ul>';
+  }}
+  const cols = Object.keys(rows[0]);
+  return `<table class="def-table"><thead><tr>${{cols.map(c => `<th>${{esc(c)}}</th>`).join('')}}</tr></thead><tbody>` +
+    rows.map(r => `<tr>${{cols.map(c => `<td>${{esc(r[c])}}</td>`).join('')}}</tr>`).join('') +
+    '</tbody></table>';
+}}
+
+function renderTree(value) {{
+  return `<pre style="background:#0b1220;color:#cbd5e1;padding:20px;border-radius:10px;overflow-x:auto;font-size:0.85rem;">${{esc(JSON.stringify(value, null, 2))}}</pre>`;
+}}
+
+function renderSections(sections) {{
+  let html = '';
+  for (const s of sections) {{
+    const level = s.level || 2;
+    const tag = level <= 2 ? 'h3' : (level === 3 ? 'h4' : 'h5');
+    html += `<div class="gov-section level-${{level}}">`;
+    html += `<${{tag}}><span class="gov-num">${{esc(s.number)}}</span><span>${{esc(s.title)}}</span></${{tag}}>`;
+    let listOpen = false;
+    for (const b of (s.blocks || [])) {{
+      if (b.type === 'table') {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += '<table class="def-table"><thead><tr>' + b.headers.map(h => `<th>${{esc(h)}}</th>`).join('') + '</tr></thead><tbody>' +
+          b.rows.map(r => `<tr>${{r.map(c => `<td>${{esc(c)}}</td>`).join('')}}</tr>`).join('') + '</tbody></table>';
+      }} else if (b.type === 'pre') {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += `<pre class="code-block">${{esc(b.text)}}</pre>`;
+      }} else if (b.type === 'h') {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += `<h5 class="gov-subhead">${{esc(b.text)}}</h5>`;
+      }} else if (b.type === 'li') {{
+        if (!listOpen) {{ html += '<ul>'; listOpen = true; }}
+        html += `<li>${{esc(b.text)}}</li>`;
+      }} else {{
+        if (listOpen) {{ html += '</ul>'; listOpen = false; }}
+        html += `<p>${{esc(b.text)}}</p>`;
+      }}
+    }}
+    if (listOpen) html += '</ul>';
+    html += '</div>';
+  }}
+  return html;
+}}
+
+function render(containerId, value, kind) {{
+  const content = document.getElementById(containerId);
+  if (kind === 'sections') {{
+    const sections = Array.isArray(value) ? value : (Array.isArray(value && value.docs) ? value.docs : findRecordArray(value));
+    content.innerHTML = sections ? renderSections(sections) : renderTree(value);
+    return;
+  }}
+  const records = findRecordArray(value);
+  content.innerHTML = records ? renderTable(records) : renderTree(value);
+}}
+
+function showEmptyState(containerId, jsonFile, xmlFile) {{
+  document.getElementById(containerId).innerHTML = `
+    <div class="empty-state">
+      <div class="icon">📄</div>
+      <h3>No data published yet</h3>
+      <p>This section renders automatically once a data file is added.<br>Drop either file next to this page:</p>
+      <p><code>${{esc(jsonFile)}}</code> &nbsp;or&nbsp; <code>${{esc(xmlFile)}}</code></p>
+    </div>`;
+}}
+
+function loadTable(t) {{
+  const jsonFile = t.slug + '.json';
+  const xmlFile = t.slug + '.xml';
+  fetch(jsonFile, {{ cache: 'no-store' }})
+    .then(res => {{ if (!res.ok) throw new Error('no json'); return res.json(); }})
+    .then(data => render(t.containerId, data, t.kind))
+    .catch(() => {{
+      fetch(xmlFile, {{ cache: 'no-store' }})
+        .then(res => {{ if (!res.ok) throw new Error('no xml'); return res.text(); }})
+        .then(text => {{
+          const xml = new DOMParser().parseFromString(text, 'application/xml');
+          if (xml.getElementsByTagName('parsererror').length > 0) throw new Error('bad xml');
+          render(t.containerId, xmlToObj(xml.documentElement), t.kind);
+        }})
+        .catch(() => showEmptyState(t.containerId, jsonFile, xmlFile));
+    }});
+}}
+
+TABLES.forEach(loadTable);
+</script>
+"""
+
+
+def render_stub_page(page: dict) -> str:
+    """Render one stub page from a page dict:
+      {active_id, slug, eyebrow, title, lede, tables?: [{slug, kind?, heading?, blurb?}]}
+    'tables' defaults to a single table keyed on the page's own slug. Each
+    table gets a client-side loader that tries <slug>.json then <slug>.xml
+    next to the page and renders whatever it finds, or a "no data yet"
+    empty state if neither exists.
+    """
+    tables = page.get("tables") or [{"slug": page["slug"]}]
+    sections = []
+    tables_js = []
+    for i, t in enumerate(tables):
+        container_id = "data-content" if i == 0 else f"data-content-{i + 1}"
+        tables_js.append({"containerId": container_id, "slug": t["slug"], "kind": t.get("kind", "table")})
+        heading_html = ""
+        if t.get("heading"):
+            blurb = f'<p>{t["blurb"]}</p>' if t.get("blurb") else ""
+            heading_html = f'<div class="section-head"><h2>{t["heading"]}</h2>{blurb}</div>'
+        sections.append(f'''
+<section class="tight-top">
+  {heading_html}
+  <div id="{container_id}"><div class="empty-state"><p>Loading…</p></div></div>
+</section>
+''')
+
+    body = render_hero(page["eyebrow"], page["title"], page["lede"], compact=True, visual_key=page["active_id"]) \
+        + "".join(sections)
+    head_extra = f"<title>{page['title']} — RDK-B Core Broadband</title>\n" + \
+        STUB_LOADER_SCRIPT_TEMPLATE.format(tables_json=json.dumps(tables_js))
+    return render_page(page["active_id"], head_extra, body)
