@@ -156,13 +156,15 @@ def build_about_page(spec: dict, about: dict) -> str:
     <h2>A common foundation for broadband</h2>
   </div>
 
+  <div class="feature-band">
   {render_quicklinks([
-        {"icon": "recycle", "title": "Component reuse", "desc": "Leverage proven, portable components across devices and use cases.", "href": "#easier-component-reuse", "color": "#29b6e8"},
-        {"icon": "layers", "title": "Build-time modularity", "desc": "Compose the right features for each product with flexible build options.", "href": "#modularity-build-time-dependencies", "color": "#7ac943"},
-        {"icon": "cpu", "title": "Run-time modularity", "desc": "Enable dynamic features and service flexibility across deployments.", "href": "#modularity-run-time-dependencies", "color": "#f5a623"},
-        {"icon": "check-list", "title": "Reduced code size", "desc": "Optimized components help deliver efficient, smaller footprints.", "href": "#reduced-code-size", "color": "#f0653e"},
-        {"icon": "shield-check", "title": "Consistent interfaces", "desc": "Common APIs and data models across broadband devices and services.", "href": "#consistent-interface-definitions", "color": "#29b6e8"},
+        {"icon": "recycle", "title": "Component reuse", "desc": "Leverage proven, portable components across devices and use cases.", "href": "#easier-component-reuse", "color": "#5fd0ff"},
+        {"icon": "layers", "title": "Build-time modularity", "desc": "Compose the right features for each product with flexible build options.", "href": "#modularity-build-time-dependencies", "color": "#5fd0ff"},
+        {"icon": "cpu", "title": "Run-time modularity", "desc": "Enable dynamic features and service flexibility across deployments.", "href": "#modularity-run-time-dependencies", "color": "#5fd0ff"},
+        {"icon": "check-list", "title": "Reduced code size", "desc": "Optimized components help deliver efficient, smaller footprints.", "href": "#reduced-code-size", "color": "#5fd0ff"},
+        {"icon": "shield-check", "title": "Consistent interfaces", "desc": "Common APIs and data models across broadband devices and services.", "href": "#consistent-interface-definitions", "color": "#5fd0ff"},
     ], variant="grid")}
+  </div>
 
   <div class="callout" style="margin-top:28px;">
     <strong>Platform definition</strong>

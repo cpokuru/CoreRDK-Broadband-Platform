@@ -175,6 +175,25 @@
   @media (max-width: 1100px) { .quicklink-row.grid { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 700px) { .quicklink-row.grid { grid-template-columns: repeat(2, 1fr); } }
 
+  /* ---- dark "feature band" wrapper for the overview grid, echoing the hero ---- */
+  .feature-band {
+    background: linear-gradient(150deg, #0a1a3d 0%, #0c1436 55%, #0a0f24 100%);
+    border-radius: 20px; padding: 34px; margin: 22px 0 8px;
+  }
+  .feature-band .quicklink-card {
+    background: linear-gradient(165deg, rgba(24,46,92,0.85) 0%, rgba(7,13,30,0.95) 100%);
+    border: 1px solid rgba(93,196,255,0.32); border-top: 1px solid rgba(93,196,255,0.32);
+    box-shadow: 0 0 0 1px rgba(93,196,255,0.08) inset, 0 6px 18px rgba(0,0,0,0.3);
+  }
+  .feature-band .quicklink-card:hover {
+    box-shadow: 0 0 0 1px rgba(93,196,255,0.55) inset, 0 14px 30px rgba(0,0,0,0.45);
+    transform: translateY(-3px);
+  }
+  .feature-band .ql-icon { color: #7dd3fc; filter: drop-shadow(0 0 6px rgba(56,189,248,0.55)); }
+  .feature-band .ql-title { color: #f5f8ff; }
+  .feature-band .ql-desc { color: #9fb0d0; }
+  .feature-band .ql-cta { color: #5fd0ff; }
+
   /* ---- in-page tab bar (Overview / Why Core RDK / RDK Ready / Architecture / Testing) ---- */
   .tabs-bar { position: sticky; top: 61px; z-index: 40; background: #fff; border-bottom: 1px solid var(--border); }
   .tabs-inner { max-width: 1520px; margin: 0 auto; display: flex; gap: 30px; padding: 0 44px; overflow-x: auto; scrollbar-width: none; }

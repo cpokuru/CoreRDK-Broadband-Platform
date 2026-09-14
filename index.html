@@ -175,6 +175,25 @@
   @media (max-width: 1100px) { .quicklink-row.grid { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 700px) { .quicklink-row.grid { grid-template-columns: repeat(2, 1fr); } }
 
+  /* ---- dark "feature band" wrapper for the overview grid, echoing the hero ---- */
+  .feature-band {
+    background: linear-gradient(150deg, #0a1a3d 0%, #0c1436 55%, #0a0f24 100%);
+    border-radius: 20px; padding: 34px; margin: 22px 0 8px;
+  }
+  .feature-band .quicklink-card {
+    background: linear-gradient(165deg, rgba(24,46,92,0.85) 0%, rgba(7,13,30,0.95) 100%);
+    border: 1px solid rgba(93,196,255,0.32); border-top: 1px solid rgba(93,196,255,0.32);
+    box-shadow: 0 0 0 1px rgba(93,196,255,0.08) inset, 0 6px 18px rgba(0,0,0,0.3);
+  }
+  .feature-band .quicklink-card:hover {
+    box-shadow: 0 0 0 1px rgba(93,196,255,0.55) inset, 0 14px 30px rgba(0,0,0,0.45);
+    transform: translateY(-3px);
+  }
+  .feature-band .ql-icon { color: #7dd3fc; filter: drop-shadow(0 0 6px rgba(56,189,248,0.55)); }
+  .feature-band .ql-title { color: #f5f8ff; }
+  .feature-band .ql-desc { color: #9fb0d0; }
+  .feature-band .ql-cta { color: #5fd0ff; }
+
   /* ---- in-page tab bar (Overview / Why Core RDK / RDK Ready / Architecture / Testing) ---- */
   .tabs-bar { position: sticky; top: 61px; z-index: 40; background: #fff; border-bottom: 1px solid var(--border); }
   .tabs-inner { max-width: 1520px; margin: 0 auto; display: flex; gap: 30px; padding: 0 44px; overflow-x: auto; scrollbar-width: none; }
@@ -471,37 +490,39 @@
     <h2>A common foundation for broadband</h2>
   </div>
 
+  <div class="feature-band">
   <div class="quicklink-row grid">
-    <a class="quicklink-card" href="#easier-component-reuse" style="--ql-color:#29b6e8;">
+    <a class="quicklink-card" href="#easier-component-reuse" style="--ql-color:#5fd0ff;">
       <span class="ql-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="M14.5 4.5 12 9l-2.5-4.5"/><path d="M16.5 14.5 19 19l-2.5 4.5" opacity="0"/></svg></span>
       <div class="ql-title">Component reuse</div>
       <div class="ql-desc">Leverage proven, portable components across devices and use cases.</div>
       <div class="ql-cta">Explore &rarr;</div>
     </a>
-    <a class="quicklink-card" href="#modularity-build-time-dependencies" style="--ql-color:#7ac943;">
+    <a class="quicklink-card" href="#modularity-build-time-dependencies" style="--ql-color:#5fd0ff;">
       <span class="ql-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></span>
       <div class="ql-title">Build-time modularity</div>
       <div class="ql-desc">Compose the right features for each product with flexible build options.</div>
       <div class="ql-cta">Explore &rarr;</div>
     </a>
-    <a class="quicklink-card" href="#modularity-run-time-dependencies" style="--ql-color:#f5a623;">
+    <a class="quicklink-card" href="#modularity-run-time-dependencies" style="--ql-color:#5fd0ff;">
       <span class="ql-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg></span>
       <div class="ql-title">Run-time modularity</div>
       <div class="ql-desc">Enable dynamic features and service flexibility across deployments.</div>
       <div class="ql-cta">Explore &rarr;</div>
     </a>
-    <a class="quicklink-card" href="#reduced-code-size" style="--ql-color:#f0653e;">
+    <a class="quicklink-card" href="#reduced-code-size" style="--ql-color:#5fd0ff;">
       <span class="ql-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h14M5 18h9"/><path d="M3 6l.01 0M3 12l.01 0M3 18l.01 0"/></svg></span>
       <div class="ql-title">Reduced code size</div>
       <div class="ql-desc">Optimized components help deliver efficient, smaller footprints.</div>
       <div class="ql-cta">Explore &rarr;</div>
     </a>
-    <a class="quicklink-card" href="#consistent-interface-definitions" style="--ql-color:#29b6e8;">
+    <a class="quicklink-card" href="#consistent-interface-definitions" style="--ql-color:#5fd0ff;">
       <span class="ql-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
       <div class="ql-title">Consistent interfaces</div>
       <div class="ql-desc">Common APIs and data models across broadband devices and services.</div>
       <div class="ql-cta">Explore &rarr;</div>
     </a></div>
+  </div>
 
   <div class="callout" style="margin-top:28px;">
     <strong>Platform definition</strong>
