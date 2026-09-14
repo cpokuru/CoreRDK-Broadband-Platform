@@ -82,11 +82,11 @@ def render_benefits(groups: list[dict]) -> str:
     for g in groups:
         items_html = "".join(f'<li>{esc(i)}</li>' for i in g["items"])
         cols.append(f'''
-    <div class="card">
+    <div class="card" style="height:100%; box-sizing:border-box;">
       <h3>{esc(g["category"])}</h3>
       <ul style="margin:0; padding-left:18px; font-size:0.92rem; color:var(--muted);">{items_html}</ul>
     </div>''')
-    return f'<div style="display:flex; gap:20px; flex-wrap:wrap;">' + \
+    return f'<div style="display:flex; gap:20px; flex-wrap:wrap; align-items:stretch;">' + \
         "".join(f'<div style="flex:1; min-width:220px;">{c}</div>' for c in cols) + '</div>'
 
 
