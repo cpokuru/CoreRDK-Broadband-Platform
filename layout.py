@@ -196,6 +196,26 @@ SHARED_CSS = """
   .quicklink-card .ql-title { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
   .quicklink-card .ql-cta { font-size: 0.78rem; font-weight: 600; color: var(--ql-color, var(--middleware)); margin-top: 8px; }
 
+  /* ---- grid variant: bigger overview cards with a description line ---- */
+  .quicklink-row.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; overflow: visible; }
+  .quicklink-row.grid .quicklink-card { min-width: 0; padding: 22px 20px; }
+  .quicklink-row.grid .ql-icon svg { width: 30px; height: 30px; }
+  .quicklink-row.grid .ql-title { font-size: 1rem; margin-bottom: 6px; }
+  .quicklink-row.grid .ql-desc { font-size: 0.86rem; color: var(--muted); line-height: 1.45; margin-bottom: 10px; }
+  @media (max-width: 1100px) { .quicklink-row.grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 700px) { .quicklink-row.grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ---- in-page tab bar (Overview / Why Core RDK / RDK Ready / Architecture / Testing) ---- */
+  .tabs-bar { position: sticky; top: 61px; z-index: 40; background: #fff; border-bottom: 1px solid var(--border); }
+  .tabs-inner { max-width: 1520px; margin: 0 auto; display: flex; gap: 30px; padding: 0 44px; overflow-x: auto; scrollbar-width: none; }
+  .tabs-inner::-webkit-scrollbar { display: none; }
+  .tab-btn { flex: 0 0 auto; background: none; border: none; border-bottom: 3px solid transparent; padding: 18px 2px; font: 600 0.95rem/1 "Inter", sans-serif; color: var(--muted); cursor: pointer; white-space: nowrap; }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--middleware); border-bottom-color: var(--middleware); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  @media (max-width: 760px) { .tabs-bar { top: 108px; } }
+
   /* ---- color-tinted section panels (e.g. Why RDKB Core, RDK Ready, Benefits) ---- */
   .section-tint { border-radius: 16px; padding: 28px 30px; margin: 28px 0; }
   .section-tint.tint-blue { background: #e6f1fb; }
@@ -458,21 +478,68 @@ def render_hero(eyebrow: str, title: str, lede: str, badges_html: str = "", comp
 '''
 
 
-def render_quicklinks(items: list[dict]) -> str:
-    """A horizontal row of colorful teaser cards — icon, short title, an
-    "Explore" link. Each item: {icon, title, href, color}. `href` can be a
-    same-page anchor (e.g. "#goal-reuse") to jump further down the page
-    rather than navigating away."""
+def render_quicklinks(items: list[dict], variant: str = "row") -> str:
+    """A row of colorful teaser cards — icon, short title, an "Explore" link.
+    Each item: {icon, title, href, color}, plus an optional "desc" line.
+    `href` can be a same-page anchor (e.g. "#goal-reuse") to jump further
+    down the page rather than navigating away. variant="grid" renders the
+    bigger 5-across overview layout (with the "desc" line shown) instead of
+    the compact horizontal-scroll row."""
     cards = []
     for it in items:
         icon_svg = ICONS.get(it["icon"], "")
+        desc = f'<div class="ql-desc">{esc(it["desc"])}</div>' if variant == "grid" and it.get("desc") else ""
         cards.append(f'''
     <a class="quicklink-card" href="{esc(it["href"])}" style="--ql-color:{esc(it["color"])};">
       <span class="ql-icon">{icon_svg}</span>
       <div class="ql-title">{esc(it["title"])}</div>
+      {desc}
       <div class="ql-cta">Explore &rarr;</div>
     </a>''')
-    return f'<div class="quicklink-row">{"".join(cards)}</div>'
+    row_class = "quicklink-row grid" if variant == "grid" else "quicklink-row"
+    return f'<div class="{row_class}">{"".join(cards)}</div>'
+
+
+def render_tabs(tabs: list[dict]) -> str:
+    """Sticky in-page tab bar. Each item: {id, label}. Pairs with
+    <div class="tab-panel" id="tab-{id}"> sections in the body — TABS_SCRIPT
+    (below) wires up the click handling, the active underline, and
+    hash-based deep-linking (e.g. index.html#testing opens on that tab)."""
+    buttons = "".join(
+        f'<button class="tab-btn{" active" if i == 0 else ""}" data-tab="{esc(t["id"])}">{esc(t["label"])}</button>'
+        for i, t in enumerate(tabs)
+    )
+    return f'<div class="tabs-bar"><div class="tabs-inner">{buttons}</div></div>'
+
+
+TABS_SCRIPT = """
+<script>
+(function () {
+  const buttons = Array.from(document.querySelectorAll('.tab-btn'));
+  const panels = Array.from(document.querySelectorAll('.tab-panel'));
+  if (!buttons.length || !panels.length) return;
+
+  function activate(id, updateHash) {
+    let matched = false;
+    buttons.forEach(b => {
+      const isMatch = b.dataset.tab === id;
+      b.classList.toggle('active', isMatch);
+      if (isMatch) matched = true;
+    });
+    if (!matched) return;
+    panels.forEach(p => p.classList.toggle('active', p.id === 'tab-' + id));
+    if (updateHash) history.replaceState(null, '', '#' + id);
+  }
+
+  buttons.forEach(b => b.addEventListener('click', () => activate(b.dataset.tab, true)));
+
+  const initial = (location.hash || '').replace('#', '');
+  if (initial && buttons.some(b => b.dataset.tab === initial)) {
+    activate(initial, false);
+  }
+})();
+</script>
+"""
 
 
 def render_topnav(active_id: str, path_prefix: str = "") -> str:

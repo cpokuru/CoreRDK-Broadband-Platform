@@ -166,6 +166,26 @@
   .quicklink-card .ql-title { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
   .quicklink-card .ql-cta { font-size: 0.78rem; font-weight: 600; color: var(--ql-color, var(--middleware)); margin-top: 8px; }
 
+  /* ---- grid variant: bigger overview cards with a description line ---- */
+  .quicklink-row.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; overflow: visible; }
+  .quicklink-row.grid .quicklink-card { min-width: 0; padding: 22px 20px; }
+  .quicklink-row.grid .ql-icon svg { width: 30px; height: 30px; }
+  .quicklink-row.grid .ql-title { font-size: 1rem; margin-bottom: 6px; }
+  .quicklink-row.grid .ql-desc { font-size: 0.86rem; color: var(--muted); line-height: 1.45; margin-bottom: 10px; }
+  @media (max-width: 1100px) { .quicklink-row.grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 700px) { .quicklink-row.grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ---- in-page tab bar (Overview / Why Core RDK / RDK Ready / Architecture / Testing) ---- */
+  .tabs-bar { position: sticky; top: 61px; z-index: 40; background: #fff; border-bottom: 1px solid var(--border); }
+  .tabs-inner { max-width: 1520px; margin: 0 auto; display: flex; gap: 30px; padding: 0 44px; overflow-x: auto; scrollbar-width: none; }
+  .tabs-inner::-webkit-scrollbar { display: none; }
+  .tab-btn { flex: 0 0 auto; background: none; border: none; border-bottom: 3px solid transparent; padding: 18px 2px; font: 600 0.95rem/1 "Inter", sans-serif; color: var(--muted); cursor: pointer; white-space: nowrap; }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--middleware); border-bottom-color: var(--middleware); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  @media (max-width: 760px) { .tabs-bar { top: 108px; } }
+
   /* ---- color-tinted section panels (e.g. Why RDKB Core, RDK Ready, Benefits) ---- */
   .section-tint { border-radius: 16px; padding: 28px 30px; margin: 28px 0; }
   .section-tint.tint-blue { background: #e6f1fb; }
@@ -435,7 +455,7 @@
 
 <section class="tight-top">
   <p style="color:var(--muted); font-size:0.85rem; margin:0 0 14px;">
-    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-13T16:54:37Z
+    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-14T00:16:41Z
   </p>
   <div style="margin-bottom:18px;"><span class="pill" style="background:#fef3c7;color:#92400e">Common Core</span><span class="pill" style="background:#dbeafe;color:#1e40af">Required</span><span class="pill" style="background:#f3f4f6;color:#374151">Optional</span></div>
   <table class="def-table">

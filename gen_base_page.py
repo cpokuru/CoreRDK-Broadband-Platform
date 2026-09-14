@@ -25,7 +25,7 @@ import json
 import re
 from pathlib import Path
 
-from layout import esc, render_hero, render_page, render_quicklinks
+from layout import esc, render_hero, render_page, render_quicklinks, render_tabs, TABS_SCRIPT
 
 COMPONENTS_URL = "components/"
 COMPONENTS_FULL_URL = "components/full-list.html"
@@ -127,6 +127,14 @@ def build_about_page(spec: dict, about: dict) -> str:
         '<span class="badge">Five-tier system</span>'
         '<span class="badge">Apache-2.0 / LGPL-2.1</span>'
     )
+    tabs = [
+        {"id": "overview", "label": "Overview"},
+        {"id": "why", "label": "Why Core RDK"},
+        {"id": "ready", "label": "RDK Ready"},
+        {"id": "architecture", "label": "Architecture"},
+        {"id": "testing", "label": "Testing"},
+    ]
+
     body = f'''
 {render_hero("Core RDK Broadband", "Core RDK Broadband Platform", about["definition"], hero_badges, visual_key="about")}
 
@@ -139,30 +147,46 @@ def build_about_page(spec: dict, about: dict) -> str:
   <div class="stat"><div class="num"></div><div class="lbl"></div></div>
 </div>
 
-<section class="tight-top">
-  {render_quicklinks([
-        {"icon": "recycle", "title": "Easier component reuse", "href": "#easier-component-reuse", "color": "#29b6e8"},
-        {"icon": "layers", "title": "Build-time modularity", "href": "#modularity-build-time-dependencies", "color": "#7ac943"},
-        {"icon": "cpu", "title": "Run-time modularity", "href": "#modularity-run-time-dependencies", "color": "#f5a623"},
-        {"icon": "check-list", "title": "Reduced code size", "href": "#reduced-code-size", "color": "#f0653e"},
-        {"icon": "shield-check", "title": "Consistent interfaces", "href": "#consistent-interface-definitions", "color": "#29b6e8"},
-    ])}
+{render_tabs(tabs)}
 
+<div class="tab-panel active" id="tab-overview">
+<section class="tight-top">
   <div class="section-head">
     <span class="eyebrow-lt">About</span>
-    <h2>What is RDKB Core?</h2>
+    <h2>A common foundation for broadband</h2>
   </div>
 
-  <div class="callout">
+  {render_quicklinks([
+        {"icon": "recycle", "title": "Component reuse", "desc": "Leverage proven, portable components across devices and use cases.", "href": "#easier-component-reuse", "color": "#29b6e8"},
+        {"icon": "layers", "title": "Build-time modularity", "desc": "Compose the right features for each product with flexible build options.", "href": "#modularity-build-time-dependencies", "color": "#7ac943"},
+        {"icon": "cpu", "title": "Run-time modularity", "desc": "Enable dynamic features and service flexibility across deployments.", "href": "#modularity-run-time-dependencies", "color": "#f5a623"},
+        {"icon": "check-list", "title": "Reduced code size", "desc": "Optimized components help deliver efficient, smaller footprints.", "href": "#reduced-code-size", "color": "#f0653e"},
+        {"icon": "shield-check", "title": "Consistent interfaces", "desc": "Common APIs and data models across broadband devices and services.", "href": "#consistent-interface-definitions", "color": "#29b6e8"},
+    ], variant="grid")}
+
+  <div class="callout" style="margin-top:28px;">
     <strong>Platform definition</strong>
     <p>{esc(about["definition"])}</p>
   </div>
 
+  <div class="callout" style="margin-top:24px;">
+    <strong>Value proposition</strong>
+    <p>{esc(about["value_proposition"])}</p>
+  </div>
+</section>
+</div>
+
+<div class="tab-panel" id="tab-why">
+<section class="tight-top">
   <div class="section-tint tint-blue">
     <div class="subhead" style="margin-top:0;">Why RDKB Core</div>
     {render_goals(about["goals"])}
   </div>
+</section>
+</div>
 
+<div class="tab-panel" id="tab-ready">
+<section class="tight-top">
   <div class="section-tint tint-green">
     <div class="subhead" style="margin-top:0;">RDK Ready — a test and certification program for vendors</div>
     {render_rdk_ready(about["rdk_ready"])}
@@ -172,14 +196,11 @@ def build_about_page(spec: dict, about: dict) -> str:
     <div class="subhead" style="margin-top:0;">Benefits &amp; uses</div>
     {render_benefits(about["benefits"])}
   </div>
-
-  <div class="callout" style="margin-top:24px;">
-    <strong>Value proposition</strong>
-    <p>{esc(about["value_proposition"])}</p>
-  </div>
 </section>
+</div>
 
-<section style="background:#fff; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+<div class="tab-panel" id="tab-architecture">
+<section style="background:#fff;">
   <div class="section-head">
     <span class="eyebrow-lt">Architecture</span>
     <h2>System Diagram</h2>
@@ -211,18 +232,27 @@ def build_about_page(spec: dict, about: dict) -> str:
       </div>
     </div>
   </div>
+</section>
+</div>
 
-  <table class="def-table" style="margin-top:32px;">
+<div class="tab-panel" id="tab-testing">
+<section style="background:#fff;">
+  <div class="section-head">
+    <span class="eyebrow-lt">Testing</span>
+    <h2>Test suite ownership</h2>
+  </div>
+  <table class="def-table">
     <thead><tr><th>Test suite</th><th>Definition</th><th>Owner</th></tr></thead>
     <tbody>
       {render_test_suites(spec["test_suites"])}
     </tbody>
   </table>
 </section>
+</div>
 
 {FOOTER.format(source_pdf=esc(spec["sourcePdf"]))}
 '''
-    return render_page("about", "<title>About &amp; Architecture — RDK-B Core Broadband</title>", body)
+    return render_page("about", "<title>About &amp; Architecture — RDK-B Core Broadband</title>", body, script=TABS_SCRIPT)
 
 
 def main() -> None:

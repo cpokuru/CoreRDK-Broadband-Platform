@@ -166,6 +166,26 @@
   .quicklink-card .ql-title { font-size: 0.86rem; font-weight: 600; color: var(--ink); }
   .quicklink-card .ql-cta { font-size: 0.78rem; font-weight: 600; color: var(--ql-color, var(--middleware)); margin-top: 8px; }
 
+  /* ---- grid variant: bigger overview cards with a description line ---- */
+  .quicklink-row.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; overflow: visible; }
+  .quicklink-row.grid .quicklink-card { min-width: 0; padding: 22px 20px; }
+  .quicklink-row.grid .ql-icon svg { width: 30px; height: 30px; }
+  .quicklink-row.grid .ql-title { font-size: 1rem; margin-bottom: 6px; }
+  .quicklink-row.grid .ql-desc { font-size: 0.86rem; color: var(--muted); line-height: 1.45; margin-bottom: 10px; }
+  @media (max-width: 1100px) { .quicklink-row.grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 700px) { .quicklink-row.grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ---- in-page tab bar (Overview / Why Core RDK / RDK Ready / Architecture / Testing) ---- */
+  .tabs-bar { position: sticky; top: 61px; z-index: 40; background: #fff; border-bottom: 1px solid var(--border); }
+  .tabs-inner { max-width: 1520px; margin: 0 auto; display: flex; gap: 30px; padding: 0 44px; overflow-x: auto; scrollbar-width: none; }
+  .tabs-inner::-webkit-scrollbar { display: none; }
+  .tab-btn { flex: 0 0 auto; background: none; border: none; border-bottom: 3px solid transparent; padding: 18px 2px; font: 600 0.95rem/1 "Inter", sans-serif; color: var(--muted); cursor: pointer; white-space: nowrap; }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--middleware); border-bottom-color: var(--middleware); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  @media (max-width: 760px) { .tabs-bar { top: 108px; } }
+
   /* ---- color-tinted section panels (e.g. Why RDKB Core, RDK Ready, Benefits) ---- */
   .section-tint { border-radius: 16px; padding: 28px 30px; margin: 28px 0; }
   .section-tint.tint-blue { background: #e6f1fb; }
@@ -442,44 +462,61 @@
   <div class="stat"><div class="num"></div><div class="lbl"></div></div>
 </div>
 
+<div class="tabs-bar"><div class="tabs-inner"><button class="tab-btn active" data-tab="overview">Overview</button><button class="tab-btn" data-tab="why">Why Core RDK</button><button class="tab-btn" data-tab="ready">RDK Ready</button><button class="tab-btn" data-tab="architecture">Architecture</button><button class="tab-btn" data-tab="testing">Testing</button></div></div>
+
+<div class="tab-panel active" id="tab-overview">
 <section class="tight-top">
-  <div class="quicklink-row">
+  <div class="section-head">
+    <span class="eyebrow-lt">About</span>
+    <h2>A common foundation for broadband</h2>
+  </div>
+
+  <div class="quicklink-row grid">
     <a class="quicklink-card" href="#easier-component-reuse" style="--ql-color:#29b6e8;">
       <span class="ql-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="M14.5 4.5 12 9l-2.5-4.5"/><path d="M16.5 14.5 19 19l-2.5 4.5" opacity="0"/></svg></span>
-      <div class="ql-title">Easier component reuse</div>
+      <div class="ql-title">Component reuse</div>
+      <div class="ql-desc">Leverage proven, portable components across devices and use cases.</div>
       <div class="ql-cta">Explore &rarr;</div>
     </a>
     <a class="quicklink-card" href="#modularity-build-time-dependencies" style="--ql-color:#7ac943;">
       <span class="ql-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></span>
       <div class="ql-title">Build-time modularity</div>
+      <div class="ql-desc">Compose the right features for each product with flexible build options.</div>
       <div class="ql-cta">Explore &rarr;</div>
     </a>
     <a class="quicklink-card" href="#modularity-run-time-dependencies" style="--ql-color:#f5a623;">
       <span class="ql-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg></span>
       <div class="ql-title">Run-time modularity</div>
+      <div class="ql-desc">Enable dynamic features and service flexibility across deployments.</div>
       <div class="ql-cta">Explore &rarr;</div>
     </a>
     <a class="quicklink-card" href="#reduced-code-size" style="--ql-color:#f0653e;">
       <span class="ql-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h14M5 18h9"/><path d="M3 6l.01 0M3 12l.01 0M3 18l.01 0"/></svg></span>
       <div class="ql-title">Reduced code size</div>
+      <div class="ql-desc">Optimized components help deliver efficient, smaller footprints.</div>
       <div class="ql-cta">Explore &rarr;</div>
     </a>
     <a class="quicklink-card" href="#consistent-interface-definitions" style="--ql-color:#29b6e8;">
       <span class="ql-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
       <div class="ql-title">Consistent interfaces</div>
+      <div class="ql-desc">Common APIs and data models across broadband devices and services.</div>
       <div class="ql-cta">Explore &rarr;</div>
     </a></div>
 
-  <div class="section-head">
-    <span class="eyebrow-lt">About</span>
-    <h2>What is RDKB Core?</h2>
-  </div>
-
-  <div class="callout">
+  <div class="callout" style="margin-top:28px;">
     <strong>Platform definition</strong>
     <p>RDKB Core is a collection of foundational building-blocks called &quot;components.&quot; They&#x27;re designed for easier reuse, improved modularity, RDK Ready vendor certification, reduced code size, and consistent interface definitions.</p>
   </div>
 
+  <div class="callout" style="margin-top:24px;">
+    <strong>Value proposition</strong>
+    <p>RDKB core enables easier code reuse, faster development, and consistent behavior across diverse vendors and device types.</p>
+  </div>
+</section>
+</div>
+
+<div class="tab-panel" id="tab-why">
+<section class="tight-top">
   <div class="section-tint tint-blue">
     <div class="subhead" style="margin-top:0;">Why RDKB Core</div>
     
@@ -513,7 +550,11 @@
       <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Multiple persistence approaches are in use today (sysConfig, PSM, Platform HAL, mySQL), and some older components still use SysEvent, DMCLI, or Common Lib for IPC instead of RBUS.</p>
     </div>
   </div>
+</section>
+</div>
 
+<div class="tab-panel" id="tab-ready">
+<section class="tight-top">
   <div class="section-tint tint-green">
     <div class="subhead" style="margin-top:0;">RDK Ready — a test and certification program for vendors</div>
     <div class="two-col">
@@ -543,14 +584,11 @@
       <ul style="margin:0; padding-left:18px; font-size:0.92rem; color:var(--muted);"><li>Quicker on-ramp for new developers</li><li>Easier training</li><li>A larger talent pool</li><li>Better testability</li><li>Higher quality</li></ul>
     </div></div></div>
   </div>
-
-  <div class="callout" style="margin-top:24px;">
-    <strong>Value proposition</strong>
-    <p>RDKB core enables easier code reuse, faster development, and consistent behavior across diverse vendors and device types.</p>
-  </div>
 </section>
+</div>
 
-<section style="background:#fff; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+<div class="tab-panel" id="tab-architecture">
+<section style="background:#fff;">
   <div class="section-head">
     <span class="eyebrow-lt">Architecture</span>
     <h2>System Diagram</h2>
@@ -606,8 +644,16 @@
       </div>
     </div>
   </div>
+</section>
+</div>
 
-  <table class="def-table" style="margin-top:32px;">
+<div class="tab-panel" id="tab-testing">
+<section style="background:#fff;">
+  <div class="section-head">
+    <span class="eyebrow-lt">Testing</span>
+    <h2>Test suite ownership</h2>
+  </div>
+  <table class="def-table">
     <thead><tr><th>Test suite</th><th>Definition</th><th>Owner</th></tr></thead>
     <tbody>
       <tr><td class="mono">RDK Platform Test Suite</td><td>RDK Platform — component behavior, integration, data model, management, security, profile conformance</td><td>RDK-B Owner</td></tr>
@@ -615,6 +661,7 @@
     </tbody>
   </table>
 </section>
+</div>
 
 
 <footer>
@@ -685,6 +732,33 @@
   </div>
 </div>
 
+
+<script>
+(function () {
+  const buttons = Array.from(document.querySelectorAll('.tab-btn'));
+  const panels = Array.from(document.querySelectorAll('.tab-panel'));
+  if (!buttons.length || !panels.length) return;
+
+  function activate(id, updateHash) {
+    let matched = false;
+    buttons.forEach(b => {
+      const isMatch = b.dataset.tab === id;
+      b.classList.toggle('active', isMatch);
+      if (isMatch) matched = true;
+    });
+    if (!matched) return;
+    panels.forEach(p => p.classList.toggle('active', p.id === 'tab-' + id));
+    if (updateHash) history.replaceState(null, '', '#' + id);
+  }
+
+  buttons.forEach(b => b.addEventListener('click', () => activate(b.dataset.tab, true)));
+
+  const initial = (location.hash || '').replace('#', '');
+  if (initial && buttons.some(b => b.dataset.tab === initial)) {
+    activate(initial, false);
+  }
+})();
+</script>
 
 
 <script>
