@@ -58,7 +58,7 @@ def render_goals(goals: list[dict]) -> str:
     for g in goals:
         anchor = slugify(g["title"])
         out.append(f'''
-    <div class="card" id="{anchor}" style="margin-bottom:16px; scroll-margin-top:80px;">
+    <div class="card" id="{anchor}" style="margin-bottom:16px; scroll-margin-top:140px;">
       <h3>{esc(g["title"])}</h3>
       <p><strong style="color:var(--ink);">Goal —</strong> {esc(g["goal"])}</p>
       <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> {esc(g["challenge"])}</p>

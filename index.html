@@ -520,31 +520,31 @@
   <div class="section-tint tint-blue">
     <div class="subhead" style="margin-top:0;">Why RDKB Core</div>
     
-    <div class="card" id="easier-component-reuse" style="margin-bottom:16px; scroll-margin-top:80px;">
+    <div class="card" id="easier-component-reuse" style="margin-bottom:16px; scroll-margin-top:140px;">
       <h3>Easier Component Reuse</h3>
       <p><strong style="color:var(--ink);">Goal —</strong> Core RDKB components must be easy to reuse across every device profile — from a simple modem/ONU, to an Ethernet router or Wi-Fi gateway, to an EasyMesh controller or extender, to add-on profiles like app lifecycle management and IoT.</p>
       <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Historical releases focused narrowly on the Ethernet Wi-Fi Router or Wi-Fi Gateway profile, so code carried assumptions that made reuse difficult elsewhere — operators had to modify components themselves, increasing time-to-market and cost.</p>
     </div>
 
-    <div class="card" id="modularity-build-time-dependencies" style="margin-bottom:16px; scroll-margin-top:80px;">
+    <div class="card" id="modularity-build-time-dependencies" style="margin-bottom:16px; scroll-margin-top:140px;">
       <h3>Modularity — Build-Time Dependencies</h3>
       <p><strong style="color:var(--ink);">Goal —</strong> Avoid tight coupling and unnecessary build-time dependencies. Developers shouldn&#x27;t have to manually edit and strip dependencies every time a component is reused.</p>
       <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Some components have problem build-time dependencies with other components. If these components are not in the software build, then a build time error will occur. For example: OneWifi, WAN Manager, DHCP Manager, P&amp;M, Utopia, Test and Diag, TR-069 PA, Xconf, and others — carry an unnecessary build-time dependency on the cable modem HAL interface today.</p>
     </div>
 
-    <div class="card" id="modularity-run-time-dependencies" style="margin-bottom:16px; scroll-margin-top:80px;">
+    <div class="card" id="modularity-run-time-dependencies" style="margin-bottom:16px; scroll-margin-top:140px;">
       <h3>Modularity — Run-Time Dependencies</h3>
       <p><strong style="color:var(--ink);">Goal —</strong> Run-time dependencies to optional components and apps must be flexible and dynamic. A component that relies on another&#x27;s methods or properties must keep providing its expected feature subset even when that component isn&#x27;t present.</p>
       <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Some components have problem run-time dependencies with other components. If these components are not in the software build, then a run-time error, unexpected behavior or crash may occur. For example: Utopia, RFC, CcspCr, Test and Diag, TR-069 PA, Xconf, OneWifi, CcspWiFiAgent, CcspHotspot, and others — have an inflexible run-time dependency on T2 telemetry. This can be a problem because T2 telemetry is an optional component; some operators use other telemetry approaches entirely.</p>
     </div>
 
-    <div class="card" id="reduced-code-size" style="margin-bottom:16px; scroll-margin-top:80px;">
+    <div class="card" id="reduced-code-size" style="margin-bottom:16px; scroll-margin-top:140px;">
       <h3>Reduced Code Size</h3>
       <p><strong style="color:var(--ink);">Goal —</strong> Code must scale from small modem/ONUs and extenders up to high-end gateways with apps and IoT. Each component should support a limited, well-defined feature set, allocate only the memory it needs, and be easy to exclude when not needed.</p>
       <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Large components like Utopia and P&amp;M are hard to reason about or extract from the build. Some code (e.g. CCSP Common Lib) over-allocates memory, and documentation on including/excluding optional components needs improvement.</p>
     </div>
 
-    <div class="card" id="consistent-interface-definitions" style="margin-bottom:16px; scroll-margin-top:80px;">
+    <div class="card" id="consistent-interface-definitions" style="margin-bottom:16px; scroll-margin-top:140px;">
       <h3>Consistent Interface Definitions</h3>
       <p><strong style="color:var(--ink);">Goal —</strong> Use a common way to persist values and a standard IPC mechanism between components, with test code that exercises that IPC the way it&#x27;s actually used in production — a pre-validated core reduces integration and testing cycles.</p>
       <p style="margin-bottom:0;"><strong style="color:var(--amber-fg);">Challenge —</strong> Multiple persistence approaches are in use today (sysConfig, PSM, Platform HAL, mySQL), and some older components still use SysEvent, DMCLI, or Common Lib for IPC instead of RBUS.</p>
@@ -752,6 +752,21 @@
   }
 
   buttons.forEach(b => b.addEventListener('click', () => activate(b.dataset.tab, true)));
+
+  // "Explore" links point to #anchors that live inside other tab panels
+  // (hidden via display:none). Switch to that tab first, then scroll.
+  document.addEventListener('click', function (e) {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute('href').slice(1);
+    const target = document.getElementById(id);
+    if (!target) return;
+    const panel = target.closest('.tab-panel');
+    if (!panel) return;
+    e.preventDefault();
+    activate(panel.id.replace('tab-', ''), true);
+    requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  });
 
   const initial = (location.hash || '').replace('#', '');
   if (initial && buttons.some(b => b.dataset.tab === initial)) {

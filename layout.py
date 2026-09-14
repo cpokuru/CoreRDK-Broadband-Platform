@@ -533,6 +533,21 @@ TABS_SCRIPT = """
 
   buttons.forEach(b => b.addEventListener('click', () => activate(b.dataset.tab, true)));
 
+  // "Explore" links point to #anchors that live inside other tab panels
+  // (hidden via display:none). Switch to that tab first, then scroll.
+  document.addEventListener('click', function (e) {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute('href').slice(1);
+    const target = document.getElementById(id);
+    if (!target) return;
+    const panel = target.closest('.tab-panel');
+    if (!panel) return;
+    e.preventDefault();
+    activate(panel.id.replace('tab-', ''), true);
+    requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  });
+
   const initial = (location.hash || '').replace('#', '');
   if (initial && buttons.some(b => b.dataset.tab === initial)) {
     activate(initial, false);
