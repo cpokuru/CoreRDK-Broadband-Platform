@@ -25,7 +25,7 @@ import json
 import re
 from pathlib import Path
 
-from layout import esc, render_hero, render_page, render_quicklinks, render_tabs, TABS_SCRIPT
+from layout import esc, render_hero, render_page, render_quicklinks, render_tabs, TABS_SCRIPT, ICONS
 
 COMPONENTS_URL = "components/"
 COMPONENTS_FULL_URL = "components/full-list.html"
@@ -139,11 +139,11 @@ def build_about_page(spec: dict, about: dict) -> str:
 {render_hero("Core RDK Broadband", "Core RDK Broadband Platform", about["definition"], hero_badges, visual_key="about")}
 
 <div class="stats">
-  <div class="stat"><div class="num">Operators</div></div>
-  <div class="stat"><div class="num">SoCs</div></div>
-  <div class="stat"><div class="num">OEMs</div></div>
-  <div class="stat"><div class="num">System Integrators</div></div>
-  <div class="stat"><div class="num">Third Parties</div></div>
+  <div class="stat"><span class="stat-icon">{ICONS["share"]}</span><div class="num">Operators</div></div>
+  <div class="stat"><span class="stat-icon">{ICONS["cpu"]}</span><div class="num">SoCs</div></div>
+  <div class="stat"><span class="stat-icon">{ICONS["monitor"]}</span><div class="num">OEMs</div></div>
+  <div class="stat"><span class="stat-icon">{ICONS["cubes"]}</span><div class="num">System Integrators</div></div>
+  <div class="stat"><span class="stat-icon">{ICONS["puzzle"]}</span><div class="num">Third Parties</div></div>
 </div>
 
 {render_tabs(tabs)}

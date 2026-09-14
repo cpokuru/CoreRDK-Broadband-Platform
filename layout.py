@@ -162,13 +162,19 @@ SHARED_CSS = """
     border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
     position: relative; z-index: 2; box-shadow: var(--shadow-md);
   }
-  .stat { flex: 1; min-width: 0; background: transparent; padding: 22px 16px; text-align: center; border-top: 3px solid transparent; border-right: 1px solid var(--border); }
+  .stat { flex: 1; min-width: 0; background: transparent; padding: 20px 20px; text-align: left; display: flex; align-items: center; gap: 12px; border-top: 3px solid transparent; border-right: 1px solid var(--border); }
   .stat:last-child { border-right: none; }
   .stat:nth-child(1) { border-top-color: var(--rdk-blue); }
   .stat:nth-child(2) { border-top-color: var(--rdk-green); }
   .stat:nth-child(3) { border-top-color: var(--rdk-amber); }
   .stat:nth-child(4) { border-top-color: var(--rdk-orange); }
   .stat:nth-child(5) { border-top-color: var(--middleware); }
+  .stat-icon { flex: 0 0 auto; display: flex; }
+  .stat:nth-child(1) .stat-icon { color: var(--rdk-blue); }
+  .stat:nth-child(2) .stat-icon { color: var(--rdk-green); }
+  .stat:nth-child(3) .stat-icon { color: var(--rdk-amber); }
+  .stat:nth-child(4) .stat-icon { color: var(--rdk-orange); }
+  .stat:nth-child(5) .stat-icon { color: var(--middleware); }
   .stat .num { font-family: "Space Grotesk", sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); }
   .stat .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; font-weight: 500; }
   @media (max-width: 760px) { .stats { flex-wrap: wrap; margin: -20px 16px 0; } .stat { flex: 1 1 40%; border-right: none; border-bottom: 1px solid var(--border); } .hero { padding: 48px 20px 40px; } }
@@ -465,6 +471,10 @@ ICONS = {
     "cpu": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg>',
     "layers": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>',
     "check-list": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h14M5 18h9"/><path d="M3 6l.01 0M3 12l.01 0M3 18l.01 0"/></svg>',
+    "share": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4"/><circle cx="17" cy="5.5" r="2.4"/><circle cx="17" cy="18.5" r="2.4"/><path d="M8.1 10.8 14.9 6.7M8.1 13.2l6.8 4.1"/></svg>',
+    "monitor": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>',
+    "cubes": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l4 2.3v4.6L12 12l-4-2.1V5.3z"/><path d="M5 12.9l4 2.1v4.6l-4 2.3-4-2.3v-4.6z" transform="translate(1.5 0)"/><path d="M15 12.9l4 2.1v4.6l-4 2.3-4-2.3v-4.6z" transform="translate(-1.5 0)"/></svg>',
+    "puzzle": '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 4.5h3a1.5 1.5 0 0 1 1.5 1.5v2.3a1.7 1.7 0 0 0 2.9 1.2 1.7 1.7 0 0 1 2.9 1.2 1.7 1.7 0 0 1-1.7 1.7H16.5a1.5 1.5 0 0 0-1.5 1.5v2.6a1.5 1.5 0 0 1-1.5 1.5h-2.6a1.7 1.7 0 0 0-1.7-1.7 1.7 1.7 0 0 0-1.7 1.7H5.5A1.5 1.5 0 0 1 4 16.3v-2.6a1.5 1.5 0 0 1 1.5-1.5H8a1.7 1.7 0 0 0 1.7-1.7A1.7 1.7 0 0 0 8 9a1.5 1.5 0 0 1-1.5-1.5V6A1.5 1.5 0 0 1 8 4.5z"/></svg>',
 }
 
 

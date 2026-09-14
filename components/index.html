@@ -132,13 +132,19 @@
     border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
     position: relative; z-index: 2; box-shadow: var(--shadow-md);
   }
-  .stat { flex: 1; min-width: 0; background: transparent; padding: 22px 16px; text-align: center; border-top: 3px solid transparent; border-right: 1px solid var(--border); }
+  .stat { flex: 1; min-width: 0; background: transparent; padding: 20px 20px; text-align: left; display: flex; align-items: center; gap: 12px; border-top: 3px solid transparent; border-right: 1px solid var(--border); }
   .stat:last-child { border-right: none; }
   .stat:nth-child(1) { border-top-color: var(--rdk-blue); }
   .stat:nth-child(2) { border-top-color: var(--rdk-green); }
   .stat:nth-child(3) { border-top-color: var(--rdk-amber); }
   .stat:nth-child(4) { border-top-color: var(--rdk-orange); }
   .stat:nth-child(5) { border-top-color: var(--middleware); }
+  .stat-icon { flex: 0 0 auto; display: flex; }
+  .stat:nth-child(1) .stat-icon { color: var(--rdk-blue); }
+  .stat:nth-child(2) .stat-icon { color: var(--rdk-green); }
+  .stat:nth-child(3) .stat-icon { color: var(--rdk-amber); }
+  .stat:nth-child(4) .stat-icon { color: var(--rdk-orange); }
+  .stat:nth-child(5) .stat-icon { color: var(--middleware); }
   .stat .num { font-family: "Space Grotesk", sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); }
   .stat .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; font-weight: 500; }
   @media (max-width: 760px) { .stats { flex-wrap: wrap; margin: -20px 16px 0; } .stat { flex: 1 1 40%; border-right: none; border-bottom: 1px solid var(--border); } .hero { padding: 48px 20px 40px; } }
@@ -492,7 +498,7 @@
 
 <section class="tight-top">
   <p style="color:var(--muted); font-size:0.85rem; margin:0 0 14px;">
-    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-14T02:47:05Z
+    Schema version: 1.0 &nbsp;|&nbsp; Generated: 2026-09-14T03:01:18Z
   </p>
   <div style="margin-bottom:18px;"><span class="pill" style="background:#fef3c7;color:#92400e">Common Core</span><span class="pill" style="background:#dbeafe;color:#1e40af">Required</span><span class="pill" style="background:#f3f4f6;color:#374151">Optional</span></div>
   <table class="def-table">
