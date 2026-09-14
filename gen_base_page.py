@@ -139,12 +139,11 @@ def build_about_page(spec: dict, about: dict) -> str:
 {render_hero("Core RDK Broadband", "Core RDK Broadband Platform", about["definition"], hero_badges, visual_key="about")}
 
 <div class="stats">
-  <div class="stat"><div class="num"></div><div class="lbl"></div></div>
-  <div class="stat"><div class="num"></div><div class="lbl"></div></div>
-
-  <div class="stat"><div class="num"></div><div class="lbl"></div></div>
-  <div class="stat"><div class="num"></div><div class="lbl"></div></div>
-  <div class="stat"><div class="num"></div><div class="lbl"></div></div>
+  <div class="stat"><div class="num">Operators</div></div>
+  <div class="stat"><div class="num">SoCs</div></div>
+  <div class="stat"><div class="num">OEMs</div></div>
+  <div class="stat"><div class="num">System Integrators</div></div>
+  <div class="stat"><div class="num">Third Parties</div></div>
 </div>
 
 {render_tabs(tabs)}
