@@ -195,10 +195,11 @@
     box-shadow: 0 0 0 1px rgba(93,196,255,0.55) inset, 0 14px 30px rgba(0,0,0,0.45);
     transform: translateY(-3px);
   }
-  .feature-band .ql-icon { color: #7dd3fc; filter: drop-shadow(0 0 6px rgba(56,189,248,0.55)); }
+  .feature-band .quicklink-card { border-color: var(--ql-color, rgba(93,196,255,0.32)); }
+  .feature-band .ql-icon { color: var(--ql-color, #7dd3fc); filter: drop-shadow(0 0 6px var(--ql-color, rgba(56,189,248,0.55))); }
   .feature-band .ql-title { color: #f5f8ff; }
   .feature-band .ql-desc { color: #9fb0d0; }
-  .feature-band .ql-cta { color: #5fd0ff; }
+  .feature-band .ql-cta { color: var(--ql-color, #5fd0ff); }
 
   /* ---- in-page tab bar (Overview / Why Core RDK / RDK Ready / Architecture / Testing) ---- */
   .tabs-bar {
