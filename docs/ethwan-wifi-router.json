@@ -13,12 +13,6 @@
   "memory": {
     "minRamMB": 1024
   },
-  "storage": {
-    "minFlashMB": 512,
-    "type": "SD card",
-    "partitionLayout": "A/B",
-    "filesystem": "ext4"
-  },
   "referenceDevice": {
     "name": "BPI-R4",
     "soc": "MediaTek MT7988 (Filogic)",
@@ -97,11 +91,25 @@
     }
   },
   "validationStatus": "partial",
-  "lastValidated": "2026-08-25",
+  "lastValidated": "2026-09-17",
   "flashLayoutRef": "flash-layout/ethwan-wifi-router.flash-layout.json",
   "cpuUtilizationRef": "cpu-utilization/ethwan-wifi-router.cpu-utilization.json",
   "memoryFootprintRef": "memory-footprint/ethwan-wifi-router.memory-footprint.json",
   "regionalRefs": [
     "regional/ethwan-wifi-router.us.json"
-  ]
+  ],
+  "requiredStorage": {
+    "minFlashMB": 4096,
+    "supportedTypes": [
+      "eMMC",
+      "UFS",
+      "SPI-NAND"
+    ],
+    "partitionLayout": "A/B",
+    "filesystem": "ext4"
+  },
+  "validationEvidence": {
+    "storageType": "SD",
+    "productionStorageValidated": false
+  }
 }

@@ -122,7 +122,7 @@ def render_minimums_table(in_scope: list[dict], profiles_dir: Path) -> str:
     rows = []
     partial_notes = []
     for p in in_scope:
-        cpu, mem, sto, ref = p["cpu"], p["memory"], p["storage"], p["referenceDevice"]
+        cpu, mem, sto, ref = p["cpu"], p["memory"], p["requiredStorage"], p["referenceDevice"]
         cpu_txt = f'{esc(cpu["family"])}, \u2265 {esc(cpu["minClockGHz"])} GHz'
         cores_txt = str(cpu["minCores"]) + (f' ({esc(cpu["coreTopology"])})' if cpu.get("coreTopology") else "")
         ref_txt = esc(ref["name"]) + (f', {esc(ref["soc"])}' if ref.get("soc") else "")
@@ -431,7 +431,7 @@ def render_regional_section(p: dict, profiles_dir: Path) -> str:
 
 
 def render_profile_card(p: dict, profiles_dir: Path) -> str:
-    cpu, mem, sto, ref, per = p["cpu"], p["memory"], p["storage"], p["referenceDevice"], p["peripherals"]
+    cpu, mem, sto, ref, per = p["cpu"], p["memory"], p["requiredStorage"], p["referenceDevice"], p["peripherals"]
     conn = per.get("connectivity", {})
 
     blocks = [

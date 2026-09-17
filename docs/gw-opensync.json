@@ -13,9 +13,11 @@
   "memory": {
     "minRamMB": "n/a"
   },
-  "storage": {
+  "requiredStorage": {
     "minFlashMB": "n/a",
-    "type": "n/a",
+    "supportedTypes": [
+      "n/a"
+    ],
     "partitionLayout": "n/a",
     "filesystem": "n/a"
   },
@@ -23,6 +25,10 @@
     "name": "n/a",
     "soc": "n/a",
     "buildBranch": "n/a"
+  },
+  "validationEvidence": {
+    "storageType": "n/a",
+    "productionStorageValidated": "n/a"
   },
   "peripherals": {
     "connectivity": {

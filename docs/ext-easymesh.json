@@ -6,18 +6,12 @@
   "cpu": {
     "architecture": "arm64",
     "family": "Cortex-A73",
-    "minClockGHz": 1.4,
+    "minClockGHz": 1.8,
     "minCores": 4,
     "coreTopology": "single-cluster"
   },
   "memory": {
-    "minRamMB": 512
-  },
-  "storage": {
-    "minFlashMB": 256,
-    "type": "SD card",
-    "partitionLayout": "A/B",
-    "filesystem": "ext4"
+    "minRamMB": 1024
   },
   "referenceDevice": {
     "name": "BPI-R4",
@@ -95,11 +89,25 @@
     }
   },
   "validationStatus": "partial",
-  "lastValidated": "2026-08-25",
+  "lastValidated": "2026-09-17",
   "flashLayoutRef": "flash-layout/ext-easymesh.flash-layout.json",
   "cpuUtilizationRef": "cpu-utilization/ext-easymesh.cpu-utilization.json",
   "memoryFootprintRef": "memory-footprint/ext-easymesh.memory-footprint.json",
   "regionalRefs": [
     "regional/ext-easymesh.us.json"
-  ]
+  ],
+  "requiredStorage": {
+    "minFlashMB": 4096,
+    "supportedTypes": [
+      "eMMC",
+      "UFS",
+      "SPI-NAND"
+    ],
+    "partitionLayout": "A/B",
+    "filesystem": "ext4"
+  },
+  "validationEvidence": {
+    "storageType": "SD",
+    "productionStorageValidated": false
+  }
 }

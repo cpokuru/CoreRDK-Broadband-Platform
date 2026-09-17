@@ -10,7 +10,7 @@
     "profileName",
     "cpu",
     "memory",
-    "storage",
+    "requiredStorage",
     "referenceDevice",
     "peripherals",
     "validationStatus"
@@ -68,31 +68,6 @@
         "minRamMB": {
           "type": "integer",
           "description": "Minimum RAM in megabytes."
-        }
-      }
-    },
-    "storage": {
-      "type": "object",
-      "required": [
-        "minFlashMB",
-        "type"
-      ],
-      "properties": {
-        "minFlashMB": {
-          "type": "integer",
-          "description": "Minimum flash storage in megabytes."
-        },
-        "type": {
-          "type": "string",
-          "description": "Flash technology, e.g. \"eMMC\", \"SPI-NAND\"."
-        },
-        "partitionLayout": {
-          "type": "string",
-          "description": "Optional. OTA partition layout, e.g. \"A/B\", \"single-bank\"."
-        },
-        "filesystem": {
-          "type": "string",
-          "description": "Optional. Filesystem used on flash \u2014 \"ext4\", \"squashfs\", or \"EROFS\" for eMMC; \"UBI/UBIFS\" for SPI-NAND. MUST match storage.type; UBI/UBIFS MUST NOT be paired with eMMC."
         }
       }
     },
@@ -358,7 +333,49 @@
       "items": {
         "type": "string"
       },
-      "description": "Optional. Relative paths to this profile's separate per-region regional files (see regional.schema.json), under the regional/ subfolder using the convention 'regional/<profileId>.<regionId>.json', e.g. [\"regional/ethwan-wifi-router.us.json\"]. Answers 'can this hardware be deployed in a given region' (Hardware Compatibility Specification Section 9). One entry per region profiled; kept out-of-line since regional/certification status changes on its own timeline independent of this file."
+      "description": "Optional. Relative paths to this profile's separate per-region regional files (see regional.schema.json), under the regional/ subfolder using the convention 'regional/<profileId>.<regionId>.json', e.g. [\"regional/ethwan-wifi-router.us.json\"]. Answers 'can this hardware be deployed in a given region' (Hardware Compatibility Specification Section 7). One entry per region profiled; kept out-of-line since regional/certification status changes on its own timeline independent of this file."
+    },
+    "requiredStorage": {
+      "type": "object",
+      "required": [
+        "minFlashMB",
+        "supportedTypes"
+      ],
+      "properties": {
+        "minFlashMB": {
+          "type": "integer",
+          "description": "Minimum flash storage in megabytes."
+        },
+        "supportedTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Flash technologies this requirement permits in production, e.g. [\"eMMC\", \"UFS\", \"SPI-NAND\"]. This is the REQUIREMENT, not necessarily what the reference device in validationEvidence was tested on."
+        },
+        "partitionLayout": {
+          "type": "string",
+          "description": "Optional. OTA partition layout, e.g. \"A/B\", \"single-bank\"."
+        },
+        "filesystem": {
+          "type": "string",
+          "description": "Optional. Filesystem used on flash \u2014 \"ext4\", \"squashfs\", or \"EROFS\" for eMMC/UFS; \"UBI/UBIFS\" for SPI-NAND. MUST be compatible with requiredStorage.supportedTypes; UBI/UBIFS MUST NOT be paired with eMMC or UFS."
+        }
+      }
+    },
+    "validationEvidence": {
+      "type": "object",
+      "description": "Optional. What was actually exercised on the reference device, distinct from the requiredStorage requirement itself \u2014 answers whether production storage technology was validated or a stand-in medium was used.",
+      "properties": {
+        "storageType": {
+          "type": "string",
+          "description": "Storage technology ACTUALLY present on the reference/validation device, e.g. \"SD\" \u2014 may differ from requiredStorage.supportedTypes (the production requirement)."
+        },
+        "productionStorageValidated": {
+          "type": "boolean",
+          "description": "True only if the reference device's actual storageType is itself one of requiredStorage.supportedTypes \u2014 i.e., production storage technology (not a stand-in medium like SD) was exercised."
+        }
+      }
     }
   }
 }
