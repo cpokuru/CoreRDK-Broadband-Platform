@@ -6,6 +6,7 @@
   "referenceDevice": "Filogic tri-band Wi-Fi 7 EasyMesh extender (ARM64)",
   "lastMeasured": "2026-09-17",
   "totalRssMB": 524.08,
+  "usedMemoryMB": 582.0,
   "processes": [
     {
       "process": "onewifi_em_agent",

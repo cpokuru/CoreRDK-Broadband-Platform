@@ -131,19 +131,32 @@ def render_minimums_table(in_scope: list[dict], profiles_dir: Path) -> str:
         cpu_data = _load_ref_json(p, "cpuUtilizationRef", profiles_dir)
 
         measured_ram = "\u2014"
-        if mem_data and mem_data.get("measured") and mem_data.get("totalRssMB") is not None:
-            n_proc = len(mem_data.get("processes", []))
-            # A handful of processes covering only part of the system (e.g.
-            # just the Wi-Fi/EasyMesh set) isn't a full-system total -- flag
-            # it rather than let the number imply more than it measures.
-            partial = n_proc > 0 and n_proc < 10
-            star = "*" if partial else ""
-            measured_ram = f'{esc(mem_data["totalRssMB"])} MB{star}'
-            if partial:
-                partial_notes.append(
-                    f'* {esc(p["profileName"])}: measured RSS covers only {n_proc} Wi-Fi/EasyMesh-specific '
-                    f'processes, not a full-system total \u2014 see Memory Footprint by Process below.'
-                )
+        if mem_data and mem_data.get("measured"):
+            if mem_data.get("usedMemoryMB") is not None:
+                # System-level used RAM (MemTotal - MemAvailable) -- the
+                # correct figure to compare against minRamMB. Preferred
+                # over totalRssMB, which double-counts shared pages across
+                # processes and is not directly comparable to a RAM floor.
+                measured_ram = f'{esc(mem_data["usedMemoryMB"])} MB'
+            elif mem_data.get("totalRssMB") is not None:
+                # Older captures without usedMemoryMB yet -- fall back to
+                # gross RSS, flagged so it isn't mistaken for the same
+                # thing as system-used RAM.
+                n_proc = len(mem_data.get("processes", []))
+                partial = n_proc > 0 and n_proc < 10
+                star = "*" if partial else "\u2020"
+                measured_ram = f'{esc(mem_data["totalRssMB"])} MB{star}'
+                if partial:
+                    partial_notes.append(
+                        f'* {esc(p["profileName"])}: measured RSS covers only {n_proc} Wi-Fi/EasyMesh-specific '
+                        f'processes, not a full-system total \u2014 see Memory Footprint by Process below.'
+                    )
+                else:
+                    partial_notes.append(
+                        f'\u2020 {esc(p["profileName"])}: figure shown is gross RSS (sum of per-process RSS, '
+                        f'which double-counts shared pages), not system-level used RAM \u2014 see Memory '
+                        f'Footprint by Process below for the correct used-RAM figure.'
+                    )
 
         measured_cpu = "\u2014"
         if cpu_data and cpu_data.get("measured") and cpu_data.get("totalCpuPercent") is not None:
@@ -160,7 +173,7 @@ def render_minimums_table(in_scope: list[dict], profiles_dir: Path) -> str:
 
     return (
         '<table class="def-table"><thead><tr><th>Profile</th><th>CPU (min.)</th><th>Cores</th>'
-        "<th>RAM (min.)</th><th>Flash (min.)</th><th>Measured RSS</th><th>Measured CPU</th>"
+        "<th>RAM (min.)</th><th>Flash (min.)</th><th>RAM Used</th><th>Measured CPU</th>"
         "<th>Reference Device</th></tr></thead><tbody>"
         + "".join(rows) + "</tbody></table>" + footnote
     )

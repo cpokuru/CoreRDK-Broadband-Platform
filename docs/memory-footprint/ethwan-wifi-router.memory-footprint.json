@@ -6,6 +6,7 @@
   "referenceDevice": "BPI-R4 (MediaTek MT7988A/Filogic 880), combined EthWAN + EasyMesh Controller/Agent build (production-style image, no dev tooling)",
   "lastMeasured": "2026-09-17",
   "totalRssMB": 1053.06,
+  "usedMemoryMB": 905.6,
   "processes": [
     {
       "process": "onewifi_em_ctrl",
