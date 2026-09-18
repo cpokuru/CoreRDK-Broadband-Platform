@@ -212,6 +212,14 @@ def render_peripheral_block(block: dict) -> str:
     detail field within an existing block, needs only a JSON change --
     this function never special-cases a field name.
 
+    Typographic hierarchy, darkest/most prominent to lightest:
+      1. title            -- bold, ink
+      2. requirement       -- ink, the primary content (explicitly NOT
+                              inheriting the page's muted default <p> color)
+      3. detail lines      -- ink values, muted labels
+      4. referenceImplementation -- small tag, clearly marked as an example
+      5. notes             -- smallest, muted, tertiary/supplementary
+
     requirement and referenceImplementation are kept visually distinct:
     requirement is the generic, chip-agnostic capability every compatible
     device must provide; referenceImplementation is one example (the
@@ -223,7 +231,10 @@ def render_peripheral_block(block: dict) -> str:
         pills.append(f'<span style="font-size:0.74rem;color:var(--muted);">{esc(label)}:</span> {pill_html}' if label else pill_html)
 
     requirement = block.get("requirement")
-    requirement_html = f'<p class="hwc-requirement">{esc(requirement)}</p>' if requirement and requirement != "n/a" else ""
+    requirement_html = (
+        f'<p style="color:var(--ink); font-size:0.9rem; line-height:1.5; margin:0 0 10px;">{esc(requirement)}</p>'
+        if requirement and requirement != "n/a" else ""
+    )
 
     meta_lines = []
     for item in block.get("detail", []):
@@ -233,23 +244,35 @@ def render_peripheral_block(block: dict) -> str:
             continue
         text = ", ".join(str(v) for v in val) if isinstance(val, list) else str(val)
         if text and text.lower() != "n/a":
-            meta_lines.append(f'<div><strong>{esc(label)}:</strong> {esc(text)}</div>')
+            meta_lines.append(
+                f'<div style="font-size:0.86rem; line-height:1.5; margin-bottom:4px;">'
+                f'<span style="color:var(--muted);">{esc(label)}:</span> '
+                f'<span style="color:var(--ink);">{esc(text)}</span></div>'
+            )
+    meta_html = f'<div style="margin-bottom:10px;">{"".join(meta_lines)}</div>' if meta_lines else ""
 
     ref_impl = block.get("referenceImplementation")
     ref_impl_html = (
-        f'<div class="hwc-ref-impl"><span style="font-size:0.74rem;color:var(--muted);">Reference implementation:</span> {esc(ref_impl)}</div>'
+        f'<div style="display:inline-block; background:var(--cloud-bg); color:var(--cloud-fg); '
+        f'font-size:0.74rem; font-weight:600; border-radius:6px; padding:3px 9px; margin-bottom:10px;">'
+        f'Reference: {esc(ref_impl)}</div><br>'
         if ref_impl else ""
     )
 
     notes = block.get("notes")
-    notes_html = f'<p class="hwc-notes">{esc(notes)}</p>' if notes and notes != "n/a" else ""
-    meta_html = f'<div class="hwc-block-meta">{"".join(meta_lines)}{ref_impl_html}</div>' if (meta_lines or ref_impl_html) else ""
+    notes_html = (
+        f'<p style="color:var(--muted); font-size:0.78rem; line-height:1.5; margin:0;">{esc(notes)}</p>'
+        if notes and notes != "n/a" else ""
+    )
     title = block.get("title", "")
 
     return (
-        '<div class="hwc-block">'
-        f'<div class="hwc-block-head"><span class="hwc-block-title">{esc(title)}</span>{"".join(pills)}</div>'
-        f'{requirement_html}{meta_html}{notes_html}'
+        '<div style="background:var(--card-bg); border:1px solid var(--border); '
+        'border-left:3px solid var(--middleware); border-radius:10px; padding:16px 18px; '
+        'box-shadow:var(--shadow-sm);">'
+        f'<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">'
+        f'<span style="font-weight:700; font-size:0.98rem; color:var(--ink);">{esc(title)}</span>{"".join(pills)}</div>'
+        f'{requirement_html}{meta_html}{ref_impl_html}{notes_html}'
         '</div>'
     )
 
@@ -463,7 +486,7 @@ def render_profile_card(p: dict, profiles_dir: Path) -> str:
         f'<span><strong>Reference device:</strong> {ref_line}</span>'
         '</div>'
         '<div class="subhead" style="margin-top:18px;">Peripheral Requirements</div>'
-        '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px;">'
+        '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px;">'
         + "".join(blocks) +
         '</div>'
         + render_memory_footprint_table(p, profiles_dir) +
