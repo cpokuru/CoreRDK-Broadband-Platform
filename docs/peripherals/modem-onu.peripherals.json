@@ -30,30 +30,10 @@
     "notes": "n/a"
   },
   {
-    "id": "easyMesh",
-    "title": "EasyMesh",
-    "group": "peripherals",
-    "order": 4,
-    "statusPills": [],
-    "detail": [],
-    "crossRef": [],
-    "notes": "n/a"
-  },
-  {
     "id": "bluetoothIot",
     "title": "Bluetooth / IoT",
     "group": "peripherals",
-    "order": 5,
-    "statusPills": [],
-    "detail": [],
-    "crossRef": [],
-    "notes": "n/a"
-  },
-  {
-    "id": "voice",
-    "title": "Voice",
-    "group": "peripherals",
-    "order": 6,
+    "order": 4,
     "statusPills": [],
     "detail": [],
     "crossRef": [],
@@ -63,7 +43,7 @@
     "id": "packetProcessor",
     "title": "Packet Processor",
     "group": "peripherals",
-    "order": 7,
+    "order": 5,
     "statusPills": [],
     "detail": [],
     "crossRef": [],
@@ -73,7 +53,7 @@
     "id": "aiNpu",
     "title": "AI / NPU",
     "group": "peripherals",
-    "order": 8,
+    "order": 6,
     "statusPills": [],
     "detail": [],
     "crossRef": [],
@@ -83,7 +63,17 @@
     "id": "usb",
     "title": "USB",
     "group": "peripherals",
-    "order": 9,
+    "order": 7,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "simCardSlot",
+    "title": "SIM Card Slot",
+    "group": "peripherals",
+    "order": 8,
     "statusPills": [],
     "detail": [],
     "crossRef": [],
@@ -92,6 +82,16 @@
   {
     "id": "storageInterface",
     "title": "Storage",
+    "group": "peripherals",
+    "order": 9,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "sdCardSlot",
+    "title": "SD Card Slot",
     "group": "peripherals",
     "order": 10,
     "statusPills": [],
@@ -110,10 +110,50 @@
     "notes": "n/a"
   },
   {
-    "id": "diagnostics",
-    "title": "Diagnostics",
+    "id": "debugPort",
+    "title": "Debug Port",
     "group": "peripherals",
     "order": 12,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "wpsButton",
+    "title": "WPS Button",
+    "group": "peripherals",
+    "order": 13,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "resetButton",
+    "title": "Reset Button",
+    "group": "peripherals",
+    "order": 14,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "powerButton",
+    "title": "Power Button",
+    "group": "peripherals",
+    "order": 15,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "fan",
+    "title": "Fan",
+    "group": "peripherals",
+    "order": 16,
     "statusPills": [],
     "detail": [],
     "crossRef": [],

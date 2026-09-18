@@ -38,31 +38,20 @@
       {
         "label": "Security",
         "value": "WPA2, WPA3"
+      },
+      {
+        "label": "Mesh",
+        "value": "Acts as an EasyMesh agent, joining a gateway's mesh to extend its coverage"
       }
     ],
     "crossRef": [],
     "notes": "Wi-Fi access point for wireless devices, covering 2.4, 5, and 6 GHz bands. Also used for the wireless mesh backhaul link back to the gateway."
   },
   {
-    "id": "easyMesh",
-    "title": "EasyMesh",
-    "group": "peripherals",
-    "order": 4,
-    "statusPills": [],
-    "detail": [
-      {
-        "label": "Role",
-        "value": "Agent"
-      }
-    ],
-    "crossRef": [],
-    "notes": "This is what makes the device an extender \u2014 it joins a gateway's mesh as an agent, extending its Wi-Fi coverage."
-  },
-  {
     "id": "bluetoothIot",
     "title": "Bluetooth / IoT",
     "group": "peripherals",
-    "order": 5,
+    "order": 4,
     "statusPills": [],
     "detail": [
       {
@@ -78,30 +67,20 @@
     "notes": "Same multiprotocol radio as the gateway, for connecting smart-home devices if IoT support is enabled on the extender."
   },
   {
-    "id": "voice",
-    "title": "Voice",
-    "group": "peripherals",
-    "order": 6,
-    "statusPills": [],
-    "detail": [],
-    "crossRef": [],
-    "notes": "Not applicable \u2014 an extender has no internet connection of its own, so it can't host SIP calling."
-  },
-  {
     "id": "packetProcessor",
     "title": "Packet Processor",
     "group": "peripherals",
-    "order": 7,
+    "order": 5,
     "statusPills": [],
     "detail": [],
     "crossRef": [],
-    "notes": "Not applicable \u2014 an extender doesn't route or NAT traffic, so there's nothing for this to accelerate."
+    "notes": "Present on the board, but unused \u2014 an extender doesn't route or NAT traffic, so there's nothing for this to accelerate."
   },
   {
     "id": "aiNpu",
     "title": "AI / NPU",
     "group": "peripherals",
-    "order": 8,
+    "order": 6,
     "statusPills": [],
     "detail": [],
     "crossRef": [],
@@ -111,7 +90,7 @@
     "id": "usb",
     "title": "USB",
     "group": "peripherals",
-    "order": 9,
+    "order": 7,
     "statusPills": [],
     "detail": [
       {
@@ -123,23 +102,39 @@
     "notes": "A general-purpose USB port, available for connecting IoT devices during testing."
   },
   {
+    "id": "simCardSlot",
+    "title": "SIM Card Slot",
+    "group": "peripherals",
+    "order": 8,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "Present on the board, but unused \u2014 this profile has no cellular backup feature."
+  },
+  {
     "id": "storageInterface",
     "title": "Storage",
     "group": "peripherals",
-    "order": 10,
+    "order": 9,
     "statusPills": [],
     "detail": [
       {
         "label": "Flash",
         "value": "eMMC or SPI-NAND"
-      },
-      {
-        "label": "SD card slot",
-        "value": "Present"
       }
     ],
     "crossRef": [],
-    "notes": "Onboard flash storage for the firmware, with A/B partitions so updates can be applied safely. An SD card slot is also available."
+    "notes": "Onboard flash storage for the firmware, with A/B partitions so updates can be applied safely."
+  },
+  {
+    "id": "sdCardSlot",
+    "title": "SD Card Slot",
+    "group": "peripherals",
+    "order": 10,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "A removable SD card slot, present on this hardware."
   },
   {
     "id": "mediaTuner",
@@ -152,18 +147,58 @@
     "notes": "No tuner hardware \u2014 an extender has no WAN or voice functions."
   },
   {
-    "id": "diagnostics",
-    "title": "Diagnostics",
+    "id": "debugPort",
+    "title": "Debug Port",
     "group": "peripherals",
     "order": 12,
     "statusPills": [],
     "detail": [
       {
-        "label": "Access",
-        "value": "Serial (UART) console"
+        "label": "Interface",
+        "value": "Serial (UART), JTAG"
       }
     ],
     "crossRef": [],
-    "notes": "A serial port for debugging during development. A local web page usually isn't needed on an extender."
+    "notes": "A serial console and JTAG access for low-level debugging during development."
+  },
+  {
+    "id": "wpsButton",
+    "title": "WPS Button",
+    "group": "peripherals",
+    "order": 13,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "A physical button for quick Wi-Fi setup, so a new device can join without typing a password."
+  },
+  {
+    "id": "resetButton",
+    "title": "Reset Button",
+    "group": "peripherals",
+    "order": 14,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "A physical button to restore the extender to its factory default settings."
+  },
+  {
+    "id": "powerButton",
+    "title": "Power Button",
+    "group": "peripherals",
+    "order": 15,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "A physical power switch for the device."
+  },
+  {
+    "id": "fan",
+    "title": "Fan",
+    "group": "peripherals",
+    "order": 16,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "Active cooling for the board."
   }
 ]

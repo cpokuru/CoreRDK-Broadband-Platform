@@ -47,26 +47,20 @@
       {
         "label": "Security",
         "value": "WPA2, WPA3"
+      },
+      {
+        "label": "Mesh",
+        "value": "Can act as an EasyMesh controller, extending coverage with extenders"
       }
     ],
     "crossRef": [],
     "notes": "Wi-Fi access point for wireless devices, covering 2.4, 5, and 6 GHz bands."
   },
   {
-    "id": "easyMesh",
-    "title": "EasyMesh",
-    "group": "peripherals",
-    "order": 4,
-    "statusPills": [],
-    "detail": [],
-    "crossRef": [],
-    "notes": "Lets this router extend Wi-Fi coverage with EasyMesh extenders. Not needed if the router runs on its own."
-  },
-  {
     "id": "bluetoothIot",
     "title": "Bluetooth / IoT",
     "group": "peripherals",
-    "order": 5,
+    "order": 4,
     "statusPills": [],
     "detail": [
       {
@@ -82,25 +76,10 @@
     "notes": "A multiprotocol radio for connecting smart-home devices over Bluetooth, Zigbee, or Thread. Bluetooth is also used to set up new Matter devices."
   },
   {
-    "id": "voice",
-    "title": "Voice",
-    "group": "peripherals",
-    "order": 6,
-    "statusPills": [],
-    "detail": [
-      {
-        "label": "Type",
-        "value": "SIP (VoIP), via Asterisk"
-      }
-    ],
-    "crossRef": [],
-    "notes": "Phone calling over the internet (SIP), not a physical phone line \u2014 this hardware has no analog phone jack (FXS/FXO). A phone connects to it as a SIP client, the same way a softphone app would."
-  },
-  {
     "id": "packetProcessor",
     "title": "Packet Processor",
     "group": "peripherals",
-    "order": 7,
+    "order": 5,
     "statusPills": [],
     "detail": [
       {
@@ -115,7 +94,7 @@
     "id": "aiNpu",
     "title": "AI / NPU",
     "group": "peripherals",
-    "order": 8,
+    "order": 6,
     "statusPills": [],
     "detail": [],
     "crossRef": [],
@@ -125,7 +104,7 @@
     "id": "usb",
     "title": "USB",
     "group": "peripherals",
-    "order": 9,
+    "order": 7,
     "statusPills": [],
     "detail": [
       {
@@ -137,23 +116,39 @@
     "notes": "A general-purpose USB port, currently used for the cellular backup connection and for connecting IoT devices during testing."
   },
   {
+    "id": "simCardSlot",
+    "title": "SIM Card Slot",
+    "group": "peripherals",
+    "order": 8,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "Holds the SIM for the cellular backup modem."
+  },
+  {
     "id": "storageInterface",
     "title": "Storage",
     "group": "peripherals",
-    "order": 10,
+    "order": 9,
     "statusPills": [],
     "detail": [
       {
         "label": "Flash",
         "value": "eMMC or SPI-NAND"
-      },
-      {
-        "label": "SD card slot",
-        "value": "Present"
       }
     ],
     "crossRef": [],
-    "notes": "Onboard flash storage for the firmware, with A/B partitions so updates can be applied safely. An SD card slot is also available and has been tested."
+    "notes": "Onboard flash storage for the firmware, with A/B partitions so updates can be applied safely."
+  },
+  {
+    "id": "sdCardSlot",
+    "title": "SD Card Slot",
+    "group": "peripherals",
+    "order": 10,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "A removable SD card slot, tested and working on this hardware."
   },
   {
     "id": "mediaTuner",
@@ -166,18 +161,58 @@
     "notes": "No tuner hardware on this profile \u2014 it connects over Ethernet, not cable, DSL, or fiber."
   },
   {
-    "id": "diagnostics",
-    "title": "Diagnostics",
+    "id": "debugPort",
+    "title": "Debug Port",
     "group": "peripherals",
     "order": 12,
     "statusPills": [],
     "detail": [
       {
-        "label": "Access",
-        "value": "Web portal, serial (UART) console"
+        "label": "Interface",
+        "value": "Serial (UART), JTAG"
       }
     ],
     "crossRef": [],
-    "notes": "A local web page for setup and troubleshooting, plus a serial port for deeper debugging during development."
+    "notes": "A serial console and JTAG access for low-level debugging during development."
+  },
+  {
+    "id": "wpsButton",
+    "title": "WPS Button",
+    "group": "peripherals",
+    "order": 13,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "A physical button for quick Wi-Fi setup, so a new device can join without typing a password."
+  },
+  {
+    "id": "resetButton",
+    "title": "Reset Button",
+    "group": "peripherals",
+    "order": 14,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "A physical button to restore the router to its factory default settings."
+  },
+  {
+    "id": "powerButton",
+    "title": "Power Button",
+    "group": "peripherals",
+    "order": 15,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "A physical power switch for the device."
+  },
+  {
+    "id": "fan",
+    "title": "Fan",
+    "group": "peripherals",
+    "order": 16,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "Active cooling for the board."
   }
 ]
