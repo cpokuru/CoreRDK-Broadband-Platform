@@ -1,0 +1,146 @@
+[
+  {
+    "id": "wan",
+    "title": "WAN",
+    "group": "peripherals",
+    "order": 1,
+    "statusPills": [
+      {
+        "key": "applicable",
+        "label": null,
+        "value": "n/a"
+      }
+    ],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "cellular",
+    "title": "Cellular",
+    "group": "peripherals",
+    "order": 2,
+    "statusPills": [
+      {
+        "key": "applicable",
+        "label": null,
+        "value": "n/a"
+      }
+    ],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "lan",
+    "title": "LAN",
+    "group": "peripherals",
+    "order": 3,
+    "statusPills": [
+      {
+        "key": "applicable",
+        "label": null,
+        "value": "n/a"
+      }
+    ],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "wifi",
+    "title": "Wi-Fi",
+    "group": "peripherals",
+    "order": 4,
+    "statusPills": [
+      {
+        "key": "applicable",
+        "label": null,
+        "value": "n/a"
+      }
+    ],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "easyMesh",
+    "title": "EasyMesh",
+    "group": "peripherals",
+    "order": 5,
+    "statusPills": [
+      {
+        "key": "applicable",
+        "label": null,
+        "value": "n/a"
+      }
+    ],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "bluetoothIot",
+    "title": "Bluetooth / IoT",
+    "group": "peripherals",
+    "order": 6,
+    "statusPills": [
+      {
+        "key": "applicable",
+        "label": null,
+        "value": "n/a"
+      }
+    ],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "storageInterface",
+    "title": "Storage Interface",
+    "group": "peripherals",
+    "order": 7,
+    "statusPills": [
+      {
+        "key": "applicable",
+        "label": null,
+        "value": "n/a"
+      }
+    ],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "mediaTuner",
+    "title": "Media Tuner",
+    "group": "peripherals",
+    "order": 8,
+    "statusPills": [
+      {
+        "key": "applicable",
+        "label": null,
+        "value": "n/a"
+      }
+    ],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  },
+  {
+    "id": "diagnostics",
+    "title": "Diagnostics",
+    "group": "peripherals",
+    "order": 9,
+    "statusPills": [
+      {
+        "key": "applicable",
+        "label": null,
+        "value": "n/a"
+      }
+    ],
+    "detail": [],
+    "crossRef": [],
+    "notes": "n/a"
+  }
+]

@@ -1,0 +1,344 @@
+[
+  {
+    "id": "wan",
+    "title": "WAN",
+    "group": "peripherals",
+    "order": 1,
+    "statusPills": [
+      {
+        "key": "required",
+        "label": null,
+        "value": "required"
+      }
+    ],
+    "detail": [
+      {
+        "label": "Interfaces",
+        "value": [
+          "EthernetWAN"
+        ]
+      },
+      {
+        "label": "Min ports",
+        "value": 1
+      },
+      {
+        "label": "Minimum link speed",
+        "value": "1x GbE"
+      },
+      {
+        "label": "Mandatory features",
+        "value": [
+          "Primary WAN",
+          "WAN profile orchestration"
+        ]
+      },
+      {
+        "label": "Optional features",
+        "value": [
+          "Secondary/backup WAN",
+          "PPPoE",
+          "GRE"
+        ]
+      },
+      {
+        "label": "Optional IPv6 transition mechanisms",
+        "value": [
+          "MAP-E/T",
+          "NAT64",
+          "DS-Lite",
+          "464XLAT"
+        ]
+      }
+    ],
+    "crossRef": [
+      "PER-001",
+      "NET-001",
+      "NET-002"
+    ],
+    "notes": "1x GbE minimum. Primary WAN + WAN profile orchestration mandatory. Secondary/backup WAN, PPPoE, GRE, and IPv6 transition mechanisms (MAP-E/T, NAT64, DS-Lite, 464XLAT) are optional."
+  },
+  {
+    "id": "cellular",
+    "title": "Cellular",
+    "group": "peripherals",
+    "order": 2,
+    "statusPills": [
+      {
+        "key": "applicable",
+        "label": null,
+        "value": "not-applicable"
+      }
+    ],
+    "detail": [
+      {
+        "label": "Source",
+        "value": "RDK-B Component List 2026 \u2014 WAN Interface Features > Access Technology > Cellular"
+      },
+      {
+        "label": "Component-list interfaces (not used by this profile)",
+        "value": [
+          "Qualcomm QMI",
+          "MBIM",
+          "USB RNDIS",
+          "GPS"
+        ]
+      },
+      {
+        "label": "Optional for",
+        "value": [
+          "GW",
+          "GW OpenSync",
+          "GW EasyMesh"
+        ]
+      }
+    ],
+    "crossRef": [
+      "PER-009"
+    ],
+    "notes": "Marked n/a for this profile in the RDK-B Component List 2026 (WAN Interface Features > Access Technology - Cellular: Qualcomm QMI, MBIM, USB RNDIS, GPS). Cellular access technology is Optional only for GW / GW OpenSync / GW EasyMesh profiles, which use it as one of several WAN access technologies; EthWAN WiFi Router uses Ethernet WAN exclusively."
+  },
+  {
+    "id": "lan",
+    "title": "LAN",
+    "group": "peripherals",
+    "order": 3,
+    "statusPills": [
+      {
+        "key": "required",
+        "label": null,
+        "value": "optional"
+      }
+    ],
+    "detail": [
+      {
+        "label": "Interfaces",
+        "value": [
+          "Ethernet"
+        ]
+      },
+      {
+        "label": "Optional capabilities",
+        "value": [
+          "Port management",
+          "Link up/down detection",
+          "Link speed management"
+        ]
+      },
+      {
+        "label": "Include if",
+        "value": "SKU offers LAN ports"
+      }
+    ],
+    "crossRef": [
+      "PER-002"
+    ],
+    "notes": "Port management, link up/down detection, and link speed management are marked Optional in the RDK-B Component List; include if the SKU offers LAN ports."
+  },
+  {
+    "id": "wifi",
+    "title": "Wi-Fi",
+    "group": "peripherals",
+    "order": 4,
+    "statusPills": [
+      {
+        "key": "required",
+        "label": null,
+        "value": "required"
+      }
+    ],
+    "detail": [
+      {
+        "label": "Standards",
+        "value": [
+          "802.11n",
+          "802.11ac (Wi-Fi 5)"
+        ]
+      },
+      {
+        "label": "Also supports",
+        "value": [
+          "802.11ax (Wi-Fi 6/6E)",
+          "802.11be (Wi-Fi 7)"
+        ]
+      },
+      {
+        "label": "Security",
+        "value": [
+          "WPA2"
+        ]
+      },
+      {
+        "label": "HAL interface",
+        "value": "NL80211 vendor HAL"
+      }
+    ],
+    "crossRef": [
+      "PER-003",
+      "WIFI-001",
+      "WIFI-002",
+      "WIFI-016"
+    ],
+    "notes": "NL80211 vendor HAL interface required."
+  },
+  {
+    "id": "easyMesh",
+    "title": "EasyMesh",
+    "group": "peripherals",
+    "order": 5,
+    "statusPills": [
+      {
+        "key": "required",
+        "label": null,
+        "value": "not-required"
+      }
+    ],
+    "detail": [
+      {
+        "label": "Transport",
+        "value": "IEEE 1905 (optional)"
+      },
+      {
+        "label": "Fallback mode",
+        "value": "Standalone AP mode"
+      }
+    ],
+    "crossRef": [
+      "PER-004",
+      "WIFI-014"
+    ],
+    "notes": "EasyMesh is not mandatory for this profile; router can run standalone AP mode."
+  },
+  {
+    "id": "bluetoothIot",
+    "title": "Bluetooth / IoT",
+    "group": "peripherals",
+    "order": 6,
+    "statusPills": [
+      {
+        "key": "required",
+        "label": null,
+        "value": "optional"
+      }
+    ],
+    "detail": [
+      {
+        "label": "Protocols",
+        "value": [
+          "Matter",
+          "Zigbee",
+          "Thread"
+        ]
+      },
+      {
+        "label": "Required if",
+        "value": "Matter/Zigbee/Thread IoT support is enabled"
+      },
+      {
+        "label": "BLE use",
+        "value": "Matter commissioning"
+      }
+    ],
+    "crossRef": [
+      "PER-005"
+    ],
+    "notes": "Required only if Matter/Zigbee/Thread IoT support is enabled; BLE used for Matter commissioning."
+  },
+  {
+    "id": "storageInterface",
+    "title": "Storage Interface",
+    "group": "peripherals",
+    "order": 7,
+    "statusPills": [],
+    "detail": [
+      {
+        "label": "Types",
+        "value": [
+          "eMMC",
+          "SPI-NAND"
+        ]
+      },
+      {
+        "label": "Filesystem",
+        "value": "UBI/UBIFS"
+      },
+      {
+        "label": "Partition layout",
+        "value": "A/B"
+      },
+      {
+        "label": "Recommended to support",
+        "value": "OTA firmware upgrade HAL"
+      }
+    ],
+    "crossRef": [
+      "PER-006",
+      "STG-001",
+      "STG-002"
+    ],
+    "notes": "A/B partition layout recommended to support OTA firmware upgrade HAL."
+  },
+  {
+    "id": "mediaTuner",
+    "title": "Media Tuner",
+    "group": "peripherals",
+    "order": 8,
+    "statusPills": [
+      {
+        "key": "applicable",
+        "label": null,
+        "value": "not-applicable"
+      }
+    ],
+    "detail": [
+      {
+        "label": "Not applicable technologies",
+        "value": [
+          "DOCSIS",
+          "xDSL",
+          "GPON/EPON",
+          "Cellular",
+          "MTA/voice hardware"
+        ]
+      }
+    ],
+    "crossRef": [
+      "PER-007"
+    ],
+    "notes": "DOCSIS, xDSL, GPON/EPON, cellular, and MTA/voice hardware are all marked not applicable for this profile."
+  },
+  {
+    "id": "diagnostics",
+    "title": "Diagnostics",
+    "group": "peripherals",
+    "order": 9,
+    "statusPills": [
+      {
+        "key": "localWebUI",
+        "label": "Web UI",
+        "value": "optional"
+      },
+      {
+        "key": "uart",
+        "label": "UART",
+        "value": "recommended"
+      }
+    ],
+    "detail": [
+      {
+        "label": "Web UI type",
+        "value": "Residential HTML/HTTPS portal"
+      },
+      {
+        "label": "UART use",
+        "value": "Debug console, recommended for bring-up"
+      }
+    ],
+    "crossRef": [
+      "PER-008",
+      "PCH-003",
+      "PCH-008"
+    ],
+    "notes": "Residential HTML/HTTPS portal typically included; UART/debug console recommended for bring-up."
+  }
+]

@@ -188,27 +188,6 @@ STATUS_COLORS = {
     "not applicable": {"bg": "#e5e7eb", "fg": "#374151"},
 }
 
-# Fields that represent a yes/no-ish status -> rendered as a small header
-# pill. STATUS_LABELS gives a short prefix for blocks with more than one
-# status field (diagnostics has two: Web UI and UART); single-status blocks
-# show the pill alone since the block title already gives it context.
-STATUS_KEYS = {"required", "applicable", "localWebUI", "uart"}
-STATUS_LABELS = {"localWebUI": "Web UI", "uart": "UART"}
-
-LIST_LABELS = {
-    "interfaces": "Interfaces",
-    "protocols": "Protocols",
-    "requiredStandards": "Standards",
-    "optionalStandards": "Also supports",
-    "requiredSecurity": "Security",
-}
-SCALAR_LABELS = {
-    "minPorts": "Min ports",
-    "role": "Role",
-    "transport": "Transport",
-    "partitionLayout": "Partition layout",
-}
-
 
 def mini_pill(text: str) -> str:
     c = STATUS_COLORS.get(text.lower(), {"bg": "#e5e7eb", "fg": "#374151"})
@@ -218,10 +197,8 @@ def mini_pill(text: str) -> str:
     )
 
 
-def status_text(key: str, value) -> str:
+def status_text(value) -> str:
     if isinstance(value, bool):
-        if key == "applicable":
-            return "Applicable" if value else "Not applicable"
         return "Required" if value else "Not required"
     text = str(value).strip()
     if not text or text.lower() == "n/a":
@@ -229,31 +206,31 @@ def status_text(key: str, value) -> str:
     return text.replace("-", " ").capitalize()
 
 
-def render_peripheral_block(title: str, fields: dict) -> str:
+def render_peripheral_block(block: dict) -> str:
+    """Render one self-describing peripherals-array block (see
+    peripherals.schema.json). Fully data-driven: a new block, or a new
+    detail field within an existing block, needs only a JSON change --
+    this function never special-cases a field name."""
     pills = []
-    for key in fields:
-        if key not in STATUS_KEYS:
-            continue
-        pill = mini_pill(status_text(key, fields[key]))
-        label = STATUS_LABELS.get(key)
-        pills.append(f'<span style="font-size:0.74rem;color:var(--muted);">{esc(label)}:</span> {pill}' if label else pill)
+    for pill in block.get("statusPills", []):
+        pill_html = mini_pill(status_text(pill.get("value")))
+        label = pill.get("label")
+        pills.append(f'<span style="font-size:0.74rem;color:var(--muted);">{esc(label)}:</span> {pill_html}' if label else pill_html)
 
     meta_lines = []
-    for key, label in LIST_LABELS.items():
-        val = fields.get(key)
-        if not val:
+    for item in block.get("detail", []):
+        label = item.get("label", "")
+        val = item.get("value")
+        if val in (None, "", [], "n/a"):
             continue
         text = ", ".join(str(v) for v in val) if isinstance(val, list) else str(val)
         if text and text.lower() != "n/a":
             meta_lines.append(f'<div><strong>{esc(label)}:</strong> {esc(text)}</div>')
-    for key, label in SCALAR_LABELS.items():
-        val = fields.get(key)
-        if val not in (None, "", "none"):
-            meta_lines.append(f'<div><strong>{esc(label)}:</strong> {esc(val)}</div>')
 
-    notes = fields.get("notes")
+    notes = block.get("notes")
     notes_html = f'<p class="hwc-notes">{esc(notes)}</p>' if notes and notes != "n/a" else ""
     meta_html = f'<div class="hwc-block-meta">{"".join(meta_lines)}</div>' if meta_lines else ""
+    title = block.get("title", "")
 
     return (
         '<div class="hwc-block">'
@@ -444,20 +421,11 @@ def render_regional_section(p: dict, profiles_dir: Path) -> str:
 
 
 def render_profile_card(p: dict, profiles_dir: Path) -> str:
-    cpu, mem, sto, ref, per = p["cpu"], p["memory"], p["requiredStorage"], p["referenceDevice"], p["peripherals"]
-    conn = per.get("connectivity", {})
+    cpu, mem, sto, ref = p["cpu"], p["memory"], p["requiredStorage"], p["referenceDevice"]
 
-    blocks = [
-        render_peripheral_block("WAN", conn.get("wan", {})),
-        render_peripheral_block("Cellular", conn.get("cellular", {})),
-        render_peripheral_block("LAN", conn.get("lan", {})),
-        render_peripheral_block("Wi-Fi", conn.get("wifi", {})),
-        render_peripheral_block("EasyMesh", conn.get("easyMesh", {})),
-        render_peripheral_block("Bluetooth / IoT", conn.get("bluetoothIot", {})),
-        render_peripheral_block("Storage Interface", per.get("storageInterface", {})),
-        render_peripheral_block("Media Tuner", per.get("mediaTuner", {})),
-        render_peripheral_block("Diagnostics", per.get("diagnostics", {})),
-    ]
+    peripheral_blocks = _load_ref_json(p, "peripheralsRef", profiles_dir) or []
+    peripheral_blocks = sorted(peripheral_blocks, key=lambda b: b.get("order", 999))
+    blocks = [render_peripheral_block(b) for b in peripheral_blocks]
 
     last_validated = ""
     if p.get("lastValidated") and p["lastValidated"] != "n/a":
