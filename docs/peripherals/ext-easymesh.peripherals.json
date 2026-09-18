@@ -78,25 +78,74 @@
     "notes": "Same multiprotocol radio as the gateway, for connecting smart-home devices if IoT support is enabled on the extender."
   },
   {
+    "id": "voice",
+    "title": "Voice",
+    "group": "peripherals",
+    "order": 6,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "Not applicable \u2014 an extender has no internet connection of its own, so it can't host SIP calling."
+  },
+  {
+    "id": "packetProcessor",
+    "title": "Packet Processor",
+    "group": "peripherals",
+    "order": 7,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "Not applicable \u2014 an extender doesn't route or NAT traffic, so there's nothing for this to accelerate."
+  },
+  {
+    "id": "aiNpu",
+    "title": "AI / NPU",
+    "group": "peripherals",
+    "order": 8,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "Not present on this hardware today. A future board revision could add one as a plug-in module, for on-device AI features."
+  },
+  {
+    "id": "usb",
+    "title": "USB",
+    "group": "peripherals",
+    "order": 9,
+    "statusPills": [],
+    "detail": [
+      {
+        "label": "Used for",
+        "value": "IoT test devices"
+      }
+    ],
+    "crossRef": [],
+    "notes": "A general-purpose USB port, available for connecting IoT devices during testing."
+  },
+  {
     "id": "storageInterface",
     "title": "Storage",
     "group": "peripherals",
-    "order": 6,
+    "order": 10,
     "statusPills": [],
     "detail": [
       {
         "label": "Flash",
         "value": "eMMC or SPI-NAND"
+      },
+      {
+        "label": "SD card slot",
+        "value": "Present"
       }
     ],
     "crossRef": [],
-    "notes": "Onboard flash storage for the firmware, with A/B partitions so updates can be applied safely."
+    "notes": "Onboard flash storage for the firmware, with A/B partitions so updates can be applied safely. An SD card slot is also available."
   },
   {
     "id": "mediaTuner",
     "title": "Media Tuner",
     "group": "peripherals",
-    "order": 7,
+    "order": 11,
     "statusPills": [],
     "detail": [],
     "crossRef": [],
@@ -106,7 +155,7 @@
     "id": "diagnostics",
     "title": "Diagnostics",
     "group": "peripherals",
-    "order": 8,
+    "order": 12,
     "statusPills": [],
     "detail": [
       {

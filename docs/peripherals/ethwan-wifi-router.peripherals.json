@@ -82,25 +82,84 @@
     "notes": "A multiprotocol radio for connecting smart-home devices over Bluetooth, Zigbee, or Thread. Bluetooth is also used to set up new Matter devices."
   },
   {
-    "id": "storageInterface",
-    "title": "Storage",
+    "id": "voice",
+    "title": "Voice",
     "group": "peripherals",
     "order": 6,
     "statusPills": [],
     "detail": [
       {
-        "label": "Flash",
-        "value": "eMMC or SPI-NAND"
+        "label": "Type",
+        "value": "SIP (VoIP), via Asterisk"
       }
     ],
     "crossRef": [],
-    "notes": "Onboard flash storage for the firmware, with A/B partitions so updates can be applied safely."
+    "notes": "Phone calling over the internet (SIP), not a physical phone line \u2014 this hardware has no analog phone jack (FXS/FXO). A phone connects to it as a SIP client, the same way a softphone app would."
+  },
+  {
+    "id": "packetProcessor",
+    "title": "Packet Processor",
+    "group": "peripherals",
+    "order": 7,
+    "statusPills": [],
+    "detail": [
+      {
+        "label": "Hardware",
+        "value": "Built into the SoC (MediaTek MT7988A)"
+      }
+    ],
+    "crossRef": [],
+    "notes": "Speeds up routing and NAT by handling it in hardware instead of software, so the CPU isn't doing that work for every packet."
+  },
+  {
+    "id": "aiNpu",
+    "title": "AI / NPU",
+    "group": "peripherals",
+    "order": 8,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "Not present on this hardware today. A future board revision could add one as a plug-in module, for on-device AI features."
+  },
+  {
+    "id": "usb",
+    "title": "USB",
+    "group": "peripherals",
+    "order": 9,
+    "statusPills": [],
+    "detail": [
+      {
+        "label": "Used for",
+        "value": "Cellular backup modem, Android phone tethering, IoT test devices"
+      }
+    ],
+    "crossRef": [],
+    "notes": "A general-purpose USB port, currently used for the cellular backup connection and for connecting IoT devices during testing."
+  },
+  {
+    "id": "storageInterface",
+    "title": "Storage",
+    "group": "peripherals",
+    "order": 10,
+    "statusPills": [],
+    "detail": [
+      {
+        "label": "Flash",
+        "value": "eMMC or SPI-NAND"
+      },
+      {
+        "label": "SD card slot",
+        "value": "Present"
+      }
+    ],
+    "crossRef": [],
+    "notes": "Onboard flash storage for the firmware, with A/B partitions so updates can be applied safely. An SD card slot is also available and has been tested."
   },
   {
     "id": "mediaTuner",
     "title": "Media Tuner",
     "group": "peripherals",
-    "order": 7,
+    "order": 11,
     "statusPills": [],
     "detail": [],
     "crossRef": [],
@@ -110,7 +169,7 @@
     "id": "diagnostics",
     "title": "Diagnostics",
     "group": "peripherals",
-    "order": 8,
+    "order": 12,
     "statusPills": [],
     "detail": [
       {
