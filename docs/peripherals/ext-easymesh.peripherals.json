@@ -4,297 +4,117 @@
     "title": "WAN",
     "group": "peripherals",
     "order": 1,
-    "statusPills": [
-      {
-        "key": "required",
-        "label": null,
-        "value": "not-required"
-      }
-    ],
-    "detail": [
-      {
-        "label": "Min ports",
-        "value": 0
-      },
-      {
-        "label": "Reason",
-        "value": "No WAN interface in this profile"
-      }
-    ],
-    "crossRef": [
-      "PER-001"
-    ],
-    "notes": "Not applicable - no WAN interface in this profile."
-  },
-  {
-    "id": "cellular",
-    "title": "Cellular",
-    "group": "peripherals",
-    "order": 2,
-    "statusPills": [
-      {
-        "key": "applicable",
-        "label": null,
-        "value": "not-applicable"
-      }
-    ],
-    "detail": [
-      {
-        "label": "Source",
-        "value": "RDK-B Component List 2026 \u2014 WAN Interface Features > Access Technology > Cellular"
-      },
-      {
-        "label": "Optional for",
-        "value": [
-          "GW",
-          "GW OpenSync",
-          "GW EasyMesh"
-        ]
-      },
-      {
-        "label": "Reason",
-        "value": "EXT EasyMesh has no WAN stack at all (extender role, Wi-Fi/Ethernet backhaul only)"
-      }
-    ],
-    "crossRef": [
-      "PER-009"
-    ],
-    "notes": "Marked n/a for this profile in the RDK-B Component List 2026 (WAN Interface Features > Access Technology - Cellular). Cellular access technology is Optional only for GW / GW OpenSync / GW EasyMesh profiles; EXT EasyMesh has no WAN stack at all (extender role, Wi-Fi/Ethernet backhaul only)."
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "None \u2014 an extender has no internet connection of its own. It reaches the internet through the gateway, over its mesh backhaul link."
   },
   {
     "id": "lan",
     "title": "LAN",
     "group": "peripherals",
-    "order": 3,
-    "statusPills": [
-      {
-        "key": "required",
-        "label": null,
-        "value": "optional"
-      }
-    ],
+    "order": 2,
+    "statusPills": [],
     "detail": [
       {
-        "label": "Interfaces",
-        "value": [
-          "Ethernet"
-        ]
-      },
-      {
-        "label": "Backhaul options",
-        "value": [
-          "Wi-Fi backhaul",
-          "Ethernet backhaul"
-        ]
-      },
-      {
-        "label": "Recommended",
-        "value": "At least one Ethernet port, for wired backhaul option"
+        "label": "Ports",
+        "value": "Ethernet (recommended)"
       }
     ],
-    "crossRef": [
-      "PER-002"
-    ],
-    "notes": "Wi-Fi and Ethernet backhaul both supported; at least one Ethernet port recommended for wired backhaul option."
+    "crossRef": [],
+    "notes": "An Ethernet port lets the extender use a wired backhaul link to the gateway instead of Wi-Fi, when one is available."
   },
   {
     "id": "wifi",
     "title": "Wi-Fi",
     "group": "peripherals",
-    "order": 4,
-    "statusPills": [
-      {
-        "key": "required",
-        "label": null,
-        "value": "required"
-      }
-    ],
+    "order": 3,
+    "statusPills": [],
     "detail": [
       {
-        "label": "Standards",
-        "value": [
-          "802.11n",
-          "802.11ac (Wi-Fi 5)"
-        ]
-      },
-      {
-        "label": "Also supports",
-        "value": [
-          "802.11ax (Wi-Fi 6/6E)",
-          "802.11be (Wi-Fi 7)"
-        ]
+        "label": "Radio",
+        "value": "Wi-Fi 7 card (802.11n through 802.11be)"
       },
       {
         "label": "Security",
-        "value": [
-          "WPA2"
-        ]
-      },
-      {
-        "label": "Mandatory for",
-        "value": "Wi-Fi AP fronthaul (extender role)"
+        "value": "WPA2, WPA3"
       }
     ],
-    "crossRef": [
-      "PER-003",
-      "WIFI-001",
-      "WIFI-002",
-      "WIFI-016"
-    ],
-    "notes": "Wi-Fi AP fronthaul mandatory for extender role."
+    "crossRef": [],
+    "notes": "Wi-Fi access point for wireless devices, covering 2.4, 5, and 6 GHz bands. Also used for the wireless mesh backhaul link back to the gateway."
   },
   {
     "id": "easyMesh",
     "title": "EasyMesh",
     "group": "peripherals",
-    "order": 5,
-    "statusPills": [
-      {
-        "key": "required",
-        "label": null,
-        "value": "required"
-      }
-    ],
+    "order": 4,
+    "statusPills": [],
     "detail": [
       {
         "label": "Role",
-        "value": "agent-only"
-      },
-      {
-        "label": "Transport",
-        "value": "IEEE 1905"
-      },
-      {
-        "label": "Mesh generation",
-        "value": "EasyMesh R6"
+        "value": "Agent"
       }
     ],
-    "crossRef": [
-      "PER-004",
-      "WIFI-014"
-    ],
-    "notes": "EasyMesh R6 Agent-Only role and IEEE 1905 transport are both mandatory for this profile."
+    "crossRef": [],
+    "notes": "This is what makes the device an extender \u2014 it joins a gateway's mesh as an agent, extending its Wi-Fi coverage."
   },
   {
     "id": "bluetoothIot",
     "title": "Bluetooth / IoT",
     "group": "peripherals",
-    "order": 6,
-    "statusPills": [
-      {
-        "key": "required",
-        "label": null,
-        "value": "optional"
-      }
-    ],
-    "detail": [
-      {
-        "label": "Protocols",
-        "value": [
-          "Matter",
-          "Zigbee",
-          "Thread"
-        ]
-      },
-      {
-        "label": "Applies if enabled on the extender, same as",
-        "value": "EthWAN WiFi Router"
-      }
-    ],
-    "crossRef": [
-      "PER-005"
-    ],
-    "notes": "Same IoT feature set as EthWAN WiFi Router applies if enabled on the extender."
-  },
-  {
-    "id": "storageInterface",
-    "title": "Storage Interface",
-    "group": "peripherals",
-    "order": 7,
+    "order": 5,
     "statusPills": [],
     "detail": [
       {
-        "label": "Types",
-        "value": [
-          "eMMC",
-          "SPI-NAND"
-        ]
+        "label": "Radio",
+        "value": "Silabs EFR32xg24 (Bluetooth, Zigbee, Thread)"
       },
       {
-        "label": "Filesystem",
-        "value": "UBI/UBIFS"
-      },
-      {
-        "label": "Partition layout",
-        "value": "A/B"
-      },
-      {
-        "label": "Recommended for",
-        "value": "OTA"
+        "label": "Tested with",
+        "value": "TP-Link Tapo smart plug (Matter over Wi-Fi), onvis smart plug (Matter over Thread)"
       }
     ],
-    "crossRef": [
-      "PER-006",
-      "STG-001",
-      "STG-002"
+    "crossRef": [],
+    "notes": "Same multiprotocol radio as the gateway, for connecting smart-home devices if IoT support is enabled on the extender."
+  },
+  {
+    "id": "storageInterface",
+    "title": "Storage",
+    "group": "peripherals",
+    "order": 6,
+    "statusPills": [],
+    "detail": [
+      {
+        "label": "Flash",
+        "value": "eMMC or SPI-NAND"
+      }
     ],
-    "notes": "A/B partition layout recommended for OTA."
+    "crossRef": [],
+    "notes": "Onboard flash storage for the firmware, with A/B partitions so updates can be applied safely."
   },
   {
     "id": "mediaTuner",
     "title": "Media Tuner",
     "group": "peripherals",
-    "order": 8,
-    "statusPills": [
-      {
-        "key": "applicable",
-        "label": null,
-        "value": "not-applicable"
-      }
-    ],
-    "detail": [
-      {
-        "label": "Reason",
-        "value": "No WAN, voice, or tuner hardware in scope for the extender role"
-      }
-    ],
-    "crossRef": [
-      "PER-007"
-    ],
-    "notes": "Not applicable - no WAN, voice, or tuner hardware in scope for the extender role."
+    "order": 7,
+    "statusPills": [],
+    "detail": [],
+    "crossRef": [],
+    "notes": "No tuner hardware \u2014 an extender has no WAN or voice functions."
   },
   {
     "id": "diagnostics",
     "title": "Diagnostics",
     "group": "peripherals",
-    "order": 9,
-    "statusPills": [
-      {
-        "key": "localWebUI",
-        "label": "Web UI",
-        "value": "optional"
-      },
-      {
-        "key": "uart",
-        "label": "UART",
-        "value": "recommended"
-      }
-    ],
+    "order": 8,
+    "statusPills": [],
     "detail": [
       {
-        "label": "Web UI",
-        "value": "Typically not needed on an EasyMesh extender per component notes"
-      },
-      {
-        "label": "UART use",
-        "value": "Debug console, recommended for bring-up"
+        "label": "Access",
+        "value": "Serial (UART) console"
       }
     ],
-    "crossRef": [
-      "PER-008",
-      "PCH-003",
-      "PCH-008"
-    ],
-    "notes": "Typically not needed on an EasyMesh extender per component notes; UART/debug console recommended for bring-up."
+    "crossRef": [],
+    "notes": "A serial port for debugging during development. A local web page usually isn't needed on an extender."
   }
 ]
