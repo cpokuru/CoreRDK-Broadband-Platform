@@ -5,18 +5,24 @@
     "group": "peripherals",
     "order": 1,
     "statusPills": [],
+    "requirement": "Primary internet uplink via Ethernet, minimum 1 Gbps. Cellular backup is optional for this profile; mandatory only for a Cellular Backup variant (not yet defined).",
     "detail": [
       {
         "label": "Primary",
-        "value": "Ethernet port, 1 Gbps minimum"
+        "value": "Ethernet, 1 Gbps minimum"
       },
       {
-        "label": "Backup",
-        "value": "M.2 cellular modem (Quectel EM05-G, WWAN0), or USB phone tethering (Android RNDIS)"
+        "label": "Cellular backup (optional)",
+        "value": "M.2 (B-key) modem, USB bus interface, MBIM/QMI protocol, physical SIM"
+      },
+      {
+        "label": "Linux interface",
+        "value": "wwan0"
       }
     ],
+    "referenceImplementation": "BPI-R4: Quectel EM05-G, validated in North America and APAC regions via wwan0 and USB RNDIS tethering",
     "crossRef": [],
-    "notes": "Ethernet is the primary internet connection. If it goes down, the router can fail over to cellular through a built-in M.2 LTE modem, or by tethering an Android phone over USB."
+    "notes": "Ethernet is the primary internet connection. Cellular failover and USB phone tethering are optional capabilities, not required for the base profile."
   },
   {
     "id": "lan",
@@ -24,12 +30,9 @@
     "group": "peripherals",
     "order": 2,
     "statusPills": [],
-    "detail": [
-      {
-        "label": "Ports",
-        "value": "Ethernet"
-      }
-    ],
+    "requirement": "Ethernet ports for wired LAN devices.",
+    "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "Ethernet ports for wired devices on the home network."
   },
@@ -39,22 +42,35 @@
     "group": "peripherals",
     "order": 3,
     "statusPills": [],
+    "requirement": "IEEE 802.11n/ac/ax/be support, subject to required bands and profile configuration.",
     "detail": [
       {
-        "label": "Radio",
-        "value": "Wi-Fi 7 card (802.11n through 802.11be)"
+        "label": "Bands",
+        "value": [
+          "2.4 GHz",
+          "5 GHz",
+          "6 GHz (optional)"
+        ]
       },
       {
         "label": "Security",
-        "value": "WPA2, WPA3"
+        "value": [
+          "WPA2",
+          "WPA3"
+        ]
+      },
+      {
+        "label": "MLO",
+        "value": "Required where 6 GHz/802.11be is present"
       },
       {
         "label": "Mesh",
-        "value": "Can act as an EasyMesh controller, extending coverage with extenders"
+        "value": "EasyMesh Controller functionality is required for the GW EasyMesh profile, and not required for this profile unless EasyMesh is enabled"
       }
     ],
+    "referenceImplementation": "BPI-R4: Wi-Fi 7 card (BE14) with antennas",
     "crossRef": [],
-    "notes": "Wi-Fi access point for wireless devices, covering 2.4, 5, and 6 GHz bands."
+    "notes": "Wi-Fi access point for wireless devices. Supporting 802.11be does not by itself mean every band and legacy mode has been separately validated."
   },
   {
     "id": "bluetoothIot",
@@ -62,18 +78,20 @@
     "group": "peripherals",
     "order": 4,
     "statusPills": [],
+    "requirement": "Radio supporting Bluetooth LE and IEEE 802.15.4 (Thread/Zigbee), for smart-home device connections and Matter commissioning.",
     "detail": [
       {
-        "label": "Radio",
-        "value": "Silabs EFR32xg24 (Bluetooth, Zigbee, Thread)"
-      },
-      {
-        "label": "Tested with",
-        "value": "TP-Link Tapo smart plug (Matter over Wi-Fi), onvis smart plug (Matter over Thread)"
+        "label": "Protocols",
+        "value": [
+          "Bluetooth LE",
+          "Thread",
+          "Zigbee"
+        ]
       }
     ],
+    "referenceImplementation": "BPI-R4: Silicon Labs EFR32xG24",
     "crossRef": [],
-    "notes": "A multiprotocol radio for connecting smart-home devices over Bluetooth, Zigbee, or Thread. Bluetooth is also used to set up new Matter devices."
+    "notes": "Simultaneous Bluetooth, Thread, and Zigbee operation has not been specifically validated as a coexistence scenario -- each protocol has been exercised individually (Matter over Wi-Fi validates the Wi-Fi interface, not this radio; Matter over Thread validates the Thread Border Router and 802.15.4; BLE commissioning and Zigbee pairing validate the radio directly)."
   },
   {
     "id": "packetProcessor",
@@ -81,14 +99,11 @@
     "group": "peripherals",
     "order": 5,
     "statusPills": [],
-    "detail": [
-      {
-        "label": "Hardware",
-        "value": "Built into the SoC (MediaTek MT7988A)"
-      }
-    ],
+    "requirement": "Hardware-accelerated forwarding (routing/NAT) is required to meet the profile's throughput requirements without relying on the CPU for per-packet processing.",
+    "detail": [],
+    "referenceImplementation": "BPI-R4: built into the SoC (MediaTek MT7988A)",
     "crossRef": [],
-    "notes": "Speeds up routing and NAT by handling it in hardware instead of software, so the CPU isn't doing that work for every packet."
+    "notes": "Speeds up routing and NAT by handling it in hardware instead of software."
   },
   {
     "id": "aiNpu",
@@ -96,9 +111,11 @@
     "group": "peripherals",
     "order": 6,
     "statusPills": [],
+    "requirement": "Not required for this profile.",
     "detail": [],
+    "referenceImplementation": "Not present on BPI-R4",
     "crossRef": [],
-    "notes": "Not present on this hardware today. A future board revision could add one as a plug-in module, for on-device AI features."
+    "notes": "A future board revision could add one as a plug-in module, for on-device AI features."
   },
   {
     "id": "usb",
@@ -106,14 +123,11 @@
     "group": "peripherals",
     "order": 7,
     "statusPills": [],
-    "detail": [
-      {
-        "label": "Used for",
-        "value": "Cellular backup modem, Android phone tethering, IoT test devices"
-      }
-    ],
+    "requirement": "General-purpose USB port, optional.",
+    "detail": [],
+    "referenceImplementation": "BPI-R4: used for the cellular backup modem's USB bus interface, Android phone tethering, and IoT test devices",
     "crossRef": [],
-    "notes": "A general-purpose USB port, currently used for the cellular backup connection and for connecting IoT devices during testing."
+    "notes": "A general-purpose USB port."
   },
   {
     "id": "simCardSlot",
@@ -121,9 +135,11 @@
     "group": "peripherals",
     "order": 8,
     "statusPills": [],
+    "requirement": "Required only if cellular backup is implemented.",
     "detail": [],
+    "referenceImplementation": "BPI-R4: physical SIM slot for the Quectel EM05-G",
     "crossRef": [],
-    "notes": "Holds the SIM for the cellular backup modem."
+    "notes": "Holds the SIM for the cellular backup modem, where present."
   },
   {
     "id": "storageInterface",
@@ -131,14 +147,31 @@
     "group": "peripherals",
     "order": 9,
     "statusPills": [],
+    "requirement": "Non-volatile storage for firmware and configuration, sized to the profile's flash minimum, with A/B update support and a recovery path.",
     "detail": [
       {
-        "label": "Flash",
-        "value": "eMMC or SPI-NAND"
+        "label": "Supported media",
+        "value": [
+          "eMMC",
+          "SPI-NAND"
+        ]
+      },
+      {
+        "label": "A/B update support",
+        "value": "Required"
+      },
+      {
+        "label": "Recovery partition",
+        "value": "Required"
+      },
+      {
+        "label": "Bootloader rollback support",
+        "value": "Required"
       }
     ],
+    "referenceImplementation": "BPI-R4: eMMC / SPI-NAND, see Section 3.7 for measured partition sizes",
     "crossRef": [],
-    "notes": "Onboard flash storage for the firmware, with A/B partitions so updates can be applied safely."
+    "notes": "Media type and A/B update capability are separate requirements -- a device could use different flash media and still meet the A/B/recovery requirement independently."
   },
   {
     "id": "sdCardSlot",
@@ -146,9 +179,11 @@
     "group": "peripherals",
     "order": 10,
     "statusPills": [],
+    "requirement": "Not a production requirement.",
     "detail": [],
+    "referenceImplementation": "BPI-R4: SD card slot, used for development, recovery, and validation on the reference platform",
     "crossRef": [],
-    "notes": "A removable SD card slot, tested and working on this hardware."
+    "notes": "Optional; a reference-board capability, not something every compatible device needs."
   },
   {
     "id": "mediaTuner",
@@ -156,9 +191,11 @@
     "group": "peripherals",
     "order": 11,
     "statusPills": [],
+    "requirement": "Integrated DOCSIS, DSL, PON, or media-tuner hardware is not required for this profile.",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
-    "notes": "No tuner hardware on this profile \u2014 it connects over Ethernet, not cable, DSL, or fiber."
+    "notes": "Fiber can still reach this profile through an external ONT and Ethernet WAN -- this profile just doesn't require integrated PON/tuner hardware itself."
   },
   {
     "id": "debugPort",
@@ -166,14 +203,20 @@
     "group": "peripherals",
     "order": 12,
     "statusPills": [],
+    "requirement": "UART is required during bring-up; production exposure is vendor/security-policy dependent. JTAG is optional for development and must be disabled or access-controlled in production where security requirements apply.",
     "detail": [
       {
-        "label": "Interface",
-        "value": "Serial (UART), JTAG"
+        "label": "UART",
+        "value": "Required during bring-up"
+      },
+      {
+        "label": "JTAG",
+        "value": "Optional for development; access-controlled in production"
       }
     ],
+    "referenceImplementation": "BPI-R4: serial console, JTAG header",
     "crossRef": [],
-    "notes": "A serial console and JTAG access for low-level debugging during development."
+    "notes": "Debug access for development; production posture depends on the vendor's security policy."
   },
   {
     "id": "wpsButton",
@@ -181,9 +224,11 @@
     "group": "peripherals",
     "order": 13,
     "statusPills": [],
+    "requirement": "Optional unless required by the product profile. If implemented, the button event must be accessible to platform software and comply with the applicable Wi-Fi security policy.",
     "detail": [],
+    "referenceImplementation": "BPI-R4: physical WPS button",
     "crossRef": [],
-    "notes": "A physical button for quick Wi-Fi setup, so a new device can join without typing a password."
+    "notes": "A physical button for quick Wi-Fi setup, where implemented."
   },
   {
     "id": "resetButton",
@@ -191,9 +236,24 @@
     "group": "peripherals",
     "order": 14,
     "statusPills": [],
-    "detail": [],
+    "requirement": "If implemented, short-press and long-press behavior, factory-reset trigger, whether credentials/persistent settings are erased, and recovery behavior if pressed during boot must all be defined and testable.",
+    "detail": [
+      {
+        "label": "Short press",
+        "value": "TBD -- vendor-defined"
+      },
+      {
+        "label": "Long press (factory reset)",
+        "value": "TBD -- duration and erasure scope vendor-defined"
+      },
+      {
+        "label": "Pressed during boot",
+        "value": "TBD -- recovery behavior vendor-defined"
+      }
+    ],
+    "referenceImplementation": "BPI-R4: physical reset button",
     "crossRef": [],
-    "notes": "A physical button to restore the router to its factory default settings."
+    "notes": "Exact press-duration thresholds and erasure scope are not yet specified for this profile."
   },
   {
     "id": "powerButton",
@@ -201,18 +261,22 @@
     "group": "peripherals",
     "order": 15,
     "statusPills": [],
+    "requirement": "Optional; reference-platform dependent. Many gateways use an external power adapter with no software-visible power switch.",
     "detail": [],
+    "referenceImplementation": "BPI-R4: physical power switch",
     "crossRef": [],
-    "notes": "A physical power switch for the device."
+    "notes": "Not universally required."
   },
   {
     "id": "fan",
-    "title": "Fan",
+    "title": "Thermal / Cooling",
     "group": "peripherals",
     "order": 16,
     "statusPills": [],
+    "requirement": "The platform shall remain within its specified operating temperature and performance limits under sustained maximum workload. Cooling may be passive or active.",
     "detail": [],
+    "referenceImplementation": "BPI-R4: active fan",
     "crossRef": [],
-    "notes": "Active cooling for the board."
+    "notes": "This is a thermal performance requirement, not a mandate for a specific cooling method."
   }
 ]

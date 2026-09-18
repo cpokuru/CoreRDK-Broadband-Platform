@@ -8,9 +8,7 @@
     "required": [
       "id",
       "title",
-      "group",
-      "order",
-      "statusPills",
+      "requirement",
       "detail",
       "notes"
     ],
@@ -22,6 +20,10 @@
       "title": {
         "type": "string",
         "description": "Display heading for this block, e.g. \"WAN\"."
+      },
+      "requirement": {
+        "type": "string",
+        "description": "The generic, chip-agnostic requirement -- what any compatible device must provide, not tied to a specific component. Empty string if this block is not applicable to the profile."
       },
       "group": {
         "type": "string",
@@ -101,6 +103,10 @@
             }
           }
         }
+      },
+      "referenceImplementation": {
+        "type": "string",
+        "description": "Optional. The specific component used on the reference device (e.g. \"BPI-R4: Silicon Labs EFR32xG24\") that satisfies the requirement above. An example of one implementation, not a mandate -- other compatible hardware may satisfy the same requirement with a different component."
       },
       "crossRef": {
         "type": "array",

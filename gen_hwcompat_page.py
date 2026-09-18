@@ -123,7 +123,7 @@ def render_minimums_table(in_scope: list[dict], profiles_dir: Path) -> str:
     partial_notes = []
     for p in in_scope:
         cpu, mem, sto, ref = p["cpu"], p["memory"], p["requiredStorage"], p["referenceDevice"]
-        cpu_txt = f'{esc(cpu["family"])}, \u2265 {esc(cpu["minClockGHz"])} GHz'
+        cpu_txt = f'{esc(cpu["architecture"])}, \u2265 {esc(cpu["minClockGHz"])} GHz'
         cores_txt = str(cpu["minCores"]) + (f' ({esc(cpu["coreTopology"])})' if cpu.get("coreTopology") else "")
         ref_txt = esc(ref["name"]) + (f', {esc(ref["soc"])}' if ref.get("soc") else "")
 
@@ -210,12 +210,20 @@ def render_peripheral_block(block: dict) -> str:
     """Render one self-describing peripherals-array block (see
     peripherals.schema.json). Fully data-driven: a new block, or a new
     detail field within an existing block, needs only a JSON change --
-    this function never special-cases a field name."""
+    this function never special-cases a field name.
+
+    requirement and referenceImplementation are kept visually distinct:
+    requirement is the generic, chip-agnostic capability every compatible
+    device must provide; referenceImplementation is one example (the
+    reference device's actual component), never presented as a mandate."""
     pills = []
     for pill in block.get("statusPills", []):
         pill_html = mini_pill(status_text(pill.get("value")))
         label = pill.get("label")
         pills.append(f'<span style="font-size:0.74rem;color:var(--muted);">{esc(label)}:</span> {pill_html}' if label else pill_html)
+
+    requirement = block.get("requirement")
+    requirement_html = f'<p class="hwc-requirement">{esc(requirement)}</p>' if requirement and requirement != "n/a" else ""
 
     meta_lines = []
     for item in block.get("detail", []):
@@ -227,15 +235,21 @@ def render_peripheral_block(block: dict) -> str:
         if text and text.lower() != "n/a":
             meta_lines.append(f'<div><strong>{esc(label)}:</strong> {esc(text)}</div>')
 
+    ref_impl = block.get("referenceImplementation")
+    ref_impl_html = (
+        f'<div class="hwc-ref-impl"><span style="font-size:0.74rem;color:var(--muted);">Reference implementation:</span> {esc(ref_impl)}</div>'
+        if ref_impl else ""
+    )
+
     notes = block.get("notes")
     notes_html = f'<p class="hwc-notes">{esc(notes)}</p>' if notes and notes != "n/a" else ""
-    meta_html = f'<div class="hwc-block-meta">{"".join(meta_lines)}</div>' if meta_lines else ""
+    meta_html = f'<div class="hwc-block-meta">{"".join(meta_lines)}{ref_impl_html}</div>' if (meta_lines or ref_impl_html) else ""
     title = block.get("title", "")
 
     return (
         '<div class="hwc-block">'
         f'<div class="hwc-block-head"><span class="hwc-block-title">{esc(title)}</span>{"".join(pills)}</div>'
-        f'{meta_html}{notes_html}'
+        f'{requirement_html}{meta_html}{notes_html}'
         '</div>'
     )
 
@@ -443,7 +457,7 @@ def render_profile_card(p: dict, profiles_dir: Path) -> str:
         f'<span style="font-size:0.78rem; color:var(--muted);">{last_validated}</span>'
         '</div>'
         '<div class="hwcompat-summary">'
-        f'<span><strong>CPU:</strong> {esc(cpu["family"])} ({esc(cpu["architecture"])}), \u2265 {esc(cpu["minClockGHz"])} GHz, {esc(cpu["minCores"])} cores</span>'
+        f'<span><strong>CPU:</strong> {esc(cpu["architecture"])}, \u2265 {esc(cpu["minClockGHz"])} GHz, {esc(cpu["minCores"])} cores (reference: {esc(cpu["family"])})</span>'
         f'<span><strong>RAM:</strong> {esc(mem["minRamMB"])} MB</span>'
         f'<span><strong>Flash:</strong> {esc(sto["minFlashMB"])} MB</span>'
         f'<span><strong>Reference device:</strong> {ref_line}</span>'

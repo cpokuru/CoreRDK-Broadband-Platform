@@ -5,7 +5,9 @@
     "group": "peripherals",
     "order": 1,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -15,7 +17,9 @@
     "group": "peripherals",
     "order": 2,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -25,7 +29,9 @@
     "group": "peripherals",
     "order": 3,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -35,7 +41,9 @@
     "group": "peripherals",
     "order": 4,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -45,7 +53,9 @@
     "group": "peripherals",
     "order": 5,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -55,7 +65,9 @@
     "group": "peripherals",
     "order": 6,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -65,7 +77,9 @@
     "group": "peripherals",
     "order": 7,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -75,7 +89,9 @@
     "group": "peripherals",
     "order": 8,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -85,7 +101,9 @@
     "group": "peripherals",
     "order": 9,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -95,7 +113,9 @@
     "group": "peripherals",
     "order": 10,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -105,7 +125,9 @@
     "group": "peripherals",
     "order": 11,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -115,7 +137,9 @@
     "group": "peripherals",
     "order": 12,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -125,7 +149,9 @@
     "group": "peripherals",
     "order": 13,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -135,7 +161,9 @@
     "group": "peripherals",
     "order": 14,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
@@ -145,17 +173,21 @@
     "group": "peripherals",
     "order": 15,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   },
   {
     "id": "fan",
-    "title": "Fan",
+    "title": "Thermal / Cooling",
     "group": "peripherals",
     "order": 16,
     "statusPills": [],
+    "requirement": "n/a",
     "detail": [],
+    "referenceImplementation": "",
     "crossRef": [],
     "notes": "n/a"
   }
