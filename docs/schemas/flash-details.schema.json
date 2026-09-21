@@ -178,6 +178,45 @@
           "type": "string"
         }
       }
+    },
+    "genericReferenceDesign": {
+      "type": "object",
+      "description": "The original RDKM 53-entry reference design -- range-based allocation allowances across the fuller device portfolio, not device-specific measured values. Kept visually and structurally separate from the real measured layout above.",
+      "required": [
+        "note",
+        "entries"
+      ],
+      "properties": {
+        "note": {
+          "type": "string"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "num",
+              "partitionName",
+              "purpose",
+              "referenceAllocation"
+            ],
+            "properties": {
+              "num": {
+                "type": "string"
+              },
+              "partitionName": {
+                "type": "string"
+              },
+              "purpose": {
+                "type": "string"
+              },
+              "referenceAllocation": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

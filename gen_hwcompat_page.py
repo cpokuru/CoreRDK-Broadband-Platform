@@ -201,6 +201,26 @@ def render_flash_details_section(profiles_dir: Path) -> str:
   <p style="color:var(--muted); font-size:0.82rem; line-height:1.5; margin:0 0 18px;">{esc(why.get("singleBankAlternative",""))}</p>
 """
 
+    generic = data.get("genericReferenceDesign", {})
+    generic_design_html = ""
+    if generic:
+        entries = generic.get("entries", [])
+        generic_rows = "".join(
+            f'<tr><td class="mono">{esc(e["num"])}</td><td>{esc(e["partitionName"])}</td>'
+            f'<td>{esc(e["purpose"])}</td><td>{esc(e["referenceAllocation"])}</td></tr>'
+            for e in entries
+        )
+        generic_design_html = f"""
+  <details style="margin-top:22px; border:1px solid var(--border); border-radius:8px; padding:2px 16px;">
+    <summary style="cursor:pointer; padding:12px 0; font-weight:600; color:var(--ink); font-size:0.9rem;">
+      Generic RDKM reference design ({len(entries)} entries, not device-specific) -- click to expand
+    </summary>
+    <p style="color:var(--muted); font-size:0.82rem; line-height:1.5; margin:0 0 12px;">{esc(generic.get("note",""))}</p>
+    <table class="def-table"><thead><tr><th>#</th><th>Partition Name</th><th>Purpose</th>
+    <th>Reference Allocation</th></tr></thead><tbody>{generic_rows}</tbody></table>
+  </details>
+"""
+
     return f"""
 <section class="tight-top">
   <div class="section-head"><h2>Flash Details</h2>
@@ -215,6 +235,7 @@ def render_flash_details_section(profiles_dir: Path) -> str:
   <h3 style="font-size:0.98rem; margin:22px 0 8px;">Valid Filesystem Pairings</h3>
   {fs_table}
   {layout_html}
+  {generic_design_html}
 </section>
 """
 
