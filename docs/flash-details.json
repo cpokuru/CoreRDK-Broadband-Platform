@@ -1,0 +1,84 @@
+{
+  "$schema": "https://cpokuru.github.io/CoreRDK-Broadband-Platform/schemas/flash-details.schema.json",
+  "specVersion": "1.0",
+  "partitionClasses": [
+    {
+      "id": "FLC-001",
+      "title": "Bootloader",
+      "purpose": "U-Boot or equivalent first/second-stage bootloader. MUST be signature-verified as part of the secure boot chain (see PCH-015).",
+      "otaTreatment": "Platform-required. Bolt A/B (Section 3.7) form their own fallback pair, but the bootloader itself is not directly rewritten by the RDK-B OTA mechanism.",
+      "owner": "Vendor"
+    },
+    {
+      "id": "FLC-002",
+      "title": "Kernel (A) / (B)",
+      "purpose": "Active and standby kernel images for A/B OTA fallback. MUST be signature-verified as a signed firmware image (see PCH-016).",
+      "otaTreatment": "Duplicated per slot; directly updated by OTA.",
+      "owner": "Core RDK\u2011B"
+    },
+    {
+      "id": "FLC-003",
+      "title": "Rootfs (A) / (B)",
+      "purpose": "Active and standby root filesystem (ext4/squashfs/EROFS on eMMC, or UBI/UBIFS on SPI-NAND) containing Core RDK\u2011B components. MUST be signature-verified as a signed firmware image (see PCH-016).",
+      "otaTreatment": "Duplicated per slot; directly updated by OTA.",
+      "owner": "Core RDK\u2011B"
+    },
+    {
+      "id": "FLC-004",
+      "title": "Persistent/Config",
+      "purpose": "PSM/TR\u2011181 persistent data store for customer-resettable configuration (Wi\u2011Fi SSID/password, LAN settings). Cleared by factory reset; distinct from Calibration/Factory Data (FLC-005), which is never cleared by factory reset.",
+      "otaTreatment": "Platform-required; preserved across update (not directly overwritten by OTA).",
+      "owner": "Core RDK\u2011B"
+    },
+    {
+      "id": "FLC-005",
+      "title": "Calibration/Factory Data",
+      "purpose": "Radio calibration data, serial number; written at manufacturing. Non-resettable \u2014 NOT cleared by factory reset (see FLC-004 and STG-007). MAC address storage here is OEM/SoC-implementation-dependent \u2014 some implementations derive MAC from the stored serial number at boot rather than storing it separately (see Section 3.7.1).",
+      "otaTreatment": "Platform-required; preserved across update and factory reset; never modified by OTA.",
+      "owner": "Vendor"
+    }
+  ],
+  "storageTechnologies": [
+    {
+      "technology": "eMMC",
+      "whatItIs": "NAND flash with an integrated controller presenting a standard block-device interface (like a small SSD).",
+      "managedBy": "Onboard controller handles wear-leveling/bad-block internally \u2014 OS sees a normal block device."
+    },
+    {
+      "technology": "UFS",
+      "whatItIs": "Successor to eMMC \u2014 same managed-NAND/block-interface model, higher throughput via a different physical/electrical interface.",
+      "managedBy": "Same as eMMC \u2014 onboard controller, block-device interface."
+    },
+    {
+      "technology": "SPI-NAND",
+      "whatItIs": "Raw NAND accessed over a simple SPI bus, with no onboard wear-leveling controller.",
+      "managedBy": "Wear-leveling and bad-block management handled by software (Linux MTD + UBI layer)."
+    },
+    {
+      "technology": "NOR flash",
+      "whatItIs": "A distinct flash memory architecture from NAND \u2014 slower, byte-addressable, small capacity, capable of execute-in-place (XIP).",
+      "managedBy": "Usually no filesystem; used for raw boot code that must run before the full flash subsystem initializes."
+    }
+  ],
+  "filesystemMapping": [
+    {
+      "storageType": "eMMC",
+      "validFilesystems": "ext4, squashfs, EROFS",
+      "why": "Block device \u2014 standard Linux filesystems apply directly."
+    },
+    {
+      "storageType": "UFS",
+      "validFilesystems": "ext4, squashfs, EROFS",
+      "why": "Same as eMMC \u2014 block device."
+    },
+    {
+      "storageType": "SPI-NAND",
+      "validFilesystems": "UBI/UBIFS only",
+      "why": "Requires an MTD/NAND target; UBI provides the wear-leveling/bad-block layer software-side. MUST NOT be paired with eMMC or UFS \u2014 both already have onboard wear-leveling."
+    }
+  ],
+  "layout": {
+    "status": "tbd",
+    "note": "Partition-level layout (actual measured sizes and usage per partition) is tracked in the spec's Section 3.7 and companion flash-layout.json files, and will be added to this page next. The definitions above apply regardless of the specific measured layout."
+  }
+}

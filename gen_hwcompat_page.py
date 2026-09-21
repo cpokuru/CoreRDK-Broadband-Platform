@@ -118,6 +118,76 @@ def _load_ref_json(p: dict, key: str, profiles_dir: Path) -> dict | None:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def render_flash_details_section(profiles_dir: Path) -> str:
+    """Generic, platform-level flash definitions -- partition classes,
+    supported storage technologies, valid filesystem pairings. Not tied
+    to any one profile's measured layout (that's tracked separately and
+    added later); the same content applies across every profile.
+    flash-details.json lives at the top level of docs/, alongside
+    hw-compat.schema.json, not inside a per-profile subfolder."""
+    path = profiles_dir / "flash-details.json"
+    if not path.exists():
+        return ""
+    data = json.loads(path.read_text(encoding="utf-8"))
+
+    flc_rows = "".join(
+        f'<tr><td class="mono">{esc(c["id"])}</td><td><strong>{esc(c["title"])}</strong></td>'
+        f'<td>{esc(c["purpose"])}</td><td>{esc(c["otaTreatment"])}</td><td>{esc(c["owner"])}</td></tr>'
+        for c in data.get("partitionClasses", [])
+    )
+    flc_table = (
+        '<table class="def-table"><thead><tr><th>ID</th><th>Partition Class</th><th>Purpose</th>'
+        "<th>OTA Treatment</th><th>Owner</th></tr></thead><tbody>" + flc_rows + "</tbody></table>"
+    )
+
+    tech_rows = "".join(
+        f'<tr><td><strong>{esc(t["technology"])}</strong></td><td>{esc(t["whatItIs"])}</td>'
+        f'<td>{esc(t["managedBy"])}</td></tr>'
+        for t in data.get("storageTechnologies", [])
+    )
+    tech_table = (
+        '<table class="def-table"><thead><tr><th>Technology</th><th>What It Is</th>'
+        "<th>Managed By</th></tr></thead><tbody>" + tech_rows + "</tbody></table>"
+    )
+
+    fs_rows = "".join(
+        f'<tr><td><strong>{esc(m["storageType"])}</strong></td><td>{esc(m["validFilesystems"])}</td>'
+        f'<td>{esc(m["why"])}</td></tr>'
+        for m in data.get("filesystemMapping", [])
+    )
+    fs_table = (
+        '<table class="def-table"><thead><tr><th>Storage Type</th><th>Valid Filesystem(s)</th>'
+        "<th>Why</th></tr></thead><tbody>" + fs_rows + "</tbody></table>"
+    )
+
+    layout = data.get("layout", {})
+    layout_html = ""
+    if layout.get("status") == "tbd":
+        layout_html = (
+            '<div style="background:var(--cloud-bg); border-radius:8px; padding:14px 18px; margin-top:18px;">'
+            '<strong style="color:var(--cloud-fg);">Partition-level layout: TBD</strong>'
+            f'<p style="color:var(--ink); font-size:0.86rem; margin:6px 0 0;">{esc(layout.get("note",""))}</p>'
+            "</div>"
+        )
+
+    return f"""
+<section class="tight-top">
+  <div class="section-head"><h2>Flash Details</h2>
+    <p>What every profile's flash layout must provide, and the storage technologies this
+    specification recognizes -- generic across all profiles, independent of any one
+    profile's measured partition sizes.</p>
+  </div>
+  <h3 style="font-size:0.98rem; margin:18px 0 8px;">Logical Partition Classes</h3>
+  {flc_table}
+  <h3 style="font-size:0.98rem; margin:22px 0 8px;">Storage Technologies</h3>
+  {tech_table}
+  <h3 style="font-size:0.98rem; margin:22px 0 8px;">Valid Filesystem Pairings</h3>
+  {fs_table}
+  {layout_html}
+</section>
+"""
+
+
 def render_minimums_table(in_scope: list[dict], profiles_dir: Path) -> str:
     rows = []
     partial_notes = []
@@ -566,6 +636,8 @@ def build_page(profiles_dir: Path, repo_root: Path = None) -> str:
   <div class="section-head"><h2>Minimum CPU, Memory, and Flash Storage (based on RDK8)</h2></div>
   {render_minimums_table(rdk8_data, profiles_dir)}
 </section>
+
+{render_flash_details_section(profiles_dir)}
 
 <section class="tight-top">
   <div class="section-head"><h2>Profile Details (based on RDK8)</h2>

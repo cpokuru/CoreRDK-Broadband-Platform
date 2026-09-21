@@ -1,0 +1,115 @@
+{
+  "$schema": "https://cpokuru.github.io/CoreRDK-Broadband-Platform/schemas/flash-details.schema.json",
+  "specVersion": "1.0",
+  "type": "object",
+  "description": "Generic, platform-level flash definitions -- partition classes, supported storage technologies, and valid filesystem pairings. Not tied to any one profile's measured layout; the same file applies across all profiles. Partition-level layout data (actual sizes, measured usage) is tracked separately and is not yet included here.",
+  "required": [
+    "specVersion",
+    "partitionClasses",
+    "storageTechnologies",
+    "filesystemMapping",
+    "layout"
+  ],
+  "properties": {
+    "specVersion": {
+      "type": "string"
+    },
+    "partitionClasses": {
+      "type": "array",
+      "description": "The logical partition classes every profile's flash layout must provide (see FLC-001 through FLC-005).",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "purpose",
+          "otaTreatment",
+          "owner"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "otaTreatment": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "storageTechnologies": {
+      "type": "array",
+      "description": "The flash technologies this specification recognizes (see STG-001).",
+      "items": {
+        "type": "object",
+        "required": [
+          "technology",
+          "whatItIs",
+          "managedBy"
+        ],
+        "properties": {
+          "technology": {
+            "type": "string"
+          },
+          "whatItIs": {
+            "type": "string"
+          },
+          "managedBy": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "filesystemMapping": {
+      "type": "array",
+      "description": "Valid storage-technology / filesystem pairings (see STG-002).",
+      "items": {
+        "type": "object",
+        "required": [
+          "storageType",
+          "validFilesystems",
+          "why"
+        ],
+        "properties": {
+          "storageType": {
+            "type": "string"
+          },
+          "validFilesystems": {
+            "type": "string"
+          },
+          "why": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "description": "Placeholder for the actual measured partition-level layout, added per profile once ready.",
+      "required": [
+        "status",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "tbd",
+            "available"
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
