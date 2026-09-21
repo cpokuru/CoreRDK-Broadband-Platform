@@ -170,13 +170,27 @@ def render_flash_details_section(profiles_dir: Path) -> str:
             "</div>"
         )
 
+    why = data.get("whyTwoBanks", {})
+    why_html = ""
+    if why:
+        why_html = f"""
+  <h3 style="font-size:0.98rem; margin:22px 0 8px;">Why 4 GB? Two banks, not one</h3>
+  <p style="color:var(--ink); font-size:0.9rem; line-height:1.55; margin:0 0 10px;">{esc(why.get("summary",""))}</p>
+  <p style="color:var(--ink); font-size:0.86rem; line-height:1.55; margin:0 0 10px;">{esc(why.get("scope",""))}</p>
+  <div style="background:var(--card-bg); border:1px solid var(--border); border-left:3px solid var(--middleware); border-radius:8px; padding:12px 16px; margin-bottom:10px;">
+    <strong style="color:var(--ink); font-size:0.84rem;">Measured evidence:</strong>
+    <p style="color:var(--muted); font-size:0.82rem; line-height:1.5; margin:4px 0 0;">{esc(why.get("measuredEvidence",""))}</p>
+  </div>
+  <p style="color:var(--muted); font-size:0.82rem; line-height:1.5; margin:0 0 18px;">{esc(why.get("singleBankAlternative",""))}</p>
+"""
+
     return f"""
 <section class="tight-top">
   <div class="section-head"><h2>Flash Details</h2>
-    <p>What every profile's flash layout must provide, and the storage technologies this
-    specification recognizes -- generic across all profiles, independent of any one
-    profile's measured partition sizes.</p>
+    <p>Why the flash floor is what it is, what every profile's layout must provide, and the
+    storage technologies this specification recognizes -- generic across all profiles.</p>
   </div>
+  {why_html}
   <h3 style="font-size:0.98rem; margin:18px 0 8px;">Logical Partition Classes</h3>
   {flc_table}
   <h3 style="font-size:0.98rem; margin:22px 0 8px;">Storage Technologies</h3>

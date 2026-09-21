@@ -8,7 +8,8 @@
     "partitionClasses",
     "storageTechnologies",
     "filesystemMapping",
-    "layout"
+    "layout",
+    "whyTwoBanks"
   ],
   "properties": {
     "specVersion": {
@@ -107,6 +108,30 @@
           ]
         },
         "note": {
+          "type": "string"
+        }
+      }
+    },
+    "whyTwoBanks": {
+      "type": "object",
+      "description": "Why the flash floor is roughly double a single partition's size -- the A/B banking rationale, with real measured evidence.",
+      "required": [
+        "summary",
+        "scope",
+        "measuredEvidence",
+        "singleBankAlternative"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "measuredEvidence": {
+          "type": "string"
+        },
+        "singleBankAlternative": {
           "type": "string"
         }
       }
