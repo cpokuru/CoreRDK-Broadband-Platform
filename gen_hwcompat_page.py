@@ -169,6 +169,23 @@ def render_flash_details_section(profiles_dir: Path) -> str:
             f'<p style="color:var(--ink); font-size:0.86rem; margin:6px 0 0;">{esc(layout.get("note",""))}</p>'
             "</div>"
         )
+    elif layout.get("status") == "reference-available":
+        part_rows = "".join(
+            f'<tr><td class="mono">{esc(p["partition"])}</td><td><strong>{esc(p["gptLabel"])}</strong></td>'
+            f'<td>{esc(p["allocated"])}</td><td>{esc(p["filesystem"])}</td><td>{esc(p["used"])}</td>'
+            f'<td>{esc(p["purpose"])}</td></tr>'
+            for p in layout.get("partitions", [])
+        )
+        total = layout.get("totalAllocated", "")
+        layout_html = f"""
+  <div style="margin-top:18px;">
+    <strong style="color:var(--ink); font-size:0.9rem;">Partition-level layout (reference: {esc(layout.get("referenceDevice",""))})</strong>
+    <p style="color:var(--muted); font-size:0.82rem; margin:4px 0 10px;">{esc(layout.get("note",""))}</p>
+    <table class="def-table"><thead><tr><th>#</th><th>Partition</th><th>Allocated</th><th>Filesystem</th>
+    <th>Used</th><th>Purpose</th></tr></thead><tbody>{part_rows}</tbody></table>
+    <p style="color:var(--muted); font-size:0.8rem; margin:8px 0 0;"><strong>Total allocated:</strong> {esc(total)}</p>
+  </div>
+"""
 
     why = data.get("whyTwoBanks", {})
     why_html = ""

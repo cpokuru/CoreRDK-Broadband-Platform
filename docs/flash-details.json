@@ -78,8 +78,116 @@
     }
   ],
   "layout": {
-    "status": "tbd",
-    "note": "Partition-level layout (actual measured sizes and usage per partition) is tracked in the spec's Section 3.7 and companion flash-layout.json files, and will be added to this page next. The definitions above apply regardless of the specific measured layout."
+    "status": "reference-available",
+    "note": "Confirmed via direct fdisk/proc evidence on the BPI-R4 reference device (production-style image, build rdk8-1.0.0_20260916). This is one device's actual layout, not a mandate -- other compatible hardware may implement the logical partition classes above differently, as long as the A/B banking and capacity requirements are met.",
+    "referenceDevice": "BPI-R4 (MediaTek MT7988A/Filogic 880)",
+    "partitions": [
+      {
+        "partition": "p1",
+        "gptLabel": "bl2",
+        "allocated": "4 MiB",
+        "filesystem": "Raw boot image",
+        "used": "N/A",
+        "purpose": "BL2 A"
+      },
+      {
+        "partition": "p2",
+        "gptLabel": "fip",
+        "allocated": "2 MiB",
+        "filesystem": "Raw boot image",
+        "used": "N/A",
+        "purpose": "FIP A"
+      },
+      {
+        "partition": "p3",
+        "gptLabel": "boot_a",
+        "allocated": "16 MiB",
+        "filesystem": "VFAT",
+        "used": "6.44 MiB (47%; FS cap 15.95 MiB)",
+        "purpose": "Active BootFS"
+      },
+      {
+        "partition": "p4",
+        "gptLabel": "rootfs_a",
+        "allocated": "1,024 MiB",
+        "filesystem": "ext4",
+        "used": "401 MiB",
+        "purpose": "Active RootFS"
+      },
+      {
+        "partition": "p5",
+        "gptLabel": "bl2_b",
+        "allocated": "4 MiB",
+        "filesystem": "Raw boot image",
+        "used": "N/A",
+        "purpose": "BL2 B"
+      },
+      {
+        "partition": "p6",
+        "gptLabel": "fip_b",
+        "allocated": "2 MiB",
+        "filesystem": "Raw boot image",
+        "used": "N/A",
+        "purpose": "FIP B"
+      },
+      {
+        "partition": "p7",
+        "gptLabel": "boot_b",
+        "allocated": "16 MiB",
+        "filesystem": "VFAT",
+        "used": "6.44 MiB (47%; FS cap 15.95 MiB)",
+        "purpose": "Passive BootFS"
+      },
+      {
+        "partition": "p8",
+        "gptLabel": "rootfs_b",
+        "allocated": "1,024 MiB",
+        "filesystem": "ext4",
+        "used": "0.02 MiB \u2014 effectively empty",
+        "purpose": "Passive RootFS \u2014 allocated, not yet populated (upgrade target)"
+      },
+      {
+        "partition": "p9",
+        "gptLabel": "nvram",
+        "allocated": "16 MiB",
+        "filesystem": "ext4",
+        "used": "4.67 MiB (37%; FS cap 13.74 MiB)",
+        "purpose": "Shared NVRAM (no separate A/B)"
+      },
+      {
+        "partition": "p10",
+        "gptLabel": "crash_a",
+        "allocated": "7 MiB",
+        "filesystem": "ext4",
+        "used": "0.01 MiB \u2014 effectively empty",
+        "purpose": "Slot-A crash data"
+      },
+      {
+        "partition": "p11",
+        "gptLabel": "crash_b",
+        "allocated": "7 MiB",
+        "filesystem": "ext4",
+        "used": "0.01 MiB \u2014 effectively empty",
+        "purpose": "Slot-B crash data"
+      },
+      {
+        "partition": "p12",
+        "gptLabel": "reserved",
+        "allocated": "16 MiB",
+        "filesystem": "ext4",
+        "used": "0.01 MiB \u2014 effectively empty",
+        "purpose": "Reserved"
+      },
+      {
+        "partition": "p13",
+        "gptLabel": "dac",
+        "allocated": "32 MiB",
+        "filesystem": "ext4",
+        "used": "0.01 MiB \u2014 effectively empty",
+        "purpose": "DAC"
+      }
+    ],
+    "totalAllocated": "2,172 MiB (approximately 2.12 GiB)"
   },
   "whyTwoBanks": {
     "summary": "Flash minimums assume a dual-bank (A/B) layout for OTA, which requires roughly double the flash of an equivalent single-bank design (two full kernel + rootfs copies, not one). A safe firmware upgrade writes and verifies the complete new image into the passive slot before switching boot selection -- there is no reliable A/B upgrade path that shares space between active and standby images.",

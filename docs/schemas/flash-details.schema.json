@@ -94,7 +94,7 @@
     },
     "layout": {
       "type": "object",
-      "description": "Placeholder for the actual measured partition-level layout, added per profile once ready.",
+      "description": "The measured partition-level layout, once available for a reference device. status is \"tbd\" before any device has been measured, \"reference-available\" once one has.",
       "required": [
         "status",
         "note"
@@ -104,11 +104,54 @@
           "type": "string",
           "enum": [
             "tbd",
-            "available"
+            "reference-available"
           ]
         },
         "note": {
           "type": "string"
+        },
+        "referenceDevice": {
+          "type": "string",
+          "description": "Optional. Present once status is reference-available."
+        },
+        "partitions": {
+          "type": "array",
+          "description": "Optional. The confirmed partition table for the reference device.",
+          "items": {
+            "type": "object",
+            "required": [
+              "partition",
+              "gptLabel",
+              "allocated",
+              "filesystem",
+              "used",
+              "purpose"
+            ],
+            "properties": {
+              "partition": {
+                "type": "string"
+              },
+              "gptLabel": {
+                "type": "string"
+              },
+              "allocated": {
+                "type": "string"
+              },
+              "filesystem": {
+                "type": "string"
+              },
+              "used": {
+                "type": "string"
+              },
+              "purpose": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "totalAllocated": {
+          "type": "string",
+          "description": "Optional. Sum across all partitions."
         }
       }
     },
