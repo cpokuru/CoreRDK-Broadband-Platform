@@ -1,0 +1,57 @@
+flowchart TD
+
+    subgraph RBusFramework["RBus Framework"]
+
+        subgraph APILayer["RBus API Layer"]
+            API["Public API"]
+            Handles["Handle Management"]
+            Elements["Element Registry"]
+        end
+
+        subgraph CoreLayer["RBus Core Engine"]
+            Core["Message Processing"]
+            Serial["Data Serialisation"]
+            Validation["Model Validation"]
+        end
+
+        subgraph EventLayer["Event System"]
+            EventMgr["Event Manager"]
+            Subs["Subscription Registry"]
+            AsyncSubs["Async Subscribe"]
+            VC["Value Change Detector"]
+            Interval["Interval Subscriptions"]
+        end
+
+        subgraph TransportLayer["RT Message Transport"]
+            RTMsg["RT Message Engine"]
+            RTConn["Connection Manager"]
+            RTSock["Socket Handler"]
+            RTPool["Thread Pool"]
+        end
+
+        subgraph SessionLayer["Session Manager Service"]
+            SessMgr["Session Manager"]
+        end
+    end
+
+    subgraph Daemon["rtrouted Daemon"]
+        Router["Message Router"]
+        RoutingTree["Routing Tree"]
+    end
+
+    API --> Core
+    Handles --> RTConn
+    Elements --> Validation
+    Core --> Serial
+    Core --> EventMgr
+    EventMgr --> Subs
+    Subs --> AsyncSubs
+    Subs --> VC
+    Subs --> Interval
+    Core --> RTMsg
+    RTMsg --> RTConn
+    RTConn --> RTSock
+    RTConn --> RTPool
+    RTConn <-->|"Unix/TCP socket"| Router
+    Router --> RoutingTree
+    SessMgr <-->|"RBus method calls"| API

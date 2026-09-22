@@ -1,0 +1,31 @@
+sequenceDiagram
+    autonumber
+    participant Sys as System / Init
+    participant RTD as rtrouted Daemon
+    participant SessMgr as Session Manager
+    participant Comp as RBus Component
+    participant RBusAPI as RBus API Layer
+
+    Sys->>RTD: Start rbus.service (launch rtrouted)
+    RTD->>RTD: Initialise routing tree, open listen socket
+    RTD-->>Sys: Daemon ready
+
+    Sys->>SessMgr: Start rbus_session_mgr.service
+    SessMgr->>RBusAPI: rbus_open("rbus_session_mgr")
+    RBusAPI->>RTD: Register component name
+    RTD-->>RBusAPI: Registration complete
+    SessMgr->>RBusAPI: Register session method elements
+    RBusAPI-->>SessMgr: Elements registered
+
+    Sys->>Comp: Start component process
+    Comp->>RBusAPI: rbus_open(componentName)
+    RBusAPI->>RTD: Register component name and inbox
+    RTD-->>RBusAPI: Connection handle
+    RBusAPI-->>Comp: rbusHandle_t returned
+
+    Comp->>RBusAPI: rbus_regDataElements(elements[])
+    RBusAPI->>RTD: Advertise element names in routing tree
+    RTD-->>RBusAPI: Elements routable
+
+    Note over Comp: Component is now Active
+    Note over Comp: Accepts get/set/method/event requests

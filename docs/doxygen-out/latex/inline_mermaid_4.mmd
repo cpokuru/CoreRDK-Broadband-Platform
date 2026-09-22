@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant Consumer as Consumer Component
+    participant RBusAPI as RBus API
+    participant RTD as rtrouted
+    participant Provider as Provider Component
+    participant GetHandler as Get Handler (callback)
+
+    Consumer->>RBusAPI: rbus_get(handle, elementName, &value)
+    Note over RBusAPI: Validate path, serialise GET request (MessagePack)
+    RBusAPI->>RTD: Routed GET request
+    RTD->>Provider: Forward to owning component
+    Provider->>GetHandler: Invoke registered getHandler
+    GetHandler-->>Provider: rbusValue_t result
+    Provider->>RTD: Serialised response
+    RTD->>RBusAPI: Route response to consumer
+    RBusAPI-->>Consumer: rbusValue_t (RBUS_ERROR_SUCCESS)

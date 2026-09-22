@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant Caller as Calling Component
+    participant RBusAPI as RBus API
+    participant RTD as rtrouted
+    participant Provider as Method Provider
+    participant MethodHandler as Method Handler
+
+    Caller->>RBusAPI: rbus_invokeRemoteMethodAsync(object, method, params, timeout, callback)
+    RBusAPI->>RTD: Route async method request
+    RTD->>Provider: Deliver method request
+    Provider->>MethodHandler: Invoke registered method handler
+    Note over MethodHandler: Returns RBUS_ERROR_ASYNC_RESPONSE\nif processing is deferred
+    MethodHandler-->>Provider: outParams (async handle)
+    Provider->>RTD: Method response when ready
+    RTD->>RBusAPI: Route response
+    RBusAPI-->>Caller: Invoke rbus_async_callback_t with response

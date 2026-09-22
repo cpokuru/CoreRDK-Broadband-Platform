@@ -1,0 +1,593 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.18.0" xml:lang="en-US">
+  <compounddef id="dir_49e56c817e5e54854c35e136979f97ca" kind="dir">
+    <compoundname>docs</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+<sect1 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md0">
+<title>RBus</title><para>RBus (RDK Bus) is a lightweight, fast, and efficient inter-process communication (IPC) framework used across RDK middleware. It allows multiple processes running on a hardware device to communicate through remote procedure calls (RPC), property get/set operations, and event-based messaging. RBus supports the creation and use of a hierarchical data model — a named tree of objects with properties, events, and methods — making it suitable for implementing parameter management specifications such as TR-181.</para>
+<para>RBus follows a provider-consumer model. Providers register named objects, properties, events, and methods in the data model and implement the corresponding handlers. Consumers look up and interact with those elements across process boundaries. A single process can act as both a provider and a consumer simultaneously. The central message-routing daemon, <computeroutput>rtrouted</computeroutput>, serves as the broker through which all inter-process messages flow, decoupling components from direct peer-to-peer communication.</para>
+<para>The framework is applicable across RDK middleware deployments covering both broadband and video platforms. On broadband platforms it serves as the backbone IPC mechanism for components such as protocol agents, network managers, and configuration services. On video platforms, RBus is used primarily by the telemetry subsystem for event notification.</para>
+<para><bold>Key Features &amp; Responsibilities:</bold></para>
+<para><itemizedlist>
+<listitem><para><bold>Property Access</bold>: Provides synchronous <computeroutput>get</computeroutput> and <computeroutput>set</computeroutput> operations over named, dot-separated parameter paths, supporting the full TR-181 naming convention including wildcards and instance notation (<computeroutput>{i}</computeroutput>).</para>
+</listitem><listitem><para><bold>Remote Method Invocation</bold>: Supports both synchronous and asynchronous remote procedure calls with structured input and output parameter marshalling, configurable timeouts, and error propagation back to the caller.</para>
+</listitem><listitem><para><bold>Event System</bold>: Implements a publish-subscribe mechanism for value-change detection, table row creation/deletion, interval-based notifications, and provider-defined general events. Subscriptions support optional filters and duration limits.</para>
+</listitem><listitem><para><bold>Hierarchical Data Model</bold>: Manages a named tree of elements (properties, objects, tables, methods, events) that providers register and consumers traverse or query, including wildcard discovery.</para>
+</listitem><listitem><para><bold>Central Message Routing</bold>: The <computeroutput>rtrouted</computeroutput> daemon routes all messages between registered components, enabling loose coupling. Clients connect to the daemon rather than to each other directly.</para>
+</listitem><listitem><para><bold>Session Management</bold>: The <computeroutput>rbus_session_mgr</computeroutput> service allocates session identifiers that can be used to serialise multi-step set operations (commit/rollback behavior depends on provider implementation).</para>
+</listitem><listitem><para><bold>Optional Transport Security</bold>: Supports SPAKE2+ key exchange to derive a shared key that is then used to encrypt messages between the router and clients (AES) when built with the corresponding compile-time option.</para>
+</listitem><listitem><para><bold>Subscription Persistence</bold>: Caches active subscriptions to a temporary directory so that they can be restored automatically after a provider restarts, avoiding the need for consumers to re-subscribe.</para>
+</listitem></itemizedlist>
+</para>
+<para><hruler/>
+</para>
+</sect1>
+<sect1 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md2">
+<title>Design</title><para>RBus is structured as a layered C library with a clear separation between the public API, the core message-processing engine, the low-level transport, and supporting services. The public API (<computeroutput><ref refid="rbus_8h" kindref="compound">rbus.h</ref></computeroutput>) exposes all provider and consumer operations through opaque handle types, hiding all routing and serialisation details from callers. Internally, the core layer (<computeroutput>rbuscore</computeroutput>) translates API calls into typed messages serialised with MessagePack and forwards them through the RT Message transport layer to <computeroutput>rtrouted</computeroutput>, which routes each message to the appropriate destination process. This hub-and-spoke topology means that every component connects only to the central daemon, with all message routing handled centrally.</para>
+<para>Northbound, the API layer presents a unified C interface covering property get/set and table management operations used in data model-driven middleware as well as event-driven patterns used by application and media middleware. Southbound, the RT Message transport layer provides the connection management, socket lifecycle, and message framing needed to communicate with <computeroutput>rtrouted</computeroutput>. Hardware-specific values are accessed by the provider component through its own HAL before being exposed via the data model.</para>
+<para>Data persistence is handled externally. RBus itself writes subscription state to a temporary directory (<computeroutput>RBUS_TMP_DIRECTORY</computeroutput>, default <computeroutput>/tmp</computeroutput>) so that subscriptions survive provider restarts. Persistent parameter values are the responsibility of each provider component, which may use the platform&apos;s persistent storage facilities independently of RBus.</para>
+<para><mermaid>flowchart TD
+
+    subgraph RBusFramework[&quot;RBus Framework&quot;]
+
+        subgraph APILayer[&quot;RBus API Layer&quot;]
+            API[&quot;Public API&quot;]
+            Handles[&quot;Handle Management&quot;]
+            Elements[&quot;Element Registry&quot;]
+        end
+
+        subgraph CoreLayer[&quot;RBus Core Engine&quot;]
+            Core[&quot;Message Processing&quot;]
+            Serial[&quot;Data Serialisation&quot;]
+            Validation[&quot;Model Validation&quot;]
+        end
+
+        subgraph EventLayer[&quot;Event System&quot;]
+            EventMgr[&quot;Event Manager&quot;]
+            Subs[&quot;Subscription Registry&quot;]
+            AsyncSubs[&quot;Async Subscribe&quot;]
+            VC[&quot;Value Change Detector&quot;]
+            Interval[&quot;Interval Subscriptions&quot;]
+        end
+
+        subgraph TransportLayer[&quot;RT Message Transport&quot;]
+            RTMsg[&quot;RT Message Engine&quot;]
+            RTConn[&quot;Connection Manager&quot;]
+            RTSock[&quot;Socket Handler&quot;]
+            RTPool[&quot;Thread Pool&quot;]
+        end
+
+        subgraph SessionLayer[&quot;Session Manager Service&quot;]
+            SessMgr[&quot;Session Manager&quot;]
+        end
+    end
+
+    subgraph Daemon[&quot;rtrouted Daemon&quot;]
+        Router[&quot;Message Router&quot;]
+        RoutingTree[&quot;Routing Tree&quot;]
+    end
+
+    API --&gt; Core
+    Handles --&gt; RTConn
+    Elements --&gt; Validation
+    Core --&gt; Serial
+    Core --&gt; EventMgr
+    EventMgr --&gt; Subs
+    Subs --&gt; AsyncSubs
+    Subs --&gt; VC
+    Subs --&gt; Interval
+    Core --&gt; RTMsg
+    RTMsg --&gt; RTConn
+    RTConn --&gt; RTSock
+    RTConn --&gt; RTPool
+    RTConn &lt;--&gt;|&quot;Unix/TCP socket&quot;| Router
+    Router --&gt; RoutingTree
+    SessMgr &lt;--&gt;|&quot;RBus method calls&quot;| API</mermaid>
+</para>
+<para>The northbound interface is the C API defined in <computeroutput><ref refid="rbus_8h" kindref="compound">rbus.h</ref></computeroutput>, which components include to open connections, register data elements, and invoke or respond to remote operations. The southbound interface is the <computeroutput>rtConnection</computeroutput> abstraction, which wraps the socket-level communication with <computeroutput>rtrouted</computeroutput>. The session manager service (<computeroutput>rbus_session_mgr</computeroutput>) is a separate process that communicates with other components exclusively over RBus method calls, providing session-ID allocation without any dedicated IPC channel.</para>
+<sect2 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md3">
+<title>Threading Model</title><para><itemizedlist>
+<listitem><para><bold>Threading Architecture</bold>: Multi-threaded with per-handle and per-element synchronisation.</para>
+</listitem><listitem><para><bold>Caller Threads</bold>: Call synchronous APIs such as <computeroutput><ref refid="group___initialization_1gacf19c7e46ff9c2353892f5918310b264" kindref="member">rbus_open</ref></computeroutput>, <computeroutput><ref refid="group___consumers_1ga4784460070e869774b9ed69d1b309571" kindref="member">rbus_get</ref></computeroutput>, <computeroutput><ref refid="group___consumers_1ga69f715cea76a0ea395c416a0a0bbe19b" kindref="member">rbus_set</ref></computeroutput>, <computeroutput><ref refid="group___providers_1ga58d4e15c31e566321fcbf96e4b4deace" kindref="member">rbus_regDataElements</ref></computeroutput>, and <computeroutput><ref refid="group___initialization_1ga9ccb6de1c606f5ac59dbc3a5a2ad0dd0" kindref="member">rbus_close</ref></computeroutput>. Only global handle-list operations and related callbacks are serialised with a process-wide mutex (<computeroutput>gMutex</computeroutput>); most other concurrency control is handled via per-handle/per-element locks.</para>
+</listitem><listitem><para><bold>Worker Threads</bold>:<itemizedlist>
+<listitem><para><emphasis>Callback Thread</emphasis> (one per <computeroutput>rtConnection</computeroutput>): Reads inbound messages from the socket and dispatches them to registered handlers. Created and managed within <computeroutput>rtConnection.c</computeroutput>.</para>
+</listitem><listitem><para><emphasis>Thread Pool Workers</emphasis> (<computeroutput>rtThreadPool</computeroutput>): Processes asynchronous tasks submitted by the callback thread, including async method responses and subscription deliveries.</para>
+</listitem><listitem><para><emphasis>Value Change Detector Thread</emphasis>: Polls registered property nodes at a fixed 2000 ms interval to detect value changes and trigger <computeroutput><ref refid="group___events_1gga8572487d31c269212da91488e8eb33b9a433ddaf617d8570b2afd8a46dcabeefe" kindref="member">RBUS_EVENT_VALUE_CHANGED</ref></computeroutput> notifications to active subscribers.</para>
+</listitem><listitem><para><emphasis>Async Subscribe Thread</emphasis>: Manages subscription retry logic, backing off up to 60 000 ms between retries within a 600 000 ms total timeout window.</para>
+</listitem></itemizedlist>
+</para>
+</listitem><listitem><para><bold>Synchronization</bold>: Per-handle mutexes (<computeroutput>handle_eventSubsMutex</computeroutput>, <computeroutput>handle_subsMutex</computeroutput>) protect the consumer and provider subscription lists respectively. Per-element mutexes (<computeroutput>elmMutex</computeroutput>) serialise access to individual element nodes in the registration tree.</para>
+</listitem></itemizedlist>
+</para>
+</sect2>
+<sect2 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md4">
+<title>Prerequisites and Dependencies</title><para><bold>Build-Time Configurations:</bold></para>
+<para><table rows="8" cols="4"><row>
+<entry thead="yes"><para>CMake Option  </para>
+</entry><entry thead="yes"><para>Build Flag  </para>
+</entry><entry thead="yes"><para>Purpose  </para>
+</entry><entry thead="yes"><para>Default  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>MSG_ROUNDTRIP_TIME=ON</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>MSG_ROUNDTRIP_TIME=1</computeroutput>  </para>
+</entry><entry thead="no"><para>Records per-message round-trip timestamps for latency diagnostics in <computeroutput>rtrouted</computeroutput>  </para>
+</entry><entry thead="no"><para>OFF (ON when <computeroutput>BUILD_FOR_DESKTOP=ON</computeroutput>)  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>WITH_SPAKE2=ON</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>WITH_SPAKE2=1</computeroutput>  </para>
+</entry><entry thead="no"><para>Enables SPAKE2+ key-exchange cipher between <computeroutput>rtrouted</computeroutput> and clients  </para>
+</entry><entry thead="no"><para>OFF  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>ENABLE_ADDRESS_SANITIZER=ON</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>-fsanitize=address</computeroutput>  </para>
+</entry><entry thead="no"><para>Enables AddressSanitizer for memory-error detection during development  </para>
+</entry><entry thead="no"><para>OFF  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>ENABLE_RDKLOGGER=ON</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>ENABLE_RDKLOGGER</computeroutput>  </para>
+</entry><entry thead="no"><para>Routes internal log output through the RDK Logger instead of the built-in <computeroutput>rtLog</computeroutput> handler  </para>
+</entry><entry thead="no"><para>OFF  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>BUILD_RBUS_DAEMON=ON</computeroutput>  </para>
+</entry><entry thead="no"><para>—  </para>
+</entry><entry thead="no"><para>Builds the <computeroutput>rtrouted</computeroutput> daemon; also builds <computeroutput>rbus_session_mgr</computeroutput> when <computeroutput>BUILD_ONLY_RTMESSAGE=OFF</computeroutput>  </para>
+</entry><entry thead="no"><para>ON  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>BUILD_ONLY_RTMESSAGE=ON</computeroutput>  </para>
+</entry><entry thead="no"><para>—  </para>
+</entry><entry thead="no"><para>Builds only the RT Message transport layer, omitting the RBus API and core layers  </para>
+</entry><entry thead="no"><para>OFF  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>BUILD_FOR_DESKTOP=ON</computeroutput>  </para>
+</entry><entry thead="no"><para>—  </para>
+</entry><entry thead="no"><para>Configures the build for a Linux desktop host, fetching and linking <computeroutput>linenoise</computeroutput> as an ExternalProject  </para>
+</entry><entry thead="no"><para>OFF  </para>
+</entry></row>
+</table>
+</para>
+<para><bold>Platform and Integration Requirements:</bold></para>
+<para><itemizedlist>
+<listitem><para><bold>Build Dependencies</bold>: cJSON library (required for all builds). On non-desktop builds, MessagePack (<computeroutput>msgpack-c</computeroutput>) and <computeroutput>linenoise</computeroutput> are required unless <computeroutput>BUILD_ONLY_RTMESSAGE=ON</computeroutput>; for <computeroutput>BUILD_FOR_DESKTOP=ON</computeroutput>, CMake always requires MessagePack and fetches/builds <computeroutput>linenoise</computeroutput>.</para>
+</listitem><listitem><para><bold>Systemd Services</bold>: <computeroutput>rbus.service</computeroutput> (launches <computeroutput>rtrouted</computeroutput>) must be active before any RBus-connected component starts. A session manager service (<computeroutput>rbus_session_mgr.service</computeroutput> or <computeroutput>rbus_sessmgr_rdkv.service</computeroutput>, depending on the platform) must also be running for session-based set operations.</para>
+</listitem><listitem><para><bold>Configuration Files</bold>: Platform-specific router configuration (e.g., <computeroutput>rbus_rdkv.conf</computeroutput>) may override systemd <computeroutput>ExecStart</computeroutput> arguments via <computeroutput>RTROUTER_OPTIONAL_ARGS</computeroutput>. Client configurations that need to reach <computeroutput>rtrouted</computeroutput> over TCP specify the address <computeroutput>tcp://127.0.0.1:10001</computeroutput> explicitly.</para>
+</listitem><listitem><para><bold>Temporary Storage</bold>: The subscription cache and runtime socket files are stored under <computeroutput>/tmp</computeroutput>. The <computeroutput>conf/rbus.service</computeroutput> <computeroutput>ExecStopPost</computeroutput> writes a stop marker to <computeroutput>/tmp/rbus_stopped</computeroutput> (it does not remove <computeroutput>/tmp/rtrouted*</computeroutput> artifacts).</para>
+</listitem></itemizedlist>
+</para>
+<para><hruler/>
+</para>
+</sect2>
+<sect2 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md6">
+<title>Component State Flow</title><sect3 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md7">
+<title>Initialization to Active State</title><para>RBus transitions through a structured sequence from daemon startup through element registration to active message processing. The <computeroutput>rtrouted</computeroutput> daemon must be fully running before any component calls <computeroutput><ref refid="group___initialization_1gacf19c7e46ff9c2353892f5918310b264" kindref="member">rbus_open</ref></computeroutput>. The session manager connects to the daemon over RBus itself, so it blocks internally until the daemon is available even when started concurrently.</para>
+<para><mermaid>sequenceDiagram
+    autonumber
+    participant Sys as System / Init
+    participant RTD as rtrouted Daemon
+    participant SessMgr as Session Manager
+    participant Comp as RBus Component
+    participant RBusAPI as RBus API Layer
+
+    Sys-&gt;&gt;RTD: Start rbus.service (launch rtrouted)
+    RTD-&gt;&gt;RTD: Initialise routing tree, open listen socket
+    RTD--&gt;&gt;Sys: Daemon ready
+
+    Sys-&gt;&gt;SessMgr: Start rbus_session_mgr.service
+    SessMgr-&gt;&gt;RBusAPI: rbus_open(&quot;rbus_session_mgr&quot;)
+    RBusAPI-&gt;&gt;RTD: Register component name
+    RTD--&gt;&gt;RBusAPI: Registration complete
+    SessMgr-&gt;&gt;RBusAPI: Register session method elements
+    RBusAPI--&gt;&gt;SessMgr: Elements registered
+
+    Sys-&gt;&gt;Comp: Start component process
+    Comp-&gt;&gt;RBusAPI: rbus_open(componentName)
+    RBusAPI-&gt;&gt;RTD: Register component name and inbox
+    RTD--&gt;&gt;RBusAPI: Connection handle
+    RBusAPI--&gt;&gt;Comp: rbusHandle_t returned
+
+    Comp-&gt;&gt;RBusAPI: rbus_regDataElements(elements[])
+    RBusAPI-&gt;&gt;RTD: Advertise element names in routing tree
+    RTD--&gt;&gt;RBusAPI: Elements routable
+
+    Note over Comp: Component is now Active
+    Note over Comp: Accepts get/set/method/event requests</mermaid>
+</para>
+</sect3>
+<sect3 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md8">
+<title>Runtime State Changes</title><para><bold>State Change Triggers:</bold></para>
+<para><itemizedlist>
+<listitem><para>A consumer calling <computeroutput><ref refid="group___events_1gab5889c0424ae3e4efb9208de22b92835" kindref="member">rbusEvent_Subscribe</ref></computeroutput> causes the provider to record the subscription and begin detecting value changes or accepting event publications for that subscriber.</para>
+</listitem><listitem><para>A subscriber process crash or clean disconnect triggers <computeroutput>rbusSubscriptions_handleClientDisconnect</computeroutput>, which removes all subscriptions associated with that listener address without requiring explicit unsubscribe calls.</para>
+</listitem><listitem><para>A provider process restart causes <computeroutput>rtrouted</computeroutput> to signal its clients; pending subscriptions are restored from the subscription cache file in <computeroutput>/tmp</computeroutput> when the provider re-registers its elements.</para>
+</listitem><listitem><para>Under high message load, the thread pool in the transport layer absorbs bursty traffic through queuing, maintaining consistent component behavior.</para>
+</listitem></itemizedlist>
+</para>
+<para><bold>Context Switching Scenarios:</bold></para>
+<para><itemizedlist>
+<listitem><para>When a component calls <computeroutput><ref refid="group___initialization_1ga9ccb6de1c606f5ac59dbc3a5a2ad0dd0" kindref="member">rbus_close</ref></computeroutput>, all registered elements are de-registered, all provider-side subscriptions are cleaned up, and the <computeroutput>rtConnection</computeroutput> to <computeroutput>rtrouted</computeroutput> is torn down.</para>
+</listitem><listitem><para>A component may hold up to <computeroutput>RBUS_MAX_HANDLES</computeroutput> (16) simultaneous open handles, allowing a single process to register elements under multiple logical component names.</para>
+</listitem></itemizedlist>
+</para>
+<para><hruler/>
+</para>
+</sect3>
+</sect2>
+<sect2 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md10">
+<title>Call Flows</title><sect3 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md11">
+<title>Request Processing Call Flow</title><para>Property get and set operations follow a synchronous request-response pattern. The RBus API serialises the request using MessagePack, routes it through <computeroutput>rtrouted</computeroutput> to the provider process, and blocks until the provider returns a value or an error.</para>
+<para><mermaid>sequenceDiagram
+    participant Consumer as Consumer Component
+    participant RBusAPI as RBus API (rbus.c)
+    participant RTD as rtrouted
+    participant Provider as Provider Component
+    participant Handler as Provider Get Handler
+
+    Consumer-&gt;&gt;RBusAPI: rbus_get(handle, &quot;Device.WiFi.Radio.1.Channel&quot;, &amp;value)
+    RBusAPI-&gt;&gt;RTD: Serialised GET request (MessagePack)
+    RTD-&gt;&gt;Provider: Route request to registered owner
+    Provider-&gt;&gt;Handler: Invoke getHandler callback
+    Handler--&gt;&gt;Provider: rbusValue_t result
+    Provider-&gt;&gt;RTD: Serialised GET response
+    RTD-&gt;&gt;RBusAPI: Route response to consumer
+    RBusAPI--&gt;&gt;Consumer: rbusValue_t (RBUS_ERROR_SUCCESS)</mermaid>
+</para>
+<para><hruler/>
+</para>
+</sect3>
+</sect2>
+</sect1>
+<sect1 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md13">
+<title>Internal Modules</title><para><table rows="16" cols="3"><row>
+<entry thead="yes"><para>Module / Class  </para>
+</entry><entry thead="yes"><para>Description  </para>
+</entry><entry thead="yes"><para>Key Files  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>RBus API Layer</bold>  </para>
+</entry><entry thead="no"><para>Public C interface for all provider and consumer operations. Implements <computeroutput><ref refid="group___initialization_1gacf19c7e46ff9c2353892f5918310b264" kindref="member">rbus_open</ref></computeroutput>, <computeroutput><ref refid="group___initialization_1ga9ccb6de1c606f5ac59dbc3a5a2ad0dd0" kindref="member">rbus_close</ref></computeroutput>, <computeroutput><ref refid="group___consumers_1ga4784460070e869774b9ed69d1b309571" kindref="member">rbus_get</ref></computeroutput>, <computeroutput><ref refid="group___consumers_1ga69f715cea76a0ea395c416a0a0bbe19b" kindref="member">rbus_set</ref></computeroutput>, <computeroutput><ref refid="group___providers_1ga58d4e15c31e566321fcbf96e4b4deace" kindref="member">rbus_regDataElements</ref></computeroutput>, <computeroutput><ref refid="group___events_1gab5889c0424ae3e4efb9208de22b92835" kindref="member">rbusEvent_Subscribe</ref></computeroutput>, <computeroutput><ref refid="group___events_1gac29791ff3418ef6cd6e24aff209a6f8a" kindref="member">rbusEvent_Publish</ref></computeroutput>, <computeroutput>rbus_invokeRemoteMethod</computeroutput>, and table management. Translates API calls into core-layer operations and handles legacy data-type compatibility.  </para>
+</entry><entry thead="no"><para><computeroutput>rbus.c</computeroutput>, <computeroutput><ref refid="rbus_8h" kindref="compound">rbus.h</ref></computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>Handle Management</bold>  </para>
+</entry><entry thead="no"><para>Maintains a process-wide list of at most 16 open <computeroutput><ref refid="group___common_1gaaed81eae245cefcc40d7b82d136364af" kindref="member">rbusHandle_t</ref></computeroutput> instances. Each handle tracks the component name, element registration tree root, consumer event-subscription list, provider subscription registry, and the underlying <computeroutput>rtConnection</computeroutput>.  </para>
+</entry><entry thead="no"><para><computeroutput>rbus_handle.c</computeroutput>, <computeroutput>rbus_handle.h</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>Element Registry</bold>  </para>
+</entry><entry thead="no"><para>Stores registered data model elements in an in-process tree (<computeroutput>elementNode</computeroutput>). Each node carries the element type, callback table, subscription list, last-change metadata, and a per-element mutex. Supports insertion, retrieval by exact name, wildcard traversal, and table row instantiation/deletion.  </para>
+</entry><entry thead="no"><para><computeroutput>rbus_element.c</computeroutput>, <computeroutput>rbus_element.h</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>RBus Core Engine</bold>  </para>
+</entry><entry thead="no"><para>Translates high-level API operations into typed wire messages and invokes the RT Message transport. Implements object registration (<computeroutput>rbus_registerObj</computeroutput>), element management (<computeroutput>rbus_addElement</computeroutput>), method registration, event registration, and the synchronous/asynchronous RPC primitives (<computeroutput>rbus_invokeRemoteMethod</computeroutput>).  </para>
+</entry><entry thead="no"><para><computeroutput>rbuscore.c</computeroutput>, <computeroutput>rbuscore.h</computeroutput>, <computeroutput>rbuscore_message.c</computeroutput>, <computeroutput>rbuscore_message.h</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>RT Message Transport</bold>  </para>
+</entry><entry thead="no"><para>Low-level message framing, socket management, and connection lifecycle. <computeroutput>rtrouted.c</computeroutput> is the standalone routing daemon that maintains a routing tree of all registered component names and element paths. <computeroutput>rtConnection.c</computeroutput> provides the per-process client connection, including a dedicated callback thread for inbound messages.  </para>
+</entry><entry thead="no"><para><computeroutput>rtrouted.c</computeroutput>, <computeroutput>rtConnection.c</computeroutput>, <computeroutput>rtMessage.c</computeroutput>, <computeroutput>rtSocket.c</computeroutput>, <computeroutput>rtRoutingTree.c</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>Thread Pool</bold>  </para>
+</entry><entry thead="no"><para>Fixed-size worker thread pool used by the transport layer to process inbound message callbacks concurrently without blocking the network I/O thread.  </para>
+</entry><entry thead="no"><para><computeroutput>rtThreadPool.c</computeroutput>, <computeroutput>rtThreadPool.h</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>Event System</bold>  </para>
+</entry><entry thead="no"><para>Manages provider-side subscription registrations keyed by <computeroutput>[listener, eventName, filter]</computeroutput>. Persists subscription state to a file under <computeroutput>/tmp</computeroutput> for recovery after provider restarts. Handles table-row-added and table-row-removed subscriptions automatically.  </para>
+</entry><entry thead="no"><para><computeroutput>rbus_subscriptions.c</computeroutput>, <computeroutput>rbus_subscriptions.h</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>Async Subscribe</bold>  </para>
+</entry><entry thead="no"><para>Implements the consumer-side retry loop for <computeroutput><ref refid="group___events_1gab3cf21821b5289220c08d8fd62189edb" kindref="member">rbusEvent_SubscribeAsync</ref></computeroutput>. Retries failed subscriptions with exponential back-off up to <computeroutput>RBUS_SUBSCRIBE_MAXWAIT</computeroutput> (60 000 ms) within a total window of <computeroutput>RBUS_SUBSCRIBE_TIMEOUT</computeroutput> (600 000 ms).  </para>
+</entry><entry thead="no"><para><computeroutput>rbus_asyncsubscribe.c</computeroutput>, <computeroutput>rbus_asyncsubscribe.h</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>Value Change Detector</bold>  </para>
+</entry><entry thead="no"><para>Polls properties registered by active value-change subscribers at a fixed 2000 ms period. Compares the current provider-returned value against the cached previous value and calls <computeroutput><ref refid="group___events_1gac29791ff3418ef6cd6e24aff209a6f8a" kindref="member">rbusEvent_Publish</ref></computeroutput> when a change is detected.  </para>
+</entry><entry thead="no"><para><computeroutput>rbus_valuechange.c</computeroutput>, <computeroutput>rbus_valuechange.h</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>Interval Subscription</bold>  </para>
+</entry><entry thead="no"><para>Delivers periodic <computeroutput><ref refid="group___events_1gga8572487d31c269212da91488e8eb33b9a7c87c82dd764272760bd73c350400931" kindref="member">RBUS_EVENT_INTERVAL</ref></computeroutput> events to subscribers that request time-based updates at a specified interval in milliseconds.  </para>
+</entry><entry thead="no"><para><computeroutput>rbus_intervalsubscription.c</computeroutput>, <computeroutput>rbus_intervalsubscription.h</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>Value Management</bold>  </para>
+</entry><entry thead="no"><para>Reference-counted variant type (<computeroutput><ref refid="group__rbus_value_1ga3433391cb2f7a4e2a85608ac9476fff6" kindref="member">rbusValue_t</ref></computeroutput>) covering all supported data types: boolean, char, byte, int8/16/32/64, uint8/16/32/64, float, double, datetime, string, byte array, property, and object. All instances are non-thread-safe by design; callers are responsible for synchronisation.  </para>
+</entry><entry thead="no"><para><computeroutput>rbus_value.c</computeroutput>, <computeroutput><ref refid="rbus__value_8h" kindref="compound">rbus_value.h</ref></computeroutput>, <computeroutput>rbus_property.c</computeroutput>, <computeroutput><ref refid="rbus__property_8h" kindref="compound">rbus_property.h</ref></computeroutput>, <computeroutput>rbus_object.c</computeroutput>, <computeroutput><ref refid="rbus__object_8h" kindref="compound">rbus_object.h</ref></computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>Filter</bold>  </para>
+</entry><entry thead="no"><para>Optional subscription filter attached at subscribe time. The provider evaluates the filter before delivering events, reducing unnecessary deliveries to consumers.  </para>
+</entry><entry thead="no"><para><computeroutput>rbus_filter.c</computeroutput>, <computeroutput><ref refid="rbus__filter_8h" kindref="compound">rbus_filter.h</ref></computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>Session Manager</bold>  </para>
+</entry><entry thead="no"><para>Standalone service process that serialises multi-step set sessions. Exposes <computeroutput>RBUS_SMGR_METHOD_REQUEST_SESSION_ID</computeroutput> and <computeroutput>RBUS_SMGR_METHOD_GET_CURRENT_SESSION_ID</computeroutput> as RBus methods, and publishes a general event (<computeroutput>currentSessionIDSignal</computeroutput>) when the active session changes.  </para>
+</entry><entry thead="no"><para><computeroutput>session_manager.c</computeroutput>, <computeroutput>rbus_session_mgr.h</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>Cipher (SPAKE2+)</bold>  </para>
+</entry><entry thead="no"><para>Optional message encryption layer built on the SPAKE2+ password-authenticated key-exchange protocol. Encrypts message payloads between <computeroutput>rtrouted</computeroutput> and clients when enabled at compile time.  </para>
+</entry><entry thead="no"><para><computeroutput>rtCipher.c</computeroutput>, <computeroutput>rtCipher.h</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><bold>Logging</bold>  </para>
+</entry><entry thead="no"><para>Dual-backend logging abstraction: selects between the built-in <computeroutput>rtLog</computeroutput> handler and the platform RDK Logger at build time or at runtime via <computeroutput>rtLog_SetOption</computeroutput>. Supports five levels: DEBUG, INFO, WARN, ERROR, FATAL.  </para>
+</entry><entry thead="no"><para><computeroutput>rtLog.c</computeroutput>, <computeroutput>rtLog.h</computeroutput>, <computeroutput>rbus_log.h</computeroutput>  </para>
+</entry></row>
+</table>
+</para>
+<para><hruler/>
+</para>
+</sect1>
+<sect1 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md15">
+<title>Component Interactions</title><sect2 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md16">
+<title>Events Published</title><para><table rows="8" cols="5"><row>
+<entry thead="yes"><para>Event Name / Type  </para>
+</entry><entry thead="yes"><para>Event Path / Name  </para>
+</entry><entry thead="yes"><para>Trigger Condition  </para>
+</entry><entry thead="yes"><para>Payload  </para>
+</entry><entry thead="yes"><para>Subscriber Components  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="group___events_1gga8572487d31c269212da91488e8eb33b9a433ddaf617d8570b2afd8a46dcabeefe" kindref="member">RBUS_EVENT_VALUE_CHANGED</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>{element.path}</computeroutput>  </para>
+</entry><entry thead="no"><para>A registered property value changes, detected by the value-change polling thread  </para>
+</entry><entry thead="no"><para><computeroutput>{name, type=VALUE_CHANGED, data={value}}</computeroutput>  </para>
+</entry><entry thead="no"><para>Any subscriber to that element path  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="group___events_1gga8572487d31c269212da91488e8eb33b9af4fcd18da8c8186f6a731f551557f1d0" kindref="member">RBUS_EVENT_OBJECT_CREATED</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>{table.path}</computeroutput>  </para>
+</entry><entry thead="no"><para>A new table row instance is added to a registered table element  </para>
+</entry><entry thead="no"><para><computeroutput>{name, type=OBJECT_CREATED, data={instNum, alias}}</computeroutput>  </para>
+</entry><entry thead="no"><para>Subscribers to the table path  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="group___events_1gga8572487d31c269212da91488e8eb33b9ade6bf62371a6ee6c9d5b3eb7d12f9419" kindref="member">RBUS_EVENT_OBJECT_DELETED</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>{table.path}</computeroutput>  </para>
+</entry><entry thead="no"><para>A table row instance is removed from a registered table element  </para>
+</entry><entry thead="no"><para><computeroutput>{name, type=OBJECT_DELETED, data={instNum}}</computeroutput>  </para>
+</entry><entry thead="no"><para>Subscribers to the table path  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="group___events_1gga8572487d31c269212da91488e8eb33b9a8864f6f4a367453b8fc5b6c71fae4399" kindref="member">RBUS_EVENT_GENERAL</ref></computeroutput>  </para>
+</entry><entry thead="no"><para>Provider-defined name  </para>
+</entry><entry thead="no"><para>Provider explicitly calls <computeroutput><ref refid="group___events_1gac29791ff3418ef6cd6e24aff209a6f8a" kindref="member">rbusEvent_Publish</ref></computeroutput>  </para>
+</entry><entry thead="no"><para>Provider-defined <computeroutput><ref refid="group__rbus_object_1ga21587678b0f1f9fb559a9bc9bae8a59c" kindref="member">rbusObject_t</ref></computeroutput> payload  </para>
+</entry><entry thead="no"><para>Any subscriber to that event name  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="group___events_1gga8572487d31c269212da91488e8eb33b9a7c87c82dd764272760bd73c350400931" kindref="member">RBUS_EVENT_INTERVAL</ref></computeroutput>  </para>
+</entry><entry thead="no"><para>Provider-defined name  </para>
+</entry><entry thead="no"><para>Elapsed interval timer fires  </para>
+</entry><entry thead="no"><para>Provider-defined <computeroutput><ref refid="group__rbus_object_1ga21587678b0f1f9fb559a9bc9bae8a59c" kindref="member">rbusObject_t</ref></computeroutput> payload  </para>
+</entry><entry thead="no"><para>Subscribers that specified an interval  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>currentSessionIDSignal</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>currentSessionIDSignal</computeroutput>  </para>
+</entry><entry thead="no"><para>Session Manager creates or closes a session  </para>
+</entry><entry thead="no"><para><computeroutput>{return_value, sessionid}</computeroutput> (int32)  </para>
+</entry><entry thead="no"><para>Components using session-based set operations  </para>
+</entry></row>
+<row>
+<entry thead="no"><para>Advisory: client connected / disconnected  </para>
+</entry><entry thead="no"><para>Internal advisory topic  </para>
+</entry><entry thead="no"><para>A component calls <computeroutput><ref refid="group___initialization_1gacf19c7e46ff9c2353892f5918310b264" kindref="member">rbus_open</ref></computeroutput> or <computeroutput><ref refid="group___initialization_1ga9ccb6de1c606f5ac59dbc3a5a2ad0dd0" kindref="member">rbus_close</ref></computeroutput>  </para>
+</entry><entry thead="no"><para>Client identifier  </para>
+</entry><entry thead="no"><para>Internal subscription cleanup handlers  </para>
+</entry></row>
+</table>
+</para>
+</sect2>
+<sect2 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md17">
+<title>IPC Flow Patterns</title><para><bold>Primary Request / Response Flow — Property Get:</bold></para>
+<para><mermaid>sequenceDiagram
+    participant Consumer as Consumer Component
+    participant RBusAPI as RBus API
+    participant RTD as rtrouted
+    participant Provider as Provider Component
+    participant GetHandler as Get Handler (callback)
+
+    Consumer-&gt;&gt;RBusAPI: rbus_get(handle, elementName, &amp;value)
+    Note over RBusAPI: Validate path, serialise GET request (MessagePack)
+    RBusAPI-&gt;&gt;RTD: Routed GET request
+    RTD-&gt;&gt;Provider: Forward to owning component
+    Provider-&gt;&gt;GetHandler: Invoke registered getHandler
+    GetHandler--&gt;&gt;Provider: rbusValue_t result
+    Provider-&gt;&gt;RTD: Serialised response
+    RTD-&gt;&gt;RBusAPI: Route response to consumer
+    RBusAPI--&gt;&gt;Consumer: rbusValue_t (RBUS_ERROR_SUCCESS)</mermaid>
+</para>
+<para><bold>Event Notification Flow — Value Change:</bold></para>
+<para><mermaid>sequenceDiagram
+    participant VC as Value Change Detector Thread
+    participant RBusAPI as RBus API
+    participant RTD as rtrouted
+    participant Sub1 as Subscriber 1
+    participant Sub2 as Subscriber 2
+
+    loop Every 2000 ms
+        VC-&gt;&gt;RBusAPI: Poll registered property via getHandler
+        RBusAPI--&gt;&gt;VC: Current value
+        VC-&gt;&gt;VC: Compare with cached previous value
+    end
+
+    Note over VC: Value changed detected
+    VC-&gt;&gt;RBusAPI: rbusEvent_Publish(handle, RBUS_EVENT_VALUE_CHANGED)
+    RBusAPI-&gt;&gt;RTD: Route event to all active subscribers
+    RTD-&gt;&gt;Sub1: Deliver RBUS_EVENT_VALUE_CHANGED
+    RTD-&gt;&gt;Sub2: Deliver RBUS_EVENT_VALUE_CHANGED
+    Sub1--&gt;&gt;Sub1: Invoke rbusEventHandler_t callback
+    Sub2--&gt;&gt;Sub2: Invoke rbusEventHandler_t callback</mermaid>
+</para>
+<para><bold>Async Method Invocation Flow:</bold></para>
+<para><mermaid>sequenceDiagram
+    participant Caller as Calling Component
+    participant RBusAPI as RBus API
+    participant RTD as rtrouted
+    participant Provider as Method Provider
+    participant MethodHandler as Method Handler
+
+    Caller-&gt;&gt;RBusAPI: rbus_invokeRemoteMethodAsync(object, method, params, timeout, callback)
+    RBusAPI-&gt;&gt;RTD: Route async method request
+    RTD-&gt;&gt;Provider: Deliver method request
+    Provider-&gt;&gt;MethodHandler: Invoke registered method handler
+    Note over MethodHandler: Returns RBUS_ERROR_ASYNC_RESPONSE\nif processing is deferred
+    MethodHandler--&gt;&gt;Provider: outParams (async handle)
+    Provider-&gt;&gt;RTD: Method response when ready
+    RTD-&gt;&gt;RBusAPI: Route response
+    RBusAPI--&gt;&gt;Caller: Invoke rbus_async_callback_t with response</mermaid>
+</para>
+<para><hruler/>
+</para>
+</sect2>
+</sect1>
+<sect1 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md19">
+<title>Implementation Details</title><sect2 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md20">
+<title>Key Implementation Logic</title><para><itemizedlist>
+<listitem><para><bold>Handle and Element Lifecycle</bold>: <computeroutput><ref refid="group___initialization_1gacf19c7e46ff9c2353892f5918310b264" kindref="member">rbus_open</ref></computeroutput> allocates a <computeroutput>_rbusHandle</computeroutput> structure, establishes the <computeroutput>rtConnection</computeroutput> to <computeroutput>rtrouted</computeroutput>, registers the component name, and initialises an empty element tree and subscription registries. <computeroutput><ref refid="group___initialization_1ga9ccb6de1c606f5ac59dbc3a5a2ad0dd0" kindref="member">rbus_close</ref></computeroutput> reverses this sequence, de-registering all elements, cleaning up subscriptions, and releasing the connection. Up to 16 handles may be open simultaneously per process (<computeroutput>RBUS_MAX_HANDLES</computeroutput>). Core implementation in <computeroutput>rbus.c</computeroutput> and <computeroutput>rbus_handle.c</computeroutput>; element tree operations in <computeroutput>rbus_element.c</computeroutput>.</para>
+</listitem><listitem><para><bold>Event Processing</bold>: Provider-side subscriptions are stored in <computeroutput>rbusSubscriptions_t</computeroutput>, serialised to a file in <computeroutput>/tmp</computeroutput> under the component name for crash recovery. When a provider restarts and re-registers its elements, <computeroutput>rbusSubscriptions_resubscribeElementCache</computeroutput> reloads the file and re-activates matching subscriptions. Consumer-side subscriptions are stored in the handle&apos;s <computeroutput>eventSubs</computeroutput> vector; disconnecting subscribers are cleaned up automatically via <computeroutput>rbusSubscriptions_handleClientDisconnect</computeroutput> when <computeroutput>rtrouted</computeroutput> delivers a client-disconnect advisory. Subscription retry for async subscriptions is managed in <computeroutput>rbus_asyncsubscribe.c</computeroutput> with back-off up to <computeroutput>RBUS_SUBSCRIBE_MAXWAIT</computeroutput>.</para>
+</listitem><listitem><para><bold>Error Handling Strategy</bold>: The <computeroutput><ref refid="group___common_1ga8fc1f9c96c061b20db5e56188296c8ef" kindref="member">rbusError_t</ref></computeroutput> enumeration covers all error conditions from transport failures (<computeroutput><ref refid="group___common_1gga5db8b0d14b831805c31bbf454b7a935aa73fa6a352bc465672bb6dfd2b0271ead" kindref="member">RBUS_ERROR_DESTINATION_NOT_FOUND</ref></computeroutput>, <computeroutput><ref refid="group___common_1gga5db8b0d14b831805c31bbf454b7a935aacc9db1e50b8109fa8c91744d52000638" kindref="member">RBUS_ERROR_DESTINATION_NOT_REACHABLE</ref></computeroutput>) to validation errors (<computeroutput><ref refid="group___common_1gga5db8b0d14b831805c31bbf454b7a935aa9a1547d7a456c5a71f40dca3dc933ecd" kindref="member">RBUS_ERROR_INVALID_INPUT</ref></computeroutput>, <computeroutput><ref refid="group___common_1gga5db8b0d14b831805c31bbf454b7a935aa8c5f052671250be982fd245e4c69509c" kindref="member">RBUS_ERROR_INVALID_PARAMETER_TYPE</ref></computeroutput>) and access control rejections (<computeroutput><ref refid="group___common_1gga5db8b0d14b831805c31bbf454b7a935aab95268db5752e57383de180c77d78fc9" kindref="member">RBUS_ERROR_ACCESS_NOT_ALLOWED</ref></computeroutput>, <computeroutput><ref refid="group___common_1gga5db8b0d14b831805c31bbf454b7a935aac4125cfdc40b04fdee894b6be3993379" kindref="member">RBUS_ERROR_NOT_WRITABLE</ref></computeroutput>). Core-layer <computeroutput>rbusCoreError_t</computeroutput> values are mapped to <computeroutput><ref refid="group___common_1ga8fc1f9c96c061b20db5e56188296c8ef" kindref="member">rbusError_t</ref></computeroutput> by <computeroutput>rbusCoreError_to_rbusError()</computeroutput> in <computeroutput>rbus.c</computeroutput>. Timeout handling uses <computeroutput><ref refid="group___common_1gga5db8b0d14b831805c31bbf454b7a935aab4d44c7302674778282781128274393b" kindref="member">RBUS_ERROR_TIMEOUT</ref></computeroutput>; asynchronous method handlers that defer processing return <computeroutput><ref refid="group___common_1gga5db8b0d14b831805c31bbf454b7a935aa9db57791261df9863366b7b495bcd751" kindref="member">RBUS_ERROR_ASYNC_RESPONSE</ref></computeroutput>.</para>
+</listitem><listitem><para><bold>Logging and Diagnostics</bold>: The logging subsystem (<computeroutput>rtLog</computeroutput>) supports DEBUG, INFO, WARN, ERROR, and FATAL levels, selectable at runtime via <computeroutput>rtLog_SetLevel</computeroutput>. The backend can be switched between the built-in handler and the RDK Logger via <computeroutput>rtLog_SetOption</computeroutput>. The <computeroutput>rbuscli</computeroutput> interactive utility (<computeroutput>utils/rbuscli/</computeroutput>) allows operators to register data model elements, execute get/set/method/subscribe operations, and observe event deliveries from a shell, providing a diagnostic surface for integration testing and field debugging. When <computeroutput>MSG_ROUNDTRIP_TIME</computeroutput> is enabled, <computeroutput>rtrouted</computeroutput> records per-message entry and exit timestamps accessible via the <computeroutput>RTROUTED_TRANSACTION_TIME_INFO</computeroutput> field.</para>
+</listitem></itemizedlist>
+</para>
+<para><hruler/>
+</para>
+</sect2>
+</sect1>
+<sect1 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md22">
+<title>Configuration</title><sect2 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md23">
+<title>Key Configuration Files</title><para><table rows="6" cols="3"><row>
+<entry thead="yes"><para>Configuration File  </para>
+</entry><entry thead="yes"><para>Purpose  </para>
+</entry><entry thead="yes"><para>Override Mechanism  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>/usr/lib/systemd/system/rbus.service</computeroutput>  </para>
+</entry><entry thead="no"><para>Launches <computeroutput>rtrouted</computeroutput> as a forking service. <computeroutput>ExecStopPost</computeroutput> writes <computeroutput>0</computeroutput> to <computeroutput>/tmp/rbus_stopped</computeroutput>.  </para>
+</entry><entry thead="no"><para><computeroutput>RTROUTER_OPTIONAL_ARGS</computeroutput> environment variable in <computeroutput>ExecStart</computeroutput>  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>/usr/lib/systemd/system/rbus_session_mgr.service</computeroutput>  </para>
+</entry><entry thead="no"><para>Launches <computeroutput>rbus_session_mgr</computeroutput> ordered <computeroutput>After=rbus.service</computeroutput>. Blocks internally until <computeroutput>rtrouted</computeroutput> is available.  </para>
+</entry><entry thead="no"><para>Systemd drop-in overrides  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>/usr/lib/systemd/system/rbus_sessmgr_rdkv.service</computeroutput>  </para>
+</entry><entry thead="no"><para>Alternate session manager service unit ordered <computeroutput>Before=rbus.service</computeroutput>, used on platforms where the session manager must be present before daemon startup.  </para>
+</entry><entry thead="no"><para>Systemd drop-in overrides  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>/etc/rbus/rbus_rdkv.conf</computeroutput> (or equivalent platform conf)  </para>
+</entry><entry thead="no"><para>Provides router startup arguments and service identity for <computeroutput>rtrouted</computeroutput>. Sets <computeroutput>SyslogIdentifier</computeroutput> and <computeroutput>Restart=always</computeroutput>. Ordered <computeroutput>After=nvram.service</computeroutput>.  </para>
+</entry><entry thead="no"><para>Platform image build  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>/tmp/rtrouted*</computeroutput>  </para>
+</entry><entry thead="no"><para>Runtime socket and pid/log files created by <computeroutput>rtrouted</computeroutput> at startup (e.g., <computeroutput>/tmp/rtrouted</computeroutput>, <computeroutput>/tmp/rtrouted.pid</computeroutput>). The <computeroutput>conf/rbus.service</computeroutput> <computeroutput>ExecStopPost</computeroutput> in this repo does not remove these artifacts.  </para>
+</entry><entry thead="no"><para>Managed by <computeroutput>rtrouted</computeroutput>  </para>
+</entry></row>
+</table>
+</para>
+</sect2>
+<sect2 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md24">
+<title>Key Configuration Parameters</title><para><table rows="10" cols="4"><row>
+<entry thead="yes"><para>Parameter  </para>
+</entry><entry thead="yes"><para>Source  </para>
+</entry><entry thead="yes"><para>Default  </para>
+</entry><entry thead="yes"><para>Description  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>RBUS_MAX_HANDLES</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>rbus_handle.h</computeroutput>  </para>
+</entry><entry thead="no"><para>16  </para>
+</entry><entry thead="no"><para>Maximum number of simultaneously open <computeroutput><ref refid="group___common_1gaaed81eae245cefcc40d7b82d136364af" kindref="member">rbusHandle_t</ref></computeroutput> instances per process  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>MAX_REGISTERED_OBJECTS</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>rbuscore.h</computeroutput>  </para>
+</entry><entry thead="no"><para>64  </para>
+</entry><entry thead="no"><para>Maximum number of objects a single component may register  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>MAX_SUPPORTED_METHODS</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>rbuscore.h</computeroutput>  </para>
+</entry><entry thead="no"><para>32  </para>
+</entry><entry thead="no"><para>Maximum number of methods per registered object  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="group___common_1ga45e7c239d118b46856da709edceb1bf4" kindref="member">RBUS_MAX_NAME_LENGTH</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput><ref refid="rbus_8h" kindref="compound">rbus.h</ref></computeroutput>  </para>
+</entry><entry thead="no"><para>256  </para>
+</entry><entry thead="no"><para>Maximum character length of any element name  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput><ref refid="group___common_1ga9c8ef2bafb8c56aa59b15fb0fe0d146b" kindref="member">RBUS_MAX_NAME_DEPTH</ref></computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput><ref refid="rbus_8h" kindref="compound">rbus.h</ref></computeroutput>  </para>
+</entry><entry thead="no"><para>16  </para>
+</entry><entry thead="no"><para>Maximum dot-separated depth of any element path  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>RBUS_SUBSCRIBE_TIMEOUT</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>rbus_handle.h</computeroutput>  </para>
+</entry><entry thead="no"><para>600 000 ms  </para>
+</entry><entry thead="no"><para>Total async-subscribe retry window before the subscription is abandoned  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>RBUS_SUBSCRIBE_MAXWAIT</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>rbus_handle.h</computeroutput>  </para>
+</entry><entry thead="no"><para>60 000 ms  </para>
+</entry><entry thead="no"><para>Maximum back-off interval between async-subscribe retry attempts  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>RBUS_VALUECHANGE_PERIOD</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>rbus_handle.h</computeroutput>  </para>
+</entry><entry thead="no"><para>2 000 ms  </para>
+</entry><entry thead="no"><para>Polling interval used by the value-change detector thread  </para>
+</entry></row>
+<row>
+<entry thead="no"><para><computeroutput>RTMSG_DEFAULT_ROUTER_LOCATION</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>rtConnection.h</computeroutput>  </para>
+</entry><entry thead="no"><para><computeroutput>tcp://127.0.0.1:10001</computeroutput>  </para>
+</entry><entry thead="no"><para>Default TCP address used by <computeroutput>rtConnection</computeroutput> to reach <computeroutput>rtrouted</computeroutput>  </para>
+</entry></row>
+</table>
+</para>
+</sect2>
+<sect2 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md25">
+<title>Runtime Configuration</title><para>The router address used by client processes can be overridden at runtime by passing an <computeroutput>rtMessage</computeroutput> configuration object (e.g., with <computeroutput>uri</computeroutput>) to <computeroutput>rtConnection_CreateWithConfig</computeroutput>. The <computeroutput>rbuscli</computeroutput> utility connects using the router configuration used by <computeroutput><ref refid="group___initialization_1gacf19c7e46ff9c2353892f5918310b264" kindref="member">rbus_open</ref></computeroutput>:</para>
+<para><programlisting filename=".bash"><codeline><highlight class="normal">#<sp/>Start<sp/>the<sp/>interactive<sp/>rbuscli<sp/>tool</highlight></codeline>
+<codeline><highlight class="normal">rbuscli<sp/>-i</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#<sp/>Register<sp/>a<sp/>property<sp/>element<sp/>as<sp/>a<sp/>provider</highlight></codeline>
+<codeline><highlight class="normal">&gt;<sp/>reg<sp/>prop<sp/>Device.Example.Parameter1</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#<sp/>Set<sp/>and<sp/>get<sp/>the<sp/>value<sp/>as<sp/>a<sp/>consumer<sp/>(from<sp/>a<sp/>second<sp/>rbuscli<sp/>session)</highlight></codeline>
+<codeline><highlight class="normal">&gt;<sp/>set<sp/>Device.Example.Parameter1<sp/>string<sp/>&quot;value&quot;</highlight></codeline>
+<codeline><highlight class="normal">&gt;<sp/>get<sp/>Device.Example.Parameter1</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#<sp/>Subscribe<sp/>to<sp/>value-change<sp/>events</highlight></codeline>
+<codeline><highlight class="normal">&gt;<sp/>log<sp/>events</highlight></codeline>
+<codeline><highlight class="normal">&gt;<sp/>sub<sp/>Device.Example.Parameter1</highlight></codeline>
+</programlisting></para>
+</sect2>
+<sect2 id="dir_49e56c817e5e54854c35e136979f97ca_1autotoc_md26">
+<title>Configuration Persistence</title><para>Parameter value persistence is managed by each provider component independently. Subscription state is written to <computeroutput>/tmp</computeroutput> by <computeroutput>rbus_subscriptions.c</computeroutput> to support provider process restarts within a boot session. This cache lives under <computeroutput>/tmp</computeroutput> (typically cleared on reboot) and is removed by the provider when no subscriptions remain. </para>
+</sect2>
+</sect1>
+    </detaileddescription>
+    <location file="docs/"/>
+  </compounddef>
+</doxygen>

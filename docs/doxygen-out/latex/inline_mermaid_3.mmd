@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant Consumer as Consumer Component
+    participant RBusAPI as RBus API (rbus.c)
+    participant RTD as rtrouted
+    participant Provider as Provider Component
+    participant Handler as Provider Get Handler
+
+    Consumer->>RBusAPI: rbus_get(handle, "Device.WiFi.Radio.1.Channel", &value)
+    RBusAPI->>RTD: Serialised GET request (MessagePack)
+    RTD->>Provider: Route request to registered owner
+    Provider->>Handler: Invoke getHandler callback
+    Handler-->>Provider: rbusValue_t result
+    Provider->>RTD: Serialised GET response
+    RTD->>RBusAPI: Route response to consumer
+    RBusAPI-->>Consumer: rbusValue_t (RBUS_ERROR_SUCCESS)

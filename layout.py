@@ -29,7 +29,8 @@ NAV_LINKS = [
     ("link", "component-registry", "Component Registry", "component-registry.html", False),
     ("group", "nbi-group", "North Bound APIs", [
         ("link", "nbi-spec", "North Bound Specification", "north-bound-specification.html", False),
-        ("link", "nbi", "List of North Bound APIs", "north-bound-apis.html", False),
+        ("link", "nbi", "List of North Bound High Level APIs", "north-bound-apis.html", False),
+        ("link", "nbi-lowlevel", "List of North Bound Low Level APIs", "north-bound-lowlevel-apis.html", False),
     ]),
     ("group", "sbi-group", "South Bound APIs", [
         ("link", "sbi-spec", "South Bound Specification", "south-bound-specification.html", False),

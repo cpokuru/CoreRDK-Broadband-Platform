@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant VC as Value Change Detector Thread
+    participant RBusAPI as RBus API
+    participant RTD as rtrouted
+    participant Sub1 as Subscriber 1
+    participant Sub2 as Subscriber 2
+
+    loop Every 2000 ms
+        VC->>RBusAPI: Poll registered property via getHandler
+        RBusAPI-->>VC: Current value
+        VC->>VC: Compare with cached previous value
+    end
+
+    Note over VC: Value changed detected
+    VC->>RBusAPI: rbusEvent_Publish(handle, RBUS_EVENT_VALUE_CHANGED)
+    RBusAPI->>RTD: Route event to all active subscribers
+    RTD->>Sub1: Deliver RBUS_EVENT_VALUE_CHANGED
+    RTD->>Sub2: Deliver RBUS_EVENT_VALUE_CHANGED
+    Sub1-->>Sub1: Invoke rbusEventHandler_t callback
+    Sub2-->>Sub2: Invoke rbusEventHandler_t callback

@@ -1,0 +1,239 @@
+\doxysection{docs Directory Reference}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca}{}\label{dir_49e56c817e5e54854c35e136979f97ca}\index{docs Directory Reference@{docs Directory Reference}}
+
+
+\doxysubsection{Detailed Description}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md0}{}\doxysubsection{\texorpdfstring{RBus}{RBus}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md0}
+RBus (RDK Bus) is a lightweight, fast, and efficient inter-\/process communication (IPC) framework used across RDK middleware. It allows multiple processes running on a hardware device to communicate through remote procedure calls (RPC), property get/\+set operations, and event-\/based messaging. RBus supports the creation and use of a hierarchical data model — a named tree of objects with properties, events, and methods — making it suitable for implementing parameter management specifications such as TR-\/181.
+
+RBus follows a provider-\/consumer model. Providers register named objects, properties, events, and methods in the data model and implement the corresponding handlers. Consumers look up and interact with those elements across process boundaries. A single process can act as both a provider and a consumer simultaneously. The central message-\/routing daemon, {\ttfamily rtrouted}, serves as the broker through which all inter-\/process messages flow, decoupling components from direct peer-\/to-\/peer communication.
+
+The framework is applicable across RDK middleware deployments covering both broadband and video platforms. On broadband platforms it serves as the backbone IPC mechanism for components such as protocol agents, network managers, and configuration services. On video platforms, RBus is used primarily by the telemetry subsystem for event notification.
+
+{\bfseries{Key Features \& Responsibilities:}}
+
+
+\begin{DoxyItemize}
+\item {\bfseries{Property Access}}: Provides synchronous {\ttfamily get} and {\ttfamily set} operations over named, dot-\/separated parameter paths, supporting the full TR-\/181 naming convention including wildcards and instance notation ({\ttfamily \{i\}}).
+\item {\bfseries{Remote Method Invocation}}: Supports both synchronous and asynchronous remote procedure calls with structured input and output parameter marshalling, configurable timeouts, and error propagation back to the caller.
+\item {\bfseries{Event System}}: Implements a publish-\/subscribe mechanism for value-\/change detection, table row creation/\+deletion, interval-\/based notifications, and provider-\/defined general events. Subscriptions support optional filters and duration limits.
+\item {\bfseries{Hierarchical Data Model}}: Manages a named tree of elements (properties, objects, tables, methods, events) that providers register and consumers traverse or query, including wildcard discovery.
+\item {\bfseries{Central Message Routing}}: The {\ttfamily rtrouted} daemon routes all messages between registered components, enabling loose coupling. Clients connect to the daemon rather than to each other directly.
+\item {\bfseries{Session Management}}: The {\ttfamily rbus\+\_\+session\+\_\+mgr} service allocates session identifiers that can be used to serialise multi-\/step set operations (commit/\+rollback behavior depends on provider implementation).
+\item {\bfseries{Optional Transport Security}}: Supports SPAKE2+ key exchange to derive a shared key that is then used to encrypt messages between the router and clients (AES) when built with the corresponding compile-\/time option.
+\item {\bfseries{Subscription Persistence}}: Caches active subscriptions to a temporary directory so that they can be restored automatically after a provider restarts, avoiding the need for consumers to re-\/subscribe.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md2}{}\doxysubsection{\texorpdfstring{Design}{Design}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md2}
+RBus is structured as a layered C library with a clear separation between the public API, the core message-\/processing engine, the low-\/level transport, and supporting services. The public API ({\ttfamily \doxylink{rbus_8h}{rbus.\+h}}) exposes all provider and consumer operations through opaque handle types, hiding all routing and serialisation details from callers. Internally, the core layer ({\ttfamily rbuscore}) translates API calls into typed messages serialised with Message\+Pack and forwards them through the RT Message transport layer to {\ttfamily rtrouted}, which routes each message to the appropriate destination process. This hub-\/and-\/spoke topology means that every component connects only to the central daemon, with all message routing handled centrally.
+
+Northbound, the API layer presents a unified C interface covering property get/\+set and table management operations used in data model-\/driven middleware as well as event-\/driven patterns used by application and media middleware. Southbound, the RT Message transport layer provides the connection management, socket lifecycle, and message framing needed to communicate with {\ttfamily rtrouted}. Hardware-\/specific values are accessed by the provider component through its own HAL before being exposed via the data model.
+
+Data persistence is handled externally. RBus itself writes subscription state to a temporary directory ({\ttfamily RBUS\+\_\+\+TMP\+\_\+\+DIRECTORY}, default {\ttfamily /\+tmp}) so that subscriptions survive provider restarts. Persistent parameter values are the responsibility of each provider component, which may use the platform\textquotesingle{}s persistent storage facilities independently of RBus.
+
+
+\begin{DoxyImageNoCaption}%
+  \doxymbox{\includegraphics[width=\textwidth,height=\textheight/2,keepaspectratio=true]{inline_mermaid_1.pdf}}%
+\end{DoxyImageNoCaption}
+
+
+The northbound interface is the C API defined in {\ttfamily \doxylink{rbus_8h}{rbus.\+h}}, which components include to open connections, register data elements, and invoke or respond to remote operations. The southbound interface is the {\ttfamily rt\+Connection} abstraction, which wraps the socket-\/level communication with {\ttfamily rtrouted}. The session manager service ({\ttfamily rbus\+\_\+session\+\_\+mgr}) is a separate process that communicates with other components exclusively over RBus method calls, providing session-\/\+ID allocation without any dedicated IPC channel.\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md3}{}\doxysubsubsection{\texorpdfstring{Threading Model}{Threading Model}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md3}
+
+\begin{DoxyItemize}
+\item {\bfseries{Threading Architecture}}: Multi-\/threaded with per-\/handle and per-\/element synchronisation.
+\item {\bfseries{Caller Threads}}: Call synchronous APIs such as {\ttfamily \doxylink{group___initialization_gacf19c7e46ff9c2353892f5918310b264}{rbus\+\_\+open}}, {\ttfamily \doxylink{group___consumers_ga4784460070e869774b9ed69d1b309571}{rbus\+\_\+get}}, {\ttfamily \doxylink{group___consumers_ga69f715cea76a0ea395c416a0a0bbe19b}{rbus\+\_\+set}}, {\ttfamily \doxylink{group___providers_ga58d4e15c31e566321fcbf96e4b4deace}{rbus\+\_\+reg\+Data\+Elements}}, and {\ttfamily \doxylink{group___initialization_ga9ccb6de1c606f5ac59dbc3a5a2ad0dd0}{rbus\+\_\+close}}. Only global handle-\/list operations and related callbacks are serialised with a process-\/wide mutex ({\ttfamily g\+Mutex}); most other concurrency control is handled via per-\/handle/\+per-\/element locks.
+\item {\bfseries{Worker Threads}}:
+\begin{DoxyItemize}
+\item {\itshape Callback Thread} (one per {\ttfamily rt\+Connection}): Reads inbound messages from the socket and dispatches them to registered handlers. Created and managed within {\ttfamily rt\+Connection.\+c}.
+\item {\itshape Thread Pool Workers} ({\ttfamily rt\+Thread\+Pool}): Processes asynchronous tasks submitted by the callback thread, including async method responses and subscription deliveries.
+\item {\itshape Value Change Detector Thread}: Polls registered property nodes at a fixed 2000 ms interval to detect value changes and trigger {\ttfamily \doxylink{group___events_gga8572487d31c269212da91488e8eb33b9a433ddaf617d8570b2afd8a46dcabeefe}{RBUS\+\_\+\+EVENT\+\_\+\+VALUE\+\_\+\+CHANGED}} notifications to active subscribers.
+\item {\itshape Async Subscribe Thread}: Manages subscription retry logic, backing off up to 60 000 ms between retries within a 600 000 ms total timeout window.
+\end{DoxyItemize}
+\item {\bfseries{Synchronization}}: Per-\/handle mutexes ({\ttfamily handle\+\_\+event\+Subs\+Mutex}, {\ttfamily handle\+\_\+subs\+Mutex}) protect the consumer and provider subscription lists respectively. Per-\/element mutexes ({\ttfamily elm\+Mutex}) serialise access to individual element nodes in the registration tree.
+\end{DoxyItemize}\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md4}{}\doxysubsubsection{\texorpdfstring{Prerequisites and Dependencies}{Prerequisites and Dependencies}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md4}
+{\bfseries{Build-\/\+Time Configurations:}}
+
+
+\begin{DoxyTable}{4}{}{}{1}
+\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}CMake Option  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Build Flag  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Purpose  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Default  \\
+{\ttfamily MSG\+\_\+\+ROUNDTRIP\+\_\+\+TIME=ON}  &{\ttfamily MSG\+\_\+\+ROUNDTRIP\+\_\+\+TIME=1}  &Records per-\/message round-\/trip timestamps for latency diagnostics in {\ttfamily rtrouted}  &OFF (ON when {\ttfamily BUILD\+\_\+\+FOR\+\_\+\+DESKTOP=ON})  \\
+{\ttfamily WITH\+\_\+\+SPAKE2=ON}  &{\ttfamily WITH\+\_\+\+SPAKE2=1}  &Enables SPAKE2+ key-\/exchange cipher between {\ttfamily rtrouted} and clients  &OFF  \\
+{\ttfamily ENABLE\+\_\+\+ADDRESS\+\_\+\+SANITIZER=ON}  &{\ttfamily -\/fsanitize=address}  &Enables Address\+Sanitizer for memory-\/error detection during development  &OFF  \\
+{\ttfamily ENABLE\+\_\+\+RDKLOGGER=ON}  &{\ttfamily ENABLE\+\_\+\+RDKLOGGER}  &Routes internal log output through the RDK Logger instead of the built-\/in {\ttfamily rt\+Log} handler  &OFF  \\
+{\ttfamily BUILD\+\_\+\+RBUS\+\_\+\+DAEMON=ON}  &—  &Builds the {\ttfamily rtrouted} daemon; also builds {\ttfamily rbus\+\_\+session\+\_\+mgr} when {\ttfamily BUILD\+\_\+\+ONLY\+\_\+\+RTMESSAGE=OFF}  &ON  \\
+{\ttfamily BUILD\+\_\+\+ONLY\+\_\+\+RTMESSAGE=ON}  &—  &Builds only the RT Message transport layer, omitting the RBus API and core layers  &OFF  \\
+{\ttfamily BUILD\+\_\+\+FOR\+\_\+\+DESKTOP=ON}  &—  &Configures the build for a Linux desktop host, fetching and linking {\ttfamily linenoise} as an External\+Project  &OFF  \\
+\end{DoxyTable}
+
+
+{\bfseries{Platform and Integration Requirements:}}
+
+
+\begin{DoxyItemize}
+\item {\bfseries{Build Dependencies}}: c\+JSON library (required for all builds). On non-\/desktop builds, Message\+Pack ({\ttfamily msgpack-\/c}) and {\ttfamily linenoise} are required unless {\ttfamily BUILD\+\_\+\+ONLY\+\_\+\+RTMESSAGE=ON}; for {\ttfamily BUILD\+\_\+\+FOR\+\_\+\+DESKTOP=ON}, CMake always requires Message\+Pack and fetches/\+builds {\ttfamily linenoise}.
+\item {\bfseries{Systemd Services}}: {\ttfamily rbus.\+service} (launches {\ttfamily rtrouted}) must be active before any RBus-\/connected component starts. A session manager service ({\ttfamily rbus\+\_\+session\+\_\+mgr.\+service} or {\ttfamily rbus\+\_\+sessmgr\+\_\+rdkv.\+service}, depending on the platform) must also be running for session-\/based set operations.
+\item {\bfseries{Configuration Files}}: Platform-\/specific router configuration (e.\+g., {\ttfamily rbus\+\_\+rdkv.\+conf}) may override systemd {\ttfamily Exec\+Start} arguments via {\ttfamily RTROUTER\+\_\+\+OPTIONAL\+\_\+\+ARGS}. Client configurations that need to reach {\ttfamily rtrouted} over TCP specify the address {\ttfamily tcp:/\+/\+127.0.\+0.\+1:10001} explicitly.
+\item {\bfseries{Temporary Storage}}: The subscription cache and runtime socket files are stored under {\ttfamily /\+tmp}. The {\ttfamily conf/\+rbus.\+service} {\ttfamily Exec\+Stop\+Post} writes a stop marker to {\ttfamily /\+tmp/\+rbus\+\_\+stopped} (it does not remove {\ttfamily /\+tmp/\+rtrouted\texorpdfstring{$\ast$}{*}} artifacts).
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md6}{}\doxysubsubsection{\texorpdfstring{Component State Flow}{Component State Flow}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md6}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md7}{}\doxysubsubsubsection{\texorpdfstring{Initialization to Active State}{Initialization to Active State}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md7}
+RBus transitions through a structured sequence from daemon startup through element registration to active message processing. The {\ttfamily rtrouted} daemon must be fully running before any component calls {\ttfamily \doxylink{group___initialization_gacf19c7e46ff9c2353892f5918310b264}{rbus\+\_\+open}}. The session manager connects to the daemon over RBus itself, so it blocks internally until the daemon is available even when started concurrently.
+
+
+\begin{DoxyImageNoCaption}%
+  \doxymbox{\includegraphics[width=\textwidth,height=\textheight/2,keepaspectratio=true]{inline_mermaid_2.pdf}}%
+\end{DoxyImageNoCaption}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md8}{}\doxysubsubsubsection{\texorpdfstring{Runtime State Changes}{Runtime State Changes}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md8}
+{\bfseries{State Change Triggers:}}
+
+
+\begin{DoxyItemize}
+\item A consumer calling {\ttfamily \doxylink{group___events_gab5889c0424ae3e4efb9208de22b92835}{rbus\+Event\+\_\+\+Subscribe}} causes the provider to record the subscription and begin detecting value changes or accepting event publications for that subscriber.
+\item A subscriber process crash or clean disconnect triggers {\ttfamily rbus\+Subscriptions\+\_\+handle\+Client\+Disconnect}, which removes all subscriptions associated with that listener address without requiring explicit unsubscribe calls.
+\item A provider process restart causes {\ttfamily rtrouted} to signal its clients; pending subscriptions are restored from the subscription cache file in {\ttfamily /\+tmp} when the provider re-\/registers its elements.
+\item Under high message load, the thread pool in the transport layer absorbs bursty traffic through queuing, maintaining consistent component behavior.
+\end{DoxyItemize}
+
+{\bfseries{Context Switching Scenarios:}}
+
+
+\begin{DoxyItemize}
+\item When a component calls {\ttfamily \doxylink{group___initialization_ga9ccb6de1c606f5ac59dbc3a5a2ad0dd0}{rbus\+\_\+close}}, all registered elements are de-\/registered, all provider-\/side subscriptions are cleaned up, and the {\ttfamily rt\+Connection} to {\ttfamily rtrouted} is torn down.
+\item A component may hold up to {\ttfamily RBUS\+\_\+\+MAX\+\_\+\+HANDLES} (16) simultaneous open handles, allowing a single process to register elements under multiple logical component names.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md10}{}\doxysubsubsection{\texorpdfstring{Call Flows}{Call Flows}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md10}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md11}{}\doxysubsubsubsection{\texorpdfstring{Request Processing Call Flow}{Request Processing Call Flow}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md11}
+Property get and set operations follow a synchronous request-\/response pattern. The RBus API serialises the request using Message\+Pack, routes it through {\ttfamily rtrouted} to the provider process, and blocks until the provider returns a value or an error.
+
+
+\begin{DoxyImageNoCaption}%
+  \doxymbox{\includegraphics[width=\textwidth,height=\textheight/2,keepaspectratio=true]{inline_mermaid_3.pdf}}%
+\end{DoxyImageNoCaption}
+
+
+\DoxyHorRuler{0}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md13}{}\doxysubsection{\texorpdfstring{Internal Modules}{Internal Modules}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md13}
+
+\begin{DoxyTable}{3}{}{}{1}
+\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Module / Class  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Description  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Key Files  \\
+{\bfseries{RBus API Layer}}  &Public C interface for all provider and consumer operations. Implements {\ttfamily \doxylink{group___initialization_gacf19c7e46ff9c2353892f5918310b264}{rbus\+\_\+open}}, {\ttfamily \doxylink{group___initialization_ga9ccb6de1c606f5ac59dbc3a5a2ad0dd0}{rbus\+\_\+close}}, {\ttfamily \doxylink{group___consumers_ga4784460070e869774b9ed69d1b309571}{rbus\+\_\+get}}, {\ttfamily \doxylink{group___consumers_ga69f715cea76a0ea395c416a0a0bbe19b}{rbus\+\_\+set}}, {\ttfamily \doxylink{group___providers_ga58d4e15c31e566321fcbf96e4b4deace}{rbus\+\_\+reg\+Data\+Elements}}, {\ttfamily \doxylink{group___events_gab5889c0424ae3e4efb9208de22b92835}{rbus\+Event\+\_\+\+Subscribe}}, {\ttfamily \doxylink{group___events_gac29791ff3418ef6cd6e24aff209a6f8a}{rbus\+Event\+\_\+\+Publish}}, {\ttfamily rbus\+\_\+invoke\+Remote\+Method}, and table management. Translates API calls into core-\/layer operations and handles legacy data-\/type compatibility.  &{\ttfamily rbus.\+c}, {\ttfamily \doxylink{rbus_8h}{rbus.\+h}}  \\
+{\bfseries{Handle Management}}  &Maintains a process-\/wide list of at most 16 open {\ttfamily \doxylink{group___common_gaaed81eae245cefcc40d7b82d136364af}{rbus\+Handle\+\_\+t}} instances. Each handle tracks the component name, element registration tree root, consumer event-\/subscription list, provider subscription registry, and the underlying {\ttfamily rt\+Connection}.  &{\ttfamily rbus\+\_\+handle.\+c}, {\ttfamily rbus\+\_\+handle.\+h}  \\
+{\bfseries{Element Registry}}  &Stores registered data model elements in an in-\/process tree ({\ttfamily element\+Node}). Each node carries the element type, callback table, subscription list, last-\/change metadata, and a per-\/element mutex. Supports insertion, retrieval by exact name, wildcard traversal, and table row instantiation/\+deletion.  &{\ttfamily rbus\+\_\+element.\+c}, {\ttfamily rbus\+\_\+element.\+h}  \\
+{\bfseries{RBus Core Engine}}  &Translates high-\/level API operations into typed wire messages and invokes the RT Message transport. Implements object registration ({\ttfamily rbus\+\_\+register\+Obj}), element management ({\ttfamily rbus\+\_\+add\+Element}), method registration, event registration, and the synchronous/\+asynchronous RPC primitives ({\ttfamily rbus\+\_\+invoke\+Remote\+Method}).  &{\ttfamily rbuscore.\+c}, {\ttfamily rbuscore.\+h}, {\ttfamily rbuscore\+\_\+message.\+c}, {\ttfamily rbuscore\+\_\+message.\+h}  \\
+{\bfseries{RT Message Transport}}  &Low-\/level message framing, socket management, and connection lifecycle. {\ttfamily rtrouted.\+c} is the standalone routing daemon that maintains a routing tree of all registered component names and element paths. {\ttfamily rt\+Connection.\+c} provides the per-\/process client connection, including a dedicated callback thread for inbound messages.  &{\ttfamily rtrouted.\+c}, {\ttfamily rt\+Connection.\+c}, {\ttfamily rt\+Message.\+c}, {\ttfamily rt\+Socket.\+c}, {\ttfamily rt\+Routing\+Tree.\+c}  \\
+{\bfseries{Thread Pool}}  &Fixed-\/size worker thread pool used by the transport layer to process inbound message callbacks concurrently without blocking the network I/\+O thread.  &{\ttfamily rt\+Thread\+Pool.\+c}, {\ttfamily rt\+Thread\+Pool.\+h}  \\
+{\bfseries{Event System}}  &Manages provider-\/side subscription registrations keyed by {\ttfamily \+[listener, event\+Name, filter]}. Persists subscription state to a file under {\ttfamily /\+tmp} for recovery after provider restarts. Handles table-\/row-\/added and table-\/row-\/removed subscriptions automatically.  &{\ttfamily rbus\+\_\+subscriptions.\+c}, {\ttfamily rbus\+\_\+subscriptions.\+h}  \\
+{\bfseries{Async Subscribe}}  &Implements the consumer-\/side retry loop for {\ttfamily \doxylink{group___events_gab3cf21821b5289220c08d8fd62189edb}{rbus\+Event\+\_\+\+Subscribe\+Async}}. Retries failed subscriptions with exponential back-\/off up to {\ttfamily RBUS\+\_\+\+SUBSCRIBE\+\_\+\+MAXWAIT} (60 000 ms) within a total window of {\ttfamily RBUS\+\_\+\+SUBSCRIBE\+\_\+\+TIMEOUT} (600 000 ms).  &{\ttfamily rbus\+\_\+asyncsubscribe.\+c}, {\ttfamily rbus\+\_\+asyncsubscribe.\+h}  \\
+{\bfseries{Value Change Detector}}  &Polls properties registered by active value-\/change subscribers at a fixed 2000 ms period. Compares the current provider-\/returned value against the cached previous value and calls {\ttfamily \doxylink{group___events_gac29791ff3418ef6cd6e24aff209a6f8a}{rbus\+Event\+\_\+\+Publish}} when a change is detected.  &{\ttfamily rbus\+\_\+valuechange.\+c}, {\ttfamily rbus\+\_\+valuechange.\+h}  \\
+{\bfseries{Interval Subscription}}  &Delivers periodic {\ttfamily \doxylink{group___events_gga8572487d31c269212da91488e8eb33b9a7c87c82dd764272760bd73c350400931}{RBUS\+\_\+\+EVENT\+\_\+\+INTERVAL}} events to subscribers that request time-\/based updates at a specified interval in milliseconds.  &{\ttfamily rbus\+\_\+intervalsubscription.\+c}, {\ttfamily rbus\+\_\+intervalsubscription.\+h}  \\
+{\bfseries{Value Management}}  &Reference-\/counted variant type ({\ttfamily \doxylink{group__rbus_value_ga3433391cb2f7a4e2a85608ac9476fff6}{rbus\+Value\+\_\+t}}) covering all supported data types: boolean, char, byte, int8/\+16/\+32/\+64, uint8/\+16/\+32/\+64, float, double, datetime, string, byte array, property, and object. All instances are non-\/thread-\/safe by design; callers are responsible for synchronisation.  &{\ttfamily rbus\+\_\+value.\+c}, {\ttfamily \doxylink{rbus__value_8h}{rbus\+\_\+value.\+h}}, {\ttfamily rbus\+\_\+property.\+c}, {\ttfamily \doxylink{rbus__property_8h}{rbus\+\_\+property.\+h}}, {\ttfamily rbus\+\_\+object.\+c}, {\ttfamily \doxylink{rbus__object_8h}{rbus\+\_\+object.\+h}}  \\
+{\bfseries{Filter}}  &Optional subscription filter attached at subscribe time. The provider evaluates the filter before delivering events, reducing unnecessary deliveries to consumers.  &{\ttfamily rbus\+\_\+filter.\+c}, {\ttfamily \doxylink{rbus__filter_8h}{rbus\+\_\+filter.\+h}}  \\
+{\bfseries{Session Manager}}  &Standalone service process that serialises multi-\/step set sessions. Exposes {\ttfamily RBUS\+\_\+\+SMGR\+\_\+\+METHOD\+\_\+\+REQUEST\+\_\+\+SESSION\+\_\+\+ID} and {\ttfamily RBUS\+\_\+\+SMGR\+\_\+\+METHOD\+\_\+\+GET\+\_\+\+CURRENT\+\_\+\+SESSION\+\_\+\+ID} as RBus methods, and publishes a general event ({\ttfamily current\+Session\+IDSignal}) when the active session changes.  &{\ttfamily session\+\_\+manager.\+c}, {\ttfamily rbus\+\_\+session\+\_\+mgr.\+h}  \\
+{\bfseries{Cipher (SPAKE2+)}}  &Optional message encryption layer built on the SPAKE2+ password-\/authenticated key-\/exchange protocol. Encrypts message payloads between {\ttfamily rtrouted} and clients when enabled at compile time.  &{\ttfamily rt\+Cipher.\+c}, {\ttfamily rt\+Cipher.\+h}  \\
+{\bfseries{Logging}}  &Dual-\/backend logging abstraction: selects between the built-\/in {\ttfamily rt\+Log} handler and the platform RDK Logger at build time or at runtime via {\ttfamily rt\+Log\+\_\+\+Set\+Option}. Supports five levels: DEBUG, INFO, WARN, ERROR, FATAL.  &{\ttfamily rt\+Log.\+c}, {\ttfamily rt\+Log.\+h}, {\ttfamily rbus\+\_\+log.\+h}  \\
+\end{DoxyTable}
+
+
+\DoxyHorRuler{0}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md15}{}\doxysubsection{\texorpdfstring{Component Interactions}{Component Interactions}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md15}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md16}{}\doxysubsubsection{\texorpdfstring{Events Published}{Events Published}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md16}
+
+\begin{DoxyTable}{5}{}{}{1}
+\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Event Name / Type  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Event Path / Name  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Trigger Condition  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Payload  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Subscriber Components  \\
+{\ttfamily \doxylink{group___events_gga8572487d31c269212da91488e8eb33b9a433ddaf617d8570b2afd8a46dcabeefe}{RBUS\+\_\+\+EVENT\+\_\+\+VALUE\+\_\+\+CHANGED}}  &{\ttfamily \{element.\+path\}}  &A registered property value changes, detected by the value-\/change polling thread  &{\ttfamily \{name, type=VALUE\+\_\+\+CHANGED, data=\{value\}\}}  &Any subscriber to that element path  \\
+{\ttfamily \doxylink{group___events_gga8572487d31c269212da91488e8eb33b9af4fcd18da8c8186f6a731f551557f1d0}{RBUS\+\_\+\+EVENT\+\_\+\+OBJECT\+\_\+\+CREATED}}  &{\ttfamily \{table.\+path\}}  &A new table row instance is added to a registered table element  &{\ttfamily \{name, type=OBJECT\+\_\+\+CREATED, data=\{inst\+Num, alias\}\}}  &Subscribers to the table path  \\
+{\ttfamily \doxylink{group___events_gga8572487d31c269212da91488e8eb33b9ade6bf62371a6ee6c9d5b3eb7d12f9419}{RBUS\+\_\+\+EVENT\+\_\+\+OBJECT\+\_\+\+DELETED}}  &{\ttfamily \{table.\+path\}}  &A table row instance is removed from a registered table element  &{\ttfamily \{name, type=OBJECT\+\_\+\+DELETED, data=\{inst\+Num\}\}}  &Subscribers to the table path  \\
+{\ttfamily \doxylink{group___events_gga8572487d31c269212da91488e8eb33b9a8864f6f4a367453b8fc5b6c71fae4399}{RBUS\+\_\+\+EVENT\+\_\+\+GENERAL}}  &Provider-\/defined name  &Provider explicitly calls {\ttfamily \doxylink{group___events_gac29791ff3418ef6cd6e24aff209a6f8a}{rbus\+Event\+\_\+\+Publish}}  &Provider-\/defined {\ttfamily \doxylink{group__rbus_object_ga21587678b0f1f9fb559a9bc9bae8a59c}{rbus\+Object\+\_\+t}} payload  &Any subscriber to that event name  \\
+{\ttfamily \doxylink{group___events_gga8572487d31c269212da91488e8eb33b9a7c87c82dd764272760bd73c350400931}{RBUS\+\_\+\+EVENT\+\_\+\+INTERVAL}}  &Provider-\/defined name  &Elapsed interval timer fires  &Provider-\/defined {\ttfamily \doxylink{group__rbus_object_ga21587678b0f1f9fb559a9bc9bae8a59c}{rbus\+Object\+\_\+t}} payload  &Subscribers that specified an interval  \\
+{\ttfamily current\+Session\+IDSignal}  &{\ttfamily current\+Session\+IDSignal}  &Session Manager creates or closes a session  &{\ttfamily \{return\+\_\+value, sessionid\}} (int32)  &Components using session-\/based set operations  \\
+Advisory: client connected / disconnected  &Internal advisory topic  &A component calls {\ttfamily \doxylink{group___initialization_gacf19c7e46ff9c2353892f5918310b264}{rbus\+\_\+open}} or {\ttfamily \doxylink{group___initialization_ga9ccb6de1c606f5ac59dbc3a5a2ad0dd0}{rbus\+\_\+close}}  &Client identifier  &Internal subscription cleanup handlers  \\
+\end{DoxyTable}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md17}{}\doxysubsubsection{\texorpdfstring{IPC Flow Patterns}{IPC Flow Patterns}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md17}
+{\bfseries{Primary Request / Response Flow — Property Get:}}
+
+
+\begin{DoxyImageNoCaption}%
+  \doxymbox{\includegraphics[width=\textwidth,height=\textheight/2,keepaspectratio=true]{inline_mermaid_4.pdf}}%
+\end{DoxyImageNoCaption}
+
+
+{\bfseries{Event Notification Flow — Value Change:}}
+
+
+\begin{DoxyImageNoCaption}%
+  \doxymbox{\includegraphics[width=\textwidth,height=\textheight/2,keepaspectratio=true]{inline_mermaid_5.pdf}}%
+\end{DoxyImageNoCaption}
+
+
+{\bfseries{Async Method Invocation Flow:}}
+
+
+\begin{DoxyImageNoCaption}%
+  \doxymbox{\includegraphics[width=\textwidth,height=\textheight/2,keepaspectratio=true]{inline_mermaid_6.pdf}}%
+\end{DoxyImageNoCaption}
+
+
+\DoxyHorRuler{0}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md19}{}\doxysubsection{\texorpdfstring{Implementation Details}{Implementation Details}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md19}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md20}{}\doxysubsubsection{\texorpdfstring{Key Implementation Logic}{Key Implementation Logic}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md20}
+
+\begin{DoxyItemize}
+\item {\bfseries{Handle and Element Lifecycle}}: {\ttfamily \doxylink{group___initialization_gacf19c7e46ff9c2353892f5918310b264}{rbus\+\_\+open}} allocates a {\ttfamily \+\_\+rbus\+Handle} structure, establishes the {\ttfamily rt\+Connection} to {\ttfamily rtrouted}, registers the component name, and initialises an empty element tree and subscription registries. {\ttfamily \doxylink{group___initialization_ga9ccb6de1c606f5ac59dbc3a5a2ad0dd0}{rbus\+\_\+close}} reverses this sequence, de-\/registering all elements, cleaning up subscriptions, and releasing the connection. Up to 16 handles may be open simultaneously per process ({\ttfamily RBUS\+\_\+\+MAX\+\_\+\+HANDLES}). Core implementation in {\ttfamily rbus.\+c} and {\ttfamily rbus\+\_\+handle.\+c}; element tree operations in {\ttfamily rbus\+\_\+element.\+c}.
+\item {\bfseries{Event Processing}}: Provider-\/side subscriptions are stored in {\ttfamily rbus\+Subscriptions\+\_\+t}, serialised to a file in {\ttfamily /\+tmp} under the component name for crash recovery. When a provider restarts and re-\/registers its elements, {\ttfamily rbus\+Subscriptions\+\_\+resubscribe\+Element\+Cache} reloads the file and re-\/activates matching subscriptions. Consumer-\/side subscriptions are stored in the handle\textquotesingle{}s {\ttfamily event\+Subs} vector; disconnecting subscribers are cleaned up automatically via {\ttfamily rbus\+Subscriptions\+\_\+handle\+Client\+Disconnect} when {\ttfamily rtrouted} delivers a client-\/disconnect advisory. Subscription retry for async subscriptions is managed in {\ttfamily rbus\+\_\+asyncsubscribe.\+c} with back-\/off up to {\ttfamily RBUS\+\_\+\+SUBSCRIBE\+\_\+\+MAXWAIT}.
+\item {\bfseries{Error Handling Strategy}}: The {\ttfamily \doxylink{group___common_ga8fc1f9c96c061b20db5e56188296c8ef}{rbus\+Error\+\_\+t}} enumeration covers all error conditions from transport failures ({\ttfamily \doxylink{group___common_gga5db8b0d14b831805c31bbf454b7a935aa73fa6a352bc465672bb6dfd2b0271ead}{RBUS\+\_\+\+ERROR\+\_\+\+DESTINATION\+\_\+\+NOT\+\_\+\+FOUND}}, {\ttfamily \doxylink{group___common_gga5db8b0d14b831805c31bbf454b7a935aacc9db1e50b8109fa8c91744d52000638}{RBUS\+\_\+\+ERROR\+\_\+\+DESTINATION\+\_\+\+NOT\+\_\+\+REACHABLE}}) to validation errors ({\ttfamily \doxylink{group___common_gga5db8b0d14b831805c31bbf454b7a935aa9a1547d7a456c5a71f40dca3dc933ecd}{RBUS\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+INPUT}}, {\ttfamily \doxylink{group___common_gga5db8b0d14b831805c31bbf454b7a935aa8c5f052671250be982fd245e4c69509c}{RBUS\+\_\+\+ERROR\+\_\+\+INVALID\+\_\+\+PARAMETER\+\_\+\+TYPE}}) and access control rejections ({\ttfamily \doxylink{group___common_gga5db8b0d14b831805c31bbf454b7a935aab95268db5752e57383de180c77d78fc9}{RBUS\+\_\+\+ERROR\+\_\+\+ACCESS\+\_\+\+NOT\+\_\+\+ALLOWED}}, {\ttfamily \doxylink{group___common_gga5db8b0d14b831805c31bbf454b7a935aac4125cfdc40b04fdee894b6be3993379}{RBUS\+\_\+\+ERROR\+\_\+\+NOT\+\_\+\+WRITABLE}}). Core-\/layer {\ttfamily rbus\+Core\+Error\+\_\+t} values are mapped to {\ttfamily \doxylink{group___common_ga8fc1f9c96c061b20db5e56188296c8ef}{rbus\+Error\+\_\+t}} by {\ttfamily rbus\+Core\+Error\+\_\+to\+\_\+rbus\+Error()} in {\ttfamily rbus.\+c}. Timeout handling uses {\ttfamily \doxylink{group___common_gga5db8b0d14b831805c31bbf454b7a935aab4d44c7302674778282781128274393b}{RBUS\+\_\+\+ERROR\+\_\+\+TIMEOUT}}; asynchronous method handlers that defer processing return {\ttfamily \doxylink{group___common_gga5db8b0d14b831805c31bbf454b7a935aa9db57791261df9863366b7b495bcd751}{RBUS\+\_\+\+ERROR\+\_\+\+ASYNC\+\_\+\+RESPONSE}}.
+\item {\bfseries{Logging and Diagnostics}}: The logging subsystem ({\ttfamily rt\+Log}) supports DEBUG, INFO, WARN, ERROR, and FATAL levels, selectable at runtime via {\ttfamily rt\+Log\+\_\+\+Set\+Level}. The backend can be switched between the built-\/in handler and the RDK Logger via {\ttfamily rt\+Log\+\_\+\+Set\+Option}. The {\ttfamily rbuscli} interactive utility ({\ttfamily utils/\+rbuscli/}) allows operators to register data model elements, execute get/\+set/\+method/\+subscribe operations, and observe event deliveries from a shell, providing a diagnostic surface for integration testing and field debugging. When {\ttfamily MSG\+\_\+\+ROUNDTRIP\+\_\+\+TIME} is enabled, {\ttfamily rtrouted} records per-\/message entry and exit timestamps accessible via the {\ttfamily RTROUTED\+\_\+\+TRANSACTION\+\_\+\+TIME\+\_\+\+INFO} field.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md22}{}\doxysubsection{\texorpdfstring{Configuration}{Configuration}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md22}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md23}{}\doxysubsubsection{\texorpdfstring{Key Configuration Files}{Key Configuration Files}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md23}
+
+\begin{DoxyTable}{3}{}{}{1}
+\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Configuration File  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Purpose  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Override Mechanism  \\
+{\ttfamily /\+usr/\+lib/\+systemd/\+system/\+rbus.service}  &Launches {\ttfamily rtrouted} as a forking service. {\ttfamily Exec\+Stop\+Post} writes {\ttfamily 0} to {\ttfamily /\+tmp/\+rbus\+\_\+stopped}.  &{\ttfamily RTROUTER\+\_\+\+OPTIONAL\+\_\+\+ARGS} environment variable in {\ttfamily Exec\+Start}  \\
+{\ttfamily /\+usr/\+lib/\+systemd/\+system/\+rbus\+\_\+session\+\_\+mgr.service}  &Launches {\ttfamily rbus\+\_\+session\+\_\+mgr} ordered {\ttfamily After=rbus.\+service}. Blocks internally until {\ttfamily rtrouted} is available.  &Systemd drop-\/in overrides  \\
+{\ttfamily /\+usr/\+lib/\+systemd/\+system/\+rbus\+\_\+sessmgr\+\_\+rdkv.service}  &Alternate session manager service unit ordered {\ttfamily Before=rbus.\+service}, used on platforms where the session manager must be present before daemon startup.  &Systemd drop-\/in overrides  \\
+{\ttfamily /\+etc/\+rbus/\+rbus\+\_\+rdkv.conf} (or equivalent platform conf)  &Provides router startup arguments and service identity for {\ttfamily rtrouted}. Sets {\ttfamily Syslog\+Identifier} and {\ttfamily Restart=always}. Ordered {\ttfamily After=nvram.\+service}.  &Platform image build  \\
+{\ttfamily /\+tmp/\+rtrouted\texorpdfstring{$\ast$}{*}}  &Runtime socket and pid/\+log files created by {\ttfamily rtrouted} at startup (e.\+g., {\ttfamily /\+tmp/\+rtrouted}, {\ttfamily /\+tmp/\+rtrouted.pid}). The {\ttfamily conf/\+rbus.\+service} {\ttfamily Exec\+Stop\+Post} in this repo does not remove these artifacts.  &Managed by {\ttfamily rtrouted}  \\
+\end{DoxyTable}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md24}{}\doxysubsubsection{\texorpdfstring{Key Configuration Parameters}{Key Configuration Parameters}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md24}
+
+\begin{DoxyTable}{4}{}{}{1}
+\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Parameter  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Source  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Default  &\SetCell{c,bg=\tableheadbgcolor,font=\bfseries}Description  \\
+{\ttfamily RBUS\+\_\+\+MAX\+\_\+\+HANDLES}  &{\ttfamily rbus\+\_\+handle.\+h}  &16  &Maximum number of simultaneously open {\ttfamily \doxylink{group___common_gaaed81eae245cefcc40d7b82d136364af}{rbus\+Handle\+\_\+t}} instances per process  \\
+{\ttfamily MAX\+\_\+\+REGISTERED\+\_\+\+OBJECTS}  &{\ttfamily rbuscore.\+h}  &64  &Maximum number of objects a single component may register  \\
+{\ttfamily MAX\+\_\+\+SUPPORTED\+\_\+\+METHODS}  &{\ttfamily rbuscore.\+h}  &32  &Maximum number of methods per registered object  \\
+{\ttfamily \doxylink{group___common_ga45e7c239d118b46856da709edceb1bf4}{RBUS\+\_\+\+MAX\+\_\+\+NAME\+\_\+\+LENGTH}}  &{\ttfamily \doxylink{rbus_8h}{rbus.\+h}}  &256  &Maximum character length of any element name  \\
+{\ttfamily \doxylink{group___common_ga9c8ef2bafb8c56aa59b15fb0fe0d146b}{RBUS\+\_\+\+MAX\+\_\+\+NAME\+\_\+\+DEPTH}}  &{\ttfamily \doxylink{rbus_8h}{rbus.\+h}}  &16  &Maximum dot-\/separated depth of any element path  \\
+{\ttfamily RBUS\+\_\+\+SUBSCRIBE\+\_\+\+TIMEOUT}  &{\ttfamily rbus\+\_\+handle.\+h}  &600 000 ms  &Total async-\/subscribe retry window before the subscription is abandoned  \\
+{\ttfamily RBUS\+\_\+\+SUBSCRIBE\+\_\+\+MAXWAIT}  &{\ttfamily rbus\+\_\+handle.\+h}  &60 000 ms  &Maximum back-\/off interval between async-\/subscribe retry attempts  \\
+{\ttfamily RBUS\+\_\+\+VALUECHANGE\+\_\+\+PERIOD}  &{\ttfamily rbus\+\_\+handle.\+h}  &2 000 ms  &Polling interval used by the value-\/change detector thread  \\
+{\ttfamily RTMSG\+\_\+\+DEFAULT\+\_\+\+ROUTER\+\_\+\+LOCATION}  &{\ttfamily rt\+Connection.\+h}  &{\ttfamily tcp:/\+/\+127.0.\+0.\+1:10001}  &Default TCP address used by {\ttfamily rt\+Connection} to reach {\ttfamily rtrouted}  \\
+\end{DoxyTable}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md25}{}\doxysubsubsection{\texorpdfstring{Runtime Configuration}{Runtime Configuration}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md25}
+The router address used by client processes can be overridden at runtime by passing an {\ttfamily rt\+Message} configuration object (e.\+g., with {\ttfamily uri}) to {\ttfamily rt\+Connection\+\_\+\+Create\+With\+Config}. The {\ttfamily rbuscli} utility connects using the router configuration used by {\ttfamily \doxylink{group___initialization_gacf19c7e46ff9c2353892f5918310b264}{rbus\+\_\+open}}:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\#\ Start\ the\ interactive\ rbuscli\ tool}
+\DoxyCodeLine{rbuscli\ -\/i}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Register\ a\ property\ element\ as\ a\ provider}
+\DoxyCodeLine{>\ reg\ prop\ Device.Example.Parameter1}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Set\ and\ get\ the\ value\ as\ a\ consumer\ (from\ a\ second\ rbuscli\ session)}
+\DoxyCodeLine{>\ set\ Device.Example.Parameter1\ string\ "{}value"{}}
+\DoxyCodeLine{>\ get\ Device.Example.Parameter1}
+\DoxyCodeLine{}
+\DoxyCodeLine{\#\ Subscribe\ to\ value-\/change\ events}
+\DoxyCodeLine{>\ log\ events}
+\DoxyCodeLine{>\ sub\ Device.Example.Parameter1}
+
+\end{DoxyCode}
+\hypertarget{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md26}{}\doxysubsubsection{\texorpdfstring{Configuration Persistence}{Configuration Persistence}}\label{dir_49e56c817e5e54854c35e136979f97ca_autotoc_md26}
+Parameter value persistence is managed by each provider component independently. Subscription state is written to {\ttfamily /\+tmp} by {\ttfamily rbus\+\_\+subscriptions.\+c} to support provider process restarts within a boot session. This cache lives under {\ttfamily /\+tmp} (typically cleared on reboot) and is removed by the provider when no subscriptions remain. 
