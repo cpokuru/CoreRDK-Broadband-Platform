@@ -7,7 +7,7 @@ components and apps.
 
 IPC matrix:
   Component ↔ Component  →  rbus
-  Component ↔ App        →  rbus / USP UDS
+  App ↔ Component        →  rbus / USP UDS
   App        ↔ App        →  rbus / USP UDS
 
 Reference links:
@@ -135,7 +135,7 @@ def build_page() -> str:
         <td><span class="ipc-pill ipc-pill-rbus">rbus</span></td>
       </tr>
       <tr>
-        <td>Component &#8596; App</td>
+        <td>App &#8596; Component</td>
         <td>
           <span class="ipc-pill ipc-pill-rbus">rbus</span>
           <span style="color:var(--muted);margin:0 4px;">/</span>
