@@ -1,6 +1,6 @@
 """One-time generator for south-bound-apis.html.
 
-Same two-level pattern as gen_nbi_page.py (list -> click -> fetch raw JSON
+Same two-level pattern as gen_nbi_page.py (list -> click -> load local JSON
 from GitHub -> render), but for the rdkb-halif-* HAL interface repos instead
 of DML/TR-181 data. Unlike north-bound-apis.html, there's no separate
 "components/ethwan-router-components.json" backing list to join against --
@@ -35,7 +35,7 @@ from layout import render_hero, render_page
 SCRIPT = r"""
 <script>
 const REPO_MAP_JSON = 'hal-repos.json';
-const RAW_BASE = 'https://raw.githubusercontent.com/cpokuru/';
+const LOCAL_BASE = 'docs/llapis/'; // local mirror of cpokuru llapis repos
 
 function esc(s) {
   const d = document.createElement('div');
@@ -177,7 +177,7 @@ function loadHal(name) {
   const repoSlug = typeof raw === 'string' ? raw : raw.repo;
   const { repo, file, branch } = resolveRepoEntry(raw, repoSlug);
   const panel = document.getElementById('hal-panel');
-  const url = RAW_BASE + repo + '/' + branch + '/' + file;
+  const url = LOCAL_BASE + repo + '/' + file; // served from docs/llapis/<repo>/<file>
   panel.innerHTML = `
     <div class="subhead" style="margin-top:0;">${esc(name)} <span class="mono" style="font-weight:400;font-size:0.8rem;color:var(--muted);">// ${esc(repo)}</span></div>
     <p>Loading <code>${esc(url)}</code>…</p>`;
