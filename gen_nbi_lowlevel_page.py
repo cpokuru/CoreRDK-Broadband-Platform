@@ -194,12 +194,12 @@ def build_page() -> str:
          full protocol spec including the Unix Domain Socket (UDS) MTP used for
          local agent-to-controller and app-to-component communication.</p>
       <a class="ref-btn usp"
-         href="https://github.com/BroadbandForum/usp/tree/master/specification"
+         href="https://usp.technology/specification/index.html"
          target="_blank" rel="noopener">
         {_ICON_EXTLINK} BBF USP Specification on GitHub
       </a>
       <p class="ref-meta">
-        Source: <code>github.com/BroadbandForum/usp</code>&nbsp;&nbsp;
+        Source: <code>usp.technology</code>&nbsp;&nbsp;
         Standard: <code>TR-369</code>
       </p>
     </div>
